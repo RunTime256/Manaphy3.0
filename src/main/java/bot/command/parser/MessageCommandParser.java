@@ -3,11 +3,12 @@ package bot.command.parser;
 import bot.command.MessageCommand;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MessageCommandParser
 {
-    private Map<String, MessageCommand> commands;
+    private final Map<String, MessageCommand> commands;
 
     public MessageCommandParser()
     {
@@ -19,8 +20,23 @@ public class MessageCommandParser
         commands.put(command.getName(), command);
     }
 
-    public MessageCommand getCommand(String commandString)
+    public MessageCommand getCommand(List<String> vars)
     {
-        return null;
+        MessageCommand command = null;
+        Map<String, MessageCommand> subCommands = commands;
+        while (!vars.isEmpty())
+        {
+            MessageCommand sub = subCommands.get(vars.get(0));
+            if (sub == null)
+                break;
+
+            command = sub;
+            vars.remove(0);
+            subCommands = command.getSubCommands();
+            if (subCommands == null)
+                break;
+        }
+
+        return command;
     }
 }

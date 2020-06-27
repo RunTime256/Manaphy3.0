@@ -7,6 +7,8 @@ import org.javacord.api.listener.message.MessageCreateListener;
 import sql.Session;
 import sql.SessionFactory;
 
+import java.util.Arrays;
+import java.util.List;
 
 public class MessageCommandListener implements MessageCreateListener
 {
@@ -39,12 +41,13 @@ public class MessageCommandListener implements MessageCreateListener
                         botCommand && messageCreateEvent.getMessageAuthor().isBotUser() && messageCreateEvent.getMessageAuthor().isYourself()))
         {
             String commandString = message.substring(prefix.length());
-            MessageCommand command = parser.getCommand(commandString);
+            List<String> vars = Arrays.asList(commandString.split(" "));
+            MessageCommand command = parser.getCommand(vars);
             try (Session session = SessionFactory.getSession())
             {
                 try
                 {
-                    command.execute(session);
+                    command.execute(vars, session);
                     session.commit();
                 }
                 catch (Exception e)

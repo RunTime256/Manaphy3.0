@@ -3,6 +3,7 @@ package bot.command;
 import bot.command.executor.CommandExecutor;
 import sql.Session;
 
+import java.util.List;
 import java.util.Map;
 
 public class MessageCommand
@@ -25,14 +26,19 @@ public class MessageCommand
         this.executor = executor;
     }
 
-    public void execute(Session session)
+    public void execute(List<String> vars, Session session)
     {
-        executor.runCommand(session);
+        executor.runCommand(vars, session);
     }
 
     public String getName()
     {
         return name;
+    }
+
+    public Map<String, MessageCommand> getSubCommands()
+    {
+        return subCommands;
     }
 
     public static class MessageCommandBuilder
