@@ -1,9 +1,14 @@
 package bot;
 
 import bot.discord.Bot;
+import bot.discord.BotMapper;
 import bot.discord.listener.MessageCommandListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sql.Session;
+import sql.SessionFactory;
+
+import java.io.IOException;
 
 public class BotRunner
 {
@@ -11,15 +16,56 @@ public class BotRunner
 
     public static void main(String[] args)
     {
-        if (args.length != 2)
+        String name = getName(args);
+        if (name == null)
         {
-            logger.error("Provide bot token and prefix as arguments");
+            logger.error("Provide bot name as single argument");
             return;
         }
 
-        Bot bot = new Bot(args[0], args[1]);
-        addUserCommands(bot);
+        try
+        {
+            initDatabaseConfig();
+        }
+        catch (IOException ignored)
+        {
+            return;
+        }
+
+        Bot bot = getBot(name);
         bot.start();
+        addUserCommands(bot);
+    }
+
+    private static String getName(String[] args)
+    {
+        if (args.length != 1)
+            return null;
+        else
+            return args[0];
+    }
+
+    private static void initDatabaseConfig() throws IOException
+    {
+        try
+        {
+            SessionFactory.init("mybatis-config.xml");
+        }
+        catch (IOException e)
+        {
+            logger.error("Config file could not be found");
+            throw e;
+        }
+    }
+
+    private static Bot getBot(String name)
+    {
+        Bot bot;
+        try (Session session = SessionFactory.getSession())
+        {
+            bot = session.getMapper(BotMapper.class).getBot(name);
+        }
+        return bot;
     }
 
     private static void addUserCommands(Bot bot)

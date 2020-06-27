@@ -4,6 +4,8 @@ import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
+import sql.Session;
+import sql.SessionFactory;
 
 
 public class MessageCommandListener implements MessageCreateListener
@@ -38,6 +40,18 @@ public class MessageCommandListener implements MessageCreateListener
         {
             String commandString = message.substring(prefix.length());
             MessageCommand command = parser.getCommand(commandString);
+            try (Session session = SessionFactory.getSession())
+            {
+                try
+                {
+                    command.execute(session);
+                    session.commit();
+                }
+                catch (Exception e)
+                {
+                    session.rollback();
+                }
+            }
         }
     }
 }

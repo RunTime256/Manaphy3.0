@@ -1,5 +1,8 @@
 package bot.command;
 
+import bot.command.executor.CommandExecutor;
+import sql.Session;
+
 import java.util.Map;
 
 public class MessageCommand
@@ -9,15 +12,22 @@ public class MessageCommand
     private final String syntax;
     private final Map<String, MessageCommand> subCommands;
     private final MessageCommand parent;
+    private final CommandExecutor executor;
 
     private MessageCommand(String name, String description, String syntax,
-                           Map<String, MessageCommand> subCommands, MessageCommand parent)
+                           Map<String, MessageCommand> subCommands, MessageCommand parent, CommandExecutor executor)
     {
         this.name = name;
         this.description = description;
         this.syntax = syntax;
         this.subCommands = subCommands;
         this.parent = parent;
+        this.executor = executor;
+    }
+
+    public void execute(Session session)
+    {
+        executor.runCommand(session);
     }
 
     public String getName()
@@ -32,6 +42,7 @@ public class MessageCommand
         private String syntax;
         private Map<String, MessageCommand> subCommands;
         private MessageCommand parent;
+        private CommandExecutor executor;
 
         public MessageCommandBuilder(String name)
         {
@@ -62,9 +73,15 @@ public class MessageCommand
             return this;
         }
 
+        public MessageCommandBuilder executor(CommandExecutor executor)
+        {
+            this.executor = executor;
+            return this;
+        }
+
         public MessageCommand build()
         {
-            return new MessageCommand(name, description, syntax, subCommands, parent);
+            return new MessageCommand(name, description, syntax, subCommands, parent, executor);
         }
     }
 }

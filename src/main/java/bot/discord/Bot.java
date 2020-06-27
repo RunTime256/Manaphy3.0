@@ -6,12 +6,14 @@ import org.javacord.api.listener.message.MessageCreateListener;
 
 public class Bot
 {
-    private String token;
-    private String prefix;
+    private final String name;
+    private final String token;
+    private final String prefix;
     private DiscordApi api;
 
-    public Bot(String token, String prefix)
+    public Bot(String name, String token, String prefix)
     {
+        this.name = name;
         this.token = token;
         this.prefix = prefix;
     }
