@@ -1,6 +1,7 @@
 package bot.command;
 
 import bot.command.executor.CommandExecutor;
+import bot.command.verification.RoleRequirement;
 import sql.Session;
 
 import java.util.List;
@@ -11,16 +12,18 @@ public class MessageCommand
     private final String name;
     private final String description;
     private final String syntax;
+    private final RoleRequirement requirement;
     private final Map<String, MessageCommand> subCommands;
     private final MessageCommand parent;
     private final CommandExecutor executor;
 
-    private MessageCommand(String name, String description, String syntax,
+    private MessageCommand(String name, String description, String syntax, RoleRequirement requirement,
                            Map<String, MessageCommand> subCommands, MessageCommand parent, CommandExecutor executor)
     {
         this.name = name;
         this.description = description;
         this.syntax = syntax;
+        this.requirement = requirement;
         this.subCommands = subCommands;
         this.parent = parent;
         this.executor = executor;
@@ -36,6 +39,11 @@ public class MessageCommand
         return name;
     }
 
+    public RoleRequirement getRequirement()
+    {
+        return requirement;
+    }
+
     public Map<String, MessageCommand> getSubCommands()
     {
         return subCommands;
@@ -46,6 +54,7 @@ public class MessageCommand
         private final String name;
         private String description;
         private String syntax;
+        private RoleRequirement requirement;
         private Map<String, MessageCommand> subCommands;
         private MessageCommand parent;
         private CommandExecutor executor;
@@ -64,6 +73,12 @@ public class MessageCommand
         public MessageCommandBuilder syntax(String syntax)
         {
             this.syntax = syntax;
+            return this;
+        }
+
+        public MessageCommandBuilder requirement(RoleRequirement requirement)
+        {
+            this.requirement = requirement;
             return this;
         }
 
@@ -87,7 +102,7 @@ public class MessageCommand
 
         public MessageCommand build()
         {
-            return new MessageCommand(name, description, syntax, subCommands, parent, executor);
+            return new MessageCommand(name, description, syntax, requirement, subCommands, parent, executor);
         }
     }
 }

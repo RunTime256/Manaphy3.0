@@ -2,6 +2,9 @@ package bot.discord.listener;
 
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
+import bot.command.verification.RoleCheck;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import sql.Session;
@@ -9,6 +12,7 @@ import sql.SessionFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class MessageCommandListener implements MessageCreateListener
 {
@@ -43,7 +47,17 @@ public class MessageCommandListener implements MessageCreateListener
             String commandString = message.substring(prefix.length());
             List<String> vars = Arrays.asList(commandString.split(" "));
             MessageCommand command = parser.getCommand(vars);
-            try (Session session = SessionFactory.getSession())
+            DiscordApi api = messageCreateEvent.getApi();
+            Optional<User> optionalUser = messageCreateEvent.getMessageAuthor().asUser();
+            optionalUser.ifPresent(user -> executeCommand(api, user, vars, command));
+        }
+    }
+
+    private void executeCommand(DiscordApi api, User user, List<String> vars, MessageCommand command)
+    {
+        try (Session session = SessionFactory.getSession())
+        {
+            if (RoleCheck.hasPermission(session, api, user, command.getRequirement()))
             {
                 try
                 {
