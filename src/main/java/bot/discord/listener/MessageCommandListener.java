@@ -3,6 +3,7 @@ package bot.discord.listener;
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
+import bot.discord.message.DMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
@@ -76,6 +77,8 @@ public class MessageCommandListener implements MessageCreateListener
                 }
                 catch (Exception e)
                 {
+                    logger.fatal("Exception occurred", e);
+                    DMessage.sendMessage(info.getChannel(), e);
                     session.rollback();
                 }
             }
