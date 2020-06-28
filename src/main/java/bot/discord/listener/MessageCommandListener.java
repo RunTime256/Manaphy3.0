@@ -10,6 +10,7 @@ import org.javacord.api.listener.message.MessageCreateListener;
 import sql.Session;
 import sql.SessionFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class MessageCommandListener implements MessageCreateListener
                         botCommand && messageCreateEvent.getMessageAuthor().isBotUser() && messageCreateEvent.getMessageAuthor().isYourself()))
         {
             String commandString = message.substring(prefix.length());
-            List<String> vars = Arrays.asList(commandString.split(" "));
+            List<String> vars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
             MessageCommand command = parser.getCommand(vars);
             DiscordApi api = messageCreateEvent.getApi();
             Optional<User> optionalUser = messageCreateEvent.getMessageAuthor().asUser();

@@ -1,5 +1,6 @@
 package bot;
 
+import bot.command.definition.test.TestCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.listener.MessageCommandListener;
@@ -71,6 +72,7 @@ public class BotRunner
     private static void addUserCommands(Bot bot)
     {
         MessageCommandListener listener = new MessageCommandListener(bot.getPrefix());
+        listener.addCommand(TestCommand.createCommand());
         bot.addListener(listener);
     }
 }
