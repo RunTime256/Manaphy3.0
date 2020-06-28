@@ -2,6 +2,7 @@ package bot.command;
 
 import bot.command.executor.CommandExecutor;
 import bot.command.verification.RoleRequirement;
+import bot.discord.listener.MessageReceivedInformation;
 import sql.Session;
 
 import java.util.HashMap;
@@ -28,9 +29,9 @@ public class MessageCommand
         this.executor = executor;
     }
 
-    public void execute(List<String> vars, Session session)
+    public void execute(MessageReceivedInformation info, List<String> vars, Session session)
     {
-        executor.runCommand(vars, session);
+        executor.runCommand(info, vars, session);
     }
 
     public String getName()

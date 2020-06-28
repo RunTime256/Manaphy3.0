@@ -3,6 +3,8 @@ package bot.discord.listener;
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -13,10 +15,10 @@ import sql.SessionFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class MessageCommandListener implements MessageCreateListener
 {
+    private static final Logger logger = LogManager.getLogger(MessageCommandListener.class);
     private final MessageCommandParser parser;
     private final String prefix;
     private final boolean botCommand;
@@ -48,21 +50,28 @@ public class MessageCommandListener implements MessageCreateListener
             String commandString = message.substring(prefix.length());
             List<String> vars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
             MessageCommand command = parser.getCommand(vars);
-            DiscordApi api = messageCreateEvent.getApi();
-            Optional<User> optionalUser = messageCreateEvent.getMessageAuthor().asUser();
-            optionalUser.ifPresent(user -> executeCommand(api, user, vars, command));
+            MessageReceivedInformation info = new MessageReceivedInformation(messageCreateEvent);
+            executeCommand(info, vars, command);
         }
     }
 
-    private void executeCommand(DiscordApi api, User user, List<String> vars, MessageCommand command)
+    private void executeCommand(MessageReceivedInformation info, List<String> vars, MessageCommand command)
     {
+        DiscordApi api = info.getApi();
+        User user = info.getUser();
+        if (user == null)
+        {
+            logger.error("User was null");
+            return;
+        }
+
         try (Session session = SessionFactory.getSession())
         {
             if (RoleCheck.hasPermission(session, api, user, command.getRequirement()))
             {
                 try
                 {
-                    command.execute(vars, session);
+                    command.execute(info, vars, session);
                     session.commit();
                 }
                 catch (Exception e)

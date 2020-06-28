@@ -12,6 +12,10 @@ public class RoleCheck
 {
     private static final Logger logger = LogManager.getLogger(RoleCheck.class);
 
+    private RoleCheck()
+    {
+    }
+
     public static boolean hasPermission(Session session, DiscordApi api, User user, RoleRequirement requirement)
     {
         if (requirement == RoleRequirement.OWNER)
