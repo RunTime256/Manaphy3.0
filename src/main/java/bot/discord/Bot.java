@@ -23,9 +23,10 @@ public class Bot
         api.addMessageCreateListener(listener);
     }
 
-    public void start()
+    public DiscordApi start()
     {
         api = new DiscordApiBuilder().setToken(token).login().join();
+        return api;
     }
 
     public void stop()

@@ -3,6 +3,7 @@ package bot.command;
 import bot.command.executor.CommandExecutor;
 import bot.command.verification.RoleRequirement;
 import bot.discord.listener.MessageReceivedInformation;
+import org.javacord.api.DiscordApi;
 import sql.Session;
 
 import java.util.HashMap;
@@ -29,9 +30,9 @@ public class MessageCommand
         this.executor = executor;
     }
 
-    public void execute(MessageReceivedInformation info, List<String> vars, Session session)
+    public void execute(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        executor.runCommand(info, vars, session);
+        executor.runCommand(api, info, vars, session);
     }
 
     public String getName()

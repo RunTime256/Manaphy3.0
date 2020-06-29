@@ -1,4 +1,4 @@
-package bot.command.definition.test;
+package bot.command.definition.owner.test;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;

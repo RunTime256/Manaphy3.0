@@ -1,11 +1,13 @@
-package bot.command.definition.test;
+package bot.command.definition.owner.test;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.listener.MessageReceivedInformation;
-import bot.discord.message.DMessage;
+import bot.exception.BotException;
+import org.javacord.api.DiscordApi;
 import sql.Session;
 
+import java.awt.Color;
 import java.util.List;
 
 public class TestErrorCommand
@@ -23,7 +25,7 @@ public class TestErrorCommand
                 .executor(TestErrorCommand::function).build();
     }
 
-    private static void function(MessageReceivedInformation info, List<String> vars, Session session)
+    private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
         TestErrorFunctionality functionality = new TestErrorFunctionality();
         functionality.execute();
@@ -37,7 +39,7 @@ public class TestErrorCommand
 
         void execute()
         {
-            throw new RuntimeException();
+            throw new BotException(Color.GREEN, "Test exception succeeded!");
         }
     }
 }

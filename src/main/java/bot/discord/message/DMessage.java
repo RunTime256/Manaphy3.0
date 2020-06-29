@@ -1,5 +1,6 @@
 package bot.discord.message;
 
+import bot.exception.BotException;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
@@ -19,7 +20,16 @@ public class DMessage
     public static void sendMessage(TextChannel channel, Exception e)
     {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Exception occurred: " + e.getClass().getName()).setColor(Color.RED);
+        builder.setTitle("Exception occurred: " + e.getClass().getName());
+        if (e instanceof BotException)
+        {
+            BotException exception = (BotException)e;
+            builder.setColor(exception.getColor()).setDescription(exception.getMessage());
+        }
+        else
+        {
+            builder.setColor(Color.RED);
+        }
         channel.sendMessage(builder);
     }
 }

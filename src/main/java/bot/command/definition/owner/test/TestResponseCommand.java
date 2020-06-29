@@ -1,9 +1,10 @@
-package bot.command.definition.test;
+package bot.command.definition.owner.test;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.listener.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import org.javacord.api.DiscordApi;
 import sql.Session;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class TestResponseCommand
                 .executor(TestResponseCommand::function).build();
     }
 
-    private static void function(MessageReceivedInformation info, List<String> vars, Session session)
+    private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
         TestResponseFunctionality functionality = new TestResponseFunctionality(info, vars);
         functionality.execute();

@@ -1,11 +1,12 @@
 package bot.command.executor;
 
 import bot.discord.listener.MessageReceivedInformation;
+import org.javacord.api.DiscordApi;
 import sql.Session;
 
 import java.util.List;
 
 public interface CommandExecutor
 {
-    void runCommand(MessageReceivedInformation info, List<String> vars, Session session);
+    void runCommand(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session);
 }

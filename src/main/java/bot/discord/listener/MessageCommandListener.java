@@ -23,17 +23,19 @@ public class MessageCommandListener implements MessageCreateListener
     private final MessageCommandParser parser;
     private final String prefix;
     private final boolean botCommand;
+    private final DiscordApi api;
 
-    public MessageCommandListener(String prefix)
+    public MessageCommandListener(String prefix, DiscordApi api)
     {
-        this(prefix, false);
+        this(prefix, false, api);
     }
 
-    public MessageCommandListener(String prefix, boolean botCommand)
+    public MessageCommandListener(String prefix, boolean botCommand, DiscordApi api)
     {
         parser = new MessageCommandParser();
         this.prefix = prefix;
         this.botCommand = botCommand;
+        this.api = api;
     }
 
     public void addCommand(MessageCommand command)
@@ -51,6 +53,12 @@ public class MessageCommandListener implements MessageCreateListener
             String commandString = message.substring(prefix.length());
             List<String> vars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
             MessageCommand command = parser.getCommand(vars);
+
+            if (command == null)
+            {
+                return;
+            }
+
             MessageReceivedInformation info = new MessageReceivedInformation(messageCreateEvent);
             executeCommand(info, vars, command);
         }
@@ -58,7 +66,6 @@ public class MessageCommandListener implements MessageCreateListener
 
     private void executeCommand(MessageReceivedInformation info, List<String> vars, MessageCommand command)
     {
-        DiscordApi api = info.getApi();
         User user = info.getUser();
         if (user == null)
         {
@@ -72,7 +79,7 @@ public class MessageCommandListener implements MessageCreateListener
             {
                 try
                 {
-                    command.execute(info, vars, session);
+                    command.execute(api, info, vars, session);
                     session.commit();
                 }
                 catch (Exception e)

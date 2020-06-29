@@ -1,11 +1,13 @@
 package bot;
 
-import bot.command.definition.test.TestCommand;
+import bot.command.definition.owner.stop.StopCommand;
+import bot.command.definition.owner.test.TestCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.listener.MessageCommandListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.javacord.api.DiscordApi;
 import sql.Session;
 import sql.SessionFactory;
 
@@ -34,8 +36,8 @@ public class BotRunner
         }
 
         Bot bot = getBot(name);
-        bot.start();
-        addUserCommands(bot);
+        DiscordApi api = bot.start();
+        addUserCommands(bot, api);
     }
 
     private static String getName(String[] args)
@@ -69,10 +71,11 @@ public class BotRunner
         return bot;
     }
 
-    private static void addUserCommands(Bot bot)
+    private static void addUserCommands(Bot bot, DiscordApi api)
     {
-        MessageCommandListener listener = new MessageCommandListener(bot.getPrefix());
+        MessageCommandListener listener = new MessageCommandListener(bot.getPrefix(), api);
         listener.addCommand(TestCommand.createCommand());
+        listener.addCommand(StopCommand.createCommand());
         bot.addListener(listener);
     }
 }
