@@ -4,6 +4,7 @@ import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
 import bot.discord.message.DMessage;
+import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
@@ -24,18 +25,20 @@ public class MessageCommandListener implements MessageCreateListener
     private final String prefix;
     private final boolean botCommand;
     private final DiscordApi api;
+    private final ErrorLogger errorLogger;
 
-    public MessageCommandListener(String prefix, DiscordApi api)
+    public MessageCommandListener(String prefix, DiscordApi api, ErrorLogger errorLogger)
     {
-        this(prefix, false, api);
+        this(prefix, false, api, errorLogger);
     }
 
-    public MessageCommandListener(String prefix, boolean botCommand, DiscordApi api)
+    public MessageCommandListener(String prefix, boolean botCommand, DiscordApi api, ErrorLogger errorLogger)
     {
         parser = new MessageCommandParser();
         this.prefix = prefix;
         this.botCommand = botCommand;
         this.api = api;
+        this.errorLogger = errorLogger;
     }
 
     public void addCommand(MessageCommand command)
@@ -85,7 +88,9 @@ public class MessageCommandListener implements MessageCreateListener
                 catch (Exception e)
                 {
                     logger.fatal("Exception occurred", e);
-                    DMessage.sendMessage(info.getChannel(), e);
+                    if (errorLogger != null)
+                        errorLogger.log(e);
+                    DMessage.sendMessage(info.getChannel(), e, false);
                     session.rollback();
                 }
             }

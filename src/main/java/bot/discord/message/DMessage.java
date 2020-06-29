@@ -17,7 +17,7 @@ public class DMessage
         channel.sendMessage(message);
     }
 
-    public static void sendMessage(TextChannel channel, Exception e)
+    public static void sendMessage(TextChannel channel, Exception e, boolean log)
     {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Exception occurred: " + e.getClass().getName());
@@ -28,6 +28,8 @@ public class DMessage
         }
         else
         {
+            if (log)
+                builder.setDescription(e.getMessage());
             builder.setColor(Color.RED);
         }
         channel.sendMessage(builder);

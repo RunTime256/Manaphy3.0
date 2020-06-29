@@ -4,7 +4,9 @@ import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
+import bot.discord.channel.ChannelMapper;
 import bot.discord.listener.MessageCommandListener;
+import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
@@ -37,7 +39,12 @@ public class BotRunner
 
         Bot bot = getBot(name);
         DiscordApi api = bot.start();
-        addUserCommands(bot, api);
+
+        Long channelId = getLogChannel();
+        ErrorLogger logger = null;
+        if (channelId != null)
+            logger = new ErrorLogger(api, channelId);
+        addUserCommands(bot, api, logger);
     }
 
     private static String getName(String[] args)
@@ -71,9 +78,19 @@ public class BotRunner
         return bot;
     }
 
-    private static void addUserCommands(Bot bot, DiscordApi api)
+    private static Long getLogChannel()
     {
-        MessageCommandListener listener = new MessageCommandListener(bot.getPrefix(), api);
+        Long channelId;
+        try (Session session = SessionFactory.getSession())
+        {
+            channelId = session.getMapper(ChannelMapper.class).getChannel("pokemon", "log");
+        }
+        return channelId;
+    }
+
+    private static void addUserCommands(Bot bot, DiscordApi api, ErrorLogger logger)
+    {
+        MessageCommandListener listener = new MessageCommandListener(bot.getPrefix(), api, logger);
         listener.addCommand(TestCommand.createCommand());
         listener.addCommand(StopCommand.createCommand());
         bot.addListener(listener);
