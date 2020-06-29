@@ -20,13 +20,17 @@ public class ReactionCommandListener implements ReactionAddListener
     private static final Logger logger = LogManager.getLogger(ReactionCommandListener.class);
     private final ReactionCommandParser parser;
     private final DiscordApi api;
-    private final ErrorLogger errorLogger;
+    private static ErrorLogger errorLogger;
 
-    public ReactionCommandListener(User user, TextChannel channel, String reaction, DiscordApi api, ErrorLogger errorLogger, ReactionCommand command)
+    public ReactionCommandListener(User user, TextChannel channel, String reaction, DiscordApi api, ReactionCommand command)
     {
         this.parser = new ReactionCommandParser(user, channel, reaction, command);
         this.api = api;
-        this.errorLogger = errorLogger;
+    }
+
+    public static void setLogger(ErrorLogger logger)
+    {
+        errorLogger = logger;
     }
 
     @Override

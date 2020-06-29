@@ -6,6 +6,7 @@ import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.channel.ChannelMapper;
 import bot.discord.listener.MessageCommandListener;
+import bot.discord.listener.ReactionCommandListener;
 import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,6 +46,8 @@ public class BotRunner
         if (channelId != null)
             logger = new ErrorLogger(api, channelId);
         addUserCommands(bot, api, logger);
+
+        ReactionCommandListener.setLogger(logger);
     }
 
     private static String getName(String[] args)

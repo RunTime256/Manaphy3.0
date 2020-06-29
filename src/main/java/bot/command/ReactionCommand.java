@@ -7,15 +7,23 @@ import sql.Session;
 
 public class ReactionCommand
 {
+    public static final String YES = "\u2705";
+    public static final String NO = "\u274C";
     private final ReactionExecutor executor;
+    private final boolean[] completed;
 
-    public ReactionCommand(ReactionExecutor executor)
+    public ReactionCommand(ReactionExecutor executor, boolean[] completed)
     {
         this.executor = executor;
+        this.completed = completed;
     }
 
     public void execute(DiscordApi api, ReactionReceivedInformation info, Session session)
     {
-        executor.runCommand(api, info, session);
+        if (!completed[0])
+        {
+            executor.runCommand(api, info, session);
+            completed[0] = true;
+        }
     }
 }

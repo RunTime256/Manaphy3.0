@@ -2,9 +2,11 @@ package bot.discord.message;
 
 import bot.exception.BotException;
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.Color;
+import java.util.concurrent.CompletableFuture;
 
 public class DMessage
 {
@@ -12,12 +14,12 @@ public class DMessage
     {
     }
 
-    public static void sendMessage(TextChannel channel, String message)
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, String message)
     {
-        channel.sendMessage(message);
+        return channel.sendMessage(message);
     }
 
-    public static void sendMessage(TextChannel channel, Exception e, boolean log)
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, Exception e, boolean log)
     {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Exception occurred: " + e.getClass().getName());
@@ -32,6 +34,6 @@ public class DMessage
                 builder.setDescription(e.getMessage());
             builder.setColor(Color.RED);
         }
-        channel.sendMessage(builder);
+        return channel.sendMessage(builder);
     }
 }

@@ -19,7 +19,8 @@ public class TestCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 TestResponseCommand.createCommand(),
-                TestErrorCommand.createCommand()
+                TestErrorCommand.createCommand(),
+                TestReactionCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.OWNER)
                 .subCommands(subCommands).build();
