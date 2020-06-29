@@ -1,6 +1,6 @@
 package bot.command.executor;
 
-import bot.discord.listener.MessageReceivedInformation;
+import bot.discord.information.MessageReceivedInformation;
 import org.javacord.api.DiscordApi;
 import sql.Session;
 

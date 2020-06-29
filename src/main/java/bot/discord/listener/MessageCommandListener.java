@@ -3,6 +3,7 @@ package bot.discord.listener;
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
+import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
@@ -46,9 +47,11 @@ public class MessageCommandListener implements MessageCreateListener
         parser.addCommand(command);
     }
 
+    @Override
     public void onMessageCreate(MessageCreateEvent messageCreateEvent)
     {
-        String message = messageCreateEvent.getMessageContent();
+        MessageReceivedInformation info = new MessageReceivedInformation(messageCreateEvent);
+        String message = info.getContent();
         if (message != null && message.startsWith(prefix) &&
                 (!botCommand && !messageCreateEvent.getMessageAuthor().isBotUser() ||
                         botCommand && messageCreateEvent.getMessageAuthor().isBotUser() && messageCreateEvent.getMessageAuthor().isYourself()))
@@ -56,13 +59,11 @@ public class MessageCommandListener implements MessageCreateListener
             String commandString = message.substring(prefix.length());
             List<String> vars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
             MessageCommand command = parser.getCommand(vars);
-
             if (command == null)
             {
                 return;
             }
 
-            MessageReceivedInformation info = new MessageReceivedInformation(messageCreateEvent);
             executeCommand(info, vars, command);
         }
     }

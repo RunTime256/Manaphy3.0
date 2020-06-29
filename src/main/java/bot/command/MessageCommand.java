@@ -2,7 +2,7 @@ package bot.command;
 
 import bot.command.executor.CommandExecutor;
 import bot.command.verification.RoleRequirement;
-import bot.discord.listener.MessageReceivedInformation;
+import bot.discord.information.MessageReceivedInformation;
 import org.javacord.api.DiscordApi;
 import sql.Session;
 

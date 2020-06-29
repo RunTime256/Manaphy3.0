@@ -2,7 +2,7 @@ package bot.command.definition.owner.test;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
-import bot.discord.listener.MessageReceivedInformation;
+import bot.discord.information.MessageReceivedInformation;
 import bot.exception.BotException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
