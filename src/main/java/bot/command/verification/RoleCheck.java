@@ -18,6 +18,9 @@ public class RoleCheck
 
     public static boolean hasPermission(Session session, DiscordApi api, User user, RoleRequirement requirement)
     {
+        if (requirement == null)
+            return true;
+
         if (requirement == RoleRequirement.OWNER)
         {
             return api.getOwnerId() == user.getId();

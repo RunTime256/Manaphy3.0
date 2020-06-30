@@ -12,14 +12,15 @@ import java.util.Map;
 
 public class MessageCommand
 {
-    private final String name;
+    protected final String name;
     private final String description;
     private final String syntax;
     private final RoleRequirement requirement;
     private final Map<String, MessageCommand> subCommands;
     private final CommandExecutor executor;
+    private MessageCommand parent;
 
-    private MessageCommand(String name, String description, String syntax, RoleRequirement requirement,
+    protected MessageCommand(String name, String description, String syntax, RoleRequirement requirement,
                            Map<String, MessageCommand> subCommands, CommandExecutor executor)
     {
         this.name = name;
@@ -28,6 +29,12 @@ public class MessageCommand
         this.requirement = requirement;
         this.subCommands = subCommands;
         this.executor = executor;
+
+        if (subCommands != null)
+        {
+            for (MessageCommand sub: subCommands.values())
+                sub.parent = this;
+        }
     }
 
     public void execute(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
@@ -38,6 +45,28 @@ public class MessageCommand
     public String getName()
     {
         return name;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public String getSyntax()
+    {
+        StringBuilder allSyntax = new StringBuilder();
+        allSyntax.append(name);
+        MessageCommand par = parent;
+        while (par != null)
+        {
+            String str = par.name + " ";
+            allSyntax.insert(0, str);
+            par = par.parent;
+        }
+        if (syntax != null)
+            allSyntax.append(syntax);
+
+        return allSyntax.toString();
     }
 
     public RoleRequirement getRequirement()
@@ -106,7 +135,7 @@ public class MessageCommand
 
         public MessageCommand build()
         {
-            return new MessageCommand(name, description, syntax, requirement, subCommands,executor);
+            return new MessageCommand(name, description, syntax, requirement, subCommands, executor);
         }
     }
 }

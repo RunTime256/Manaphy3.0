@@ -2,6 +2,8 @@ package bot.command.parser;
 
 import bot.command.MessageCommand;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,5 +40,10 @@ public class MessageCommandParser
         }
 
         return command;
+    }
+
+    public List<MessageCommand> getCommands()
+    {
+        return new ArrayList<>(commands.values());
     }
 }

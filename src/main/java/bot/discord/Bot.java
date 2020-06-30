@@ -38,4 +38,9 @@ public class Bot
     {
         return prefix;
     }
+
+    public String getName()
+    {
+        return name;
+    }
 }

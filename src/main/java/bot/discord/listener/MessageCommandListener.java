@@ -1,5 +1,6 @@
 package bot.discord.listener;
 
+import bot.command.HelpMessageCommand;
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
@@ -47,6 +48,11 @@ public class MessageCommandListener implements MessageCreateListener
         parser.addCommand(command);
     }
 
+    public void addHelpCommand(HelpMessageCommand command)
+    {
+        parser.addCommand(command);
+    }
+
     @Override
     public void onMessageCreate(MessageCreateEvent messageCreateEvent)
     {
@@ -83,7 +89,10 @@ public class MessageCommandListener implements MessageCreateListener
             {
                 try
                 {
-                    command.execute(api, info, vars, session);
+                    if (command instanceof HelpMessageCommand)
+                        ((HelpMessageCommand)command).execute(api, info, vars, session, parser);
+                    else
+                        command.execute(api, info, vars, session);
                     session.commit();
                 }
                 catch (Exception e)

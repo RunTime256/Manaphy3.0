@@ -19,6 +19,11 @@ public class DMessage
         return channel.sendMessage(message);
     }
 
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, EmbedBuilder builder)
+    {
+        return channel.sendMessage(builder);
+    }
+
     public static CompletableFuture<Message> sendMessage(TextChannel channel, Exception e, boolean log)
     {
         EmbedBuilder builder = new EmbedBuilder();
