@@ -4,6 +4,7 @@ import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import bot.exception.argument.MissingArgumentException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
 
@@ -51,6 +52,8 @@ public class TestResponseCommand
             }
 
             response = builder.toString();
+            if (response.isEmpty())
+                throw new MissingArgumentException("response");
         }
 
         void execute()

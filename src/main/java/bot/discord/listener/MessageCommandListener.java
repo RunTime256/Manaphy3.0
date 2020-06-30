@@ -6,6 +6,8 @@ import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import bot.exception.argument.InvalidArgumentException;
+import bot.exception.argument.MissingArgumentException;
 import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +20,7 @@ import sql.SessionFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MessageCommandListener implements MessageCreateListener
@@ -70,11 +73,11 @@ public class MessageCommandListener implements MessageCreateListener
                 return;
             }
 
-            executeCommand(info, vars, command);
+            executeCommand(info, commandString, vars, command);
         }
     }
 
-    private void executeCommand(MessageReceivedInformation info, List<String> vars, MessageCommand command)
+    private void executeCommand(MessageReceivedInformation info, String commandString, List<String> vars, MessageCommand command)
     {
         User user = info.getUser();
         if (user == null)
@@ -94,6 +97,14 @@ public class MessageCommandListener implements MessageCreateListener
                     else
                         command.execute(api, info, vars, session);
                     session.commit();
+                }
+                catch (MissingArgumentException | InvalidArgumentException e)
+                {
+                    List<String> helpVars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
+                    helpVars.add(0, "help");
+                    MessageCommand help = parser.getCommand(helpVars);
+                    if (help instanceof HelpMessageCommand)
+                        ((HelpMessageCommand)help).execute(api, info, helpVars, session, parser);
                 }
                 catch (Exception e)
                 {
