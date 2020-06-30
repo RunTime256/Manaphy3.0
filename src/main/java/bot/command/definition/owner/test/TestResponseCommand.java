@@ -13,6 +13,7 @@ public class TestResponseCommand
 {
     private static final String NAME = "response";
     private static final String DESCRIPTION = "Test response functionality";
+    private static final String SYNTAX = "<response>";
 
     private TestResponseCommand()
     {
@@ -20,8 +21,8 @@ public class TestResponseCommand
 
     public static MessageCommand createCommand()
     {
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.OWNER)
-                .executor(TestResponseCommand::function).build();
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
+                .requirement(RoleRequirement.OWNER).executor(TestResponseCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

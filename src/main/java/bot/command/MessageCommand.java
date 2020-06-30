@@ -64,7 +64,10 @@ public class MessageCommand
             par = par.parent;
         }
         if (syntax != null)
-            allSyntax.append(syntax);
+        {
+            String str = " " + syntax;
+            allSyntax.append(str);
+        }
 
         return allSyntax.toString();
     }

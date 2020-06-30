@@ -4,6 +4,7 @@ import bot.command.MessageCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class MessageCommandParser
 
     public List<MessageCommand> getCommands()
     {
-        return new ArrayList<>(commands.values());
+        List<MessageCommand> comms = new ArrayList<>(commands.values());
+        comms.sort(Comparator.comparing(MessageCommand::getName));
+        return comms;
     }
 }
