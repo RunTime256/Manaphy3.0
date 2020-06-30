@@ -3,6 +3,7 @@ package bot.command.definition.help;
 import bot.command.HelpMessageCommand;
 import bot.command.MessageCommand;
 import bot.command.parser.MessageCommandParser;
+import bot.command.verification.RoleCheck;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import org.javacord.api.DiscordApi;
@@ -34,7 +35,7 @@ public class HelpCommand
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session, MessageCommandParser parser)
     {
-        HelpFunctionality functionality = new HelpFunctionality(api, info, vars, parser);
+        HelpFunctionality functionality = new HelpFunctionality(api, info, vars, session, parser);
         functionality.execute();
     }
 
@@ -42,19 +43,24 @@ public class HelpCommand
     {
         final DiscordApi api;
         final MessageReceivedInformation info;
+        final Session session;
         final MessageCommandParser parser;
         final MessageCommand command;
 
-        HelpFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, MessageCommandParser parser)
+        HelpFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session, MessageCommandParser parser)
         {
             this.api = api;
             this.info = info;
+            this.session = session;
             this.parser = parser;
             command = parser.getCommand(vars);
         }
 
         void execute()
         {
+            if (command != null && !RoleCheck.hasPermission(session, api, info.getUser(), command.getRequirement()))
+                return;
+
             EmbedBuilder builder = new EmbedBuilder();
             String author = "Help with " + botName;
             Color color = new Color(97, 185, 221);
@@ -71,6 +77,9 @@ public class HelpCommand
 
             for (MessageCommand messageCommand: parser.getCommands())
             {
+                if (!RoleCheck.hasPermission(session, api, info.getUser(), messageCommand.getRequirement()))
+                    continue;
+
                 String desc = messageCommand.getDescription();
 
                 String singleCommand;
@@ -102,6 +111,9 @@ public class HelpCommand
                 commands.sort(Comparator.comparing(MessageCommand::getName));
                 for (MessageCommand sub: commands)
                 {
+                    if (!RoleCheck.hasPermission(session, api, info.getUser(), sub.getRequirement()))
+                        continue;
+
                     desc = sub.getDescription();
 
                     String subString;
