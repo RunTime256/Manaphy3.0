@@ -2,6 +2,7 @@ package bot.discord.information;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -30,6 +31,11 @@ public class MessageReceivedInformation
     public TextChannel getChannel()
     {
         return event.getChannel();
+    }
+
+    public Server getServer()
+    {
+        return event.getServer().orElse(null);
     }
 
     public String getContent()

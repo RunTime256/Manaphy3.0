@@ -1,6 +1,7 @@
 package bot;
 
 import bot.command.HelpMessageCommand;
+import bot.command.definition.get.GetCommand;
 import bot.command.definition.help.HelpCommand;
 import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
@@ -98,6 +99,7 @@ public class BotRunner
         MessageCommandListener listener = new MessageCommandListener(bot.getPrefix(), api, logger);
         listener.addCommand(TestCommand.createCommand());
         listener.addCommand(StopCommand.createCommand());
+        listener.addCommand(GetCommand.createCommand());
         listener.addHelpCommand(HelpCommand.createCommand(bot.getPrefix(), bot.getName()));
         bot.addListener(listener);
     }
