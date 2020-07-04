@@ -19,7 +19,8 @@ public class GetCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 GetTextChannelCommand.createCommand(),
-                GetRoleCommand.createCommand()
+                GetRoleCommand.createCommand(),
+                GetServerCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.OWNER)
                 .subCommands(subCommands).build();

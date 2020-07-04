@@ -73,7 +73,7 @@ public class GetTextChannelCommand
             }
             else
             {
-                DMessage.sendMessage(info.getChannel(), "Server channel " + name + " could not be found.");
+                DMessage.sendMessage(info.getChannel(), "Server channel `" + name + "` could not be found.");
             }
         }
 

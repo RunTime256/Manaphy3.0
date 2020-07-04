@@ -37,7 +37,7 @@ public class GetRoleCommand
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
         if (vars.isEmpty())
-            throw new MissingArgumentException("channel");
+            throw new MissingArgumentException("role");
         GetRoleFunctionality functionality = new GetRoleFunctionality(api, info, vars);
         functionality.execute();
     }
@@ -70,7 +70,7 @@ public class GetRoleCommand
             }
             else
             {
-                DMessage.sendMessage(info.getChannel(), "Role " + name + " could not be found.");
+                DMessage.sendMessage(info.getChannel(), "Role `" + name + "` could not be found.");
             }
         }
 

@@ -3,7 +3,6 @@ package bot.command;
 import bot.command.executor.CommandExecutor;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
-import bot.exception.argument.InvalidArgumentException;
 import bot.exception.argument.NoExecutorException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
