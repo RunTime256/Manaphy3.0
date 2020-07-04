@@ -1,7 +1,6 @@
 package bot.command.definition.get;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
@@ -30,7 +29,7 @@ public class GetTextChannelCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.OWNER).executor(GetTextChannelCommand::function).build();
+                .executor(GetTextChannelCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

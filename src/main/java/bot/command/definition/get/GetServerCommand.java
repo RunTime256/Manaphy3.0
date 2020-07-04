@@ -4,18 +4,14 @@ import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
-import bot.discord.role.DRole;
 import bot.discord.server.DServer;
-import bot.exception.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import sql.Session;
 
-import java.awt.Color;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;

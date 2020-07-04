@@ -1,7 +1,6 @@
 package bot.command.definition.get;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +23,7 @@ public class GetCommand
                 GetRoleCommand.createCommand(),
                 GetServerCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.OWNER)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 }

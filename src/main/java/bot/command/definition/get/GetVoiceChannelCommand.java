@@ -1,7 +1,6 @@
 package bot.command.definition.get;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
@@ -9,9 +8,7 @@ import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.Categorizable;
-import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.channel.VoiceChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import sql.Session;
 
@@ -32,7 +29,7 @@ public class GetVoiceChannelCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.OWNER).executor(GetVoiceChannelCommand::function).build();
+                .executor(GetVoiceChannelCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

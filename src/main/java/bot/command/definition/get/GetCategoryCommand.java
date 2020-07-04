@@ -1,7 +1,6 @@
 package bot.command.definition.get;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.category.DCategory;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
@@ -30,7 +29,7 @@ public class GetCategoryCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.OWNER).executor(GetCategoryCommand::function).build();
+                .executor(GetCategoryCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
