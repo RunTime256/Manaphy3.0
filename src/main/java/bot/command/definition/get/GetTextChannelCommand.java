@@ -18,38 +18,36 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class GetChannelCommand
+public class GetTextChannelCommand
 {
     private static final String NAME = "text_channel";
     private static final String DESCRIPTION = "Get text channel information";
     private static final String SYNTAX = "<channel>";
 
-    private GetChannelCommand()
+    private GetTextChannelCommand()
     {
     }
 
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.OWNER).executor(GetChannelCommand::function).build();
+                .requirement(RoleRequirement.OWNER).executor(GetTextChannelCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        if (vars.isEmpty())
-            throw new MissingArgumentException("channel");
-        GetChannelFunctionality functionality = new GetChannelFunctionality(api, info, vars);
+        GetTextChannelFunctionality functionality = new GetTextChannelFunctionality(api, info, vars);
         functionality.execute();
     }
 
-    private static class GetChannelFunctionality
+    private static class GetTextChannelFunctionality
     {
         final DiscordApi api;
         final MessageReceivedInformation info;
         final String name;
         final Long id;
 
-        GetChannelFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars)
+        GetTextChannelFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars)
         {
             this.api = api;
             this.info = info;
@@ -62,7 +60,12 @@ public class GetChannelCommand
 
         void execute()
         {
-            ServerChannel channel = DChannel.getServerChannel(info.getServer(), id, name);
+            ServerChannel channel;
+            if (name.isBlank())
+                channel = info.getChannel().asServerChannel().orElse(null);
+            else
+                channel = DChannel.getServerChannel(info.getServer(), id, name);
+
             if (channel != null)
             {
                 EmbedBuilder builder = serverChannelEmbed(channel);

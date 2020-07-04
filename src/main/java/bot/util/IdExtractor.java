@@ -9,6 +9,10 @@ public class IdExtractor
     private static final String CHANNEL = "<#";
     private static final String END = ">";
 
+    private IdExtractor()
+    {
+    }
+
     public static long getId(String id)
     {
         if (id.endsWith(END))
@@ -17,12 +21,12 @@ public class IdExtractor
 
             if (id.startsWith(START))
             {
-                if (id.startsWith(USER))
-                    id = id.substring(USER.length());
-                else if (id.startsWith(NICKNAME))
+                if (id.startsWith(NICKNAME))
                     id = id.substring(NICKNAME.length());
                 else if (id.startsWith(ROLE))
                     id = id.substring(ROLE.length());
+                else if (id.startsWith(USER))
+                    id = id.substring(USER.length());
                 else if (id.startsWith(CHANNEL))
                     id = id.substring(CHANNEL.length());
             }

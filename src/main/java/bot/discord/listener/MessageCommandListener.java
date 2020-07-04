@@ -8,6 +8,7 @@ import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.exception.argument.InvalidArgumentException;
 import bot.exception.argument.MissingArgumentException;
+import bot.exception.argument.NoExecutorException;
 import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,7 +99,7 @@ public class MessageCommandListener implements MessageCreateListener
                         command.execute(api, info, vars, session);
                     session.commit();
                 }
-                catch (MissingArgumentException | InvalidArgumentException e)
+                catch (MissingArgumentException | InvalidArgumentException | NoExecutorException e)
                 {
                     List<String> helpVars = new ArrayList<>(Arrays.asList(commandString.split(" ")));
                     helpVars.add(0, "help");

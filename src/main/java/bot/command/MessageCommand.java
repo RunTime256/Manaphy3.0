@@ -3,6 +3,8 @@ package bot.command;
 import bot.command.executor.CommandExecutor;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
+import bot.exception.argument.InvalidArgumentException;
+import bot.exception.argument.NoExecutorException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
 
@@ -39,7 +41,10 @@ public class MessageCommand
 
     public void execute(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        executor.runCommand(api, info, vars, session);
+        if (executor != null)
+            executor.runCommand(api, info, vars, session);
+        else
+            throw new NoExecutorException();
     }
 
     public String getName()
