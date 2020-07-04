@@ -41,6 +41,11 @@ public class GetRoleCommand
         functionality.execute();
     }
 
+    public static Role getRole(MessageReceivedInformation info, long id, String name)
+    {
+        return DRole.getRole(info.getServer(), id, name);
+    }
+
     private static class GetRoleFunctionality
     {
         final DiscordApi api;
@@ -61,7 +66,7 @@ public class GetRoleCommand
 
         void execute()
         {
-            Role role = DRole.getRole(info.getServer(), id, name);
+            Role role = getRole(info, id, name);
             if (role != null)
             {
                 EmbedBuilder builder = roleEmbed(role);

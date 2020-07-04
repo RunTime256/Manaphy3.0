@@ -2,7 +2,7 @@ package bot.discord.channel;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.Channel;
-import org.javacord.api.entity.channel.ServerChannel;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.server.Server;
@@ -34,18 +34,18 @@ public class DChannel
         return channel;
     }
 
-    public static ServerChannel getServerChannel(Server server, long id, String name)
+    public static ServerTextChannel getServerChannel(Server server, long id, String name)
     {
-        ServerChannel channel = null;
+        ServerTextChannel channel = null;
         if (id != 0L)
         {
-            channel = server.getChannelById(id).orElse(null);
+            channel = server.getTextChannelById(id).orElse(null);
             if (channel != null && channel.asChannelCategory().isPresent())
                 channel = null;
         }
         else
         {
-            List<ServerChannel> list = server.getChannelsByName(name);
+            List<ServerTextChannel> list = server.getTextChannelsByName(name);
             if (!list.isEmpty())
             {
                 channel = list.get(0);

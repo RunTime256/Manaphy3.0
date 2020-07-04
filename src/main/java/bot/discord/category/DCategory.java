@@ -21,7 +21,7 @@ public class DCategory
         }
         else
         {
-            List<ServerChannel> list = server.getChannelsByName(name);
+            List<ServerChannel> list = server.getChannelsByName(name.toLowerCase());
             if (!list.isEmpty())
                 channel = list.get(0);
         }

@@ -38,6 +38,22 @@ public class GetServerCommand
         functionality.execute();
     }
 
+    public static Server getServer(MessageReceivedInformation info, Long id, String name)
+    {
+        Server server;
+        if (name.isBlank())
+        {
+            server = info.getServer();
+        }
+        else
+        {
+            server = DServer.getServer(info.getApi(), id, name);
+            if (server != null && server.getId() != info.getServer().getId())
+                server = null;
+        }
+        return server;
+    }
+
     private static class GetServerFunctionality
     {
         final DiscordApi api;
@@ -58,17 +74,7 @@ public class GetServerCommand
 
         void execute()
         {
-            Server server;
-            if (name.isBlank())
-            {
-                server = info.getServer();
-            }
-            else
-            {
-                server = DServer.getServer(api, id, name);
-                if (server != null && server.getId() != info.getServer().getId())
-                    server = null;
-            }
+            Server server = getServer(info, id, name);
 
             if (server != null)
             {

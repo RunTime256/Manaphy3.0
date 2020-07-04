@@ -8,7 +8,7 @@ import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.Categorizable;
-import org.javacord.api.entity.channel.ServerChannel;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import sql.Session;
 
@@ -38,6 +38,16 @@ public class GetTextChannelCommand
         functionality.execute();
     }
 
+    public static ServerTextChannel getTextChannel(MessageReceivedInformation info, Long id, String name)
+    {
+        ServerTextChannel channel;
+        if (name.isBlank())
+            channel = info.getChannel().asServerTextChannel().orElse(null);
+        else
+            channel = DChannel.getServerChannel(info.getServer(), id, name);
+        return channel;
+    }
+
     private static class GetTextChannelFunctionality
     {
         final DiscordApi api;
@@ -58,11 +68,7 @@ public class GetTextChannelCommand
 
         void execute()
         {
-            ServerChannel channel;
-            if (name.isBlank())
-                channel = info.getChannel().asServerChannel().orElse(null);
-            else
-                channel = DChannel.getServerChannel(info.getServer(), id, name);
+            ServerTextChannel channel = getTextChannel(info, id, name);
 
             if (channel != null)
             {
@@ -75,7 +81,7 @@ public class GetTextChannelCommand
             }
         }
 
-        private EmbedBuilder serverChannelEmbed(ServerChannel channel)
+        private EmbedBuilder serverChannelEmbed(ServerTextChannel channel)
         {
             EmbedBuilder builder = new EmbedBuilder();
 

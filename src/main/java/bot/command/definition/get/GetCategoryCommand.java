@@ -38,6 +38,23 @@ public class GetCategoryCommand
         functionality.execute();
     }
 
+    public static ChannelCategory getCategory(MessageReceivedInformation info, long id, String name)
+    {
+        ChannelCategory category = null;
+
+        if (name.isBlank())
+        {
+            ServerChannel channel = info.getChannel().asServerChannel().orElse(null);
+            if (channel != null)
+                category = channel.asChannelCategory().orElse(null);
+        }
+        else
+        {
+            category = DCategory.getCategory(info.getServer(), id, name);
+        }
+        return category;
+    }
+
     private static class GetCategoryFunctionality
     {
         final DiscordApi api;
@@ -58,18 +75,7 @@ public class GetCategoryCommand
 
         void execute()
         {
-            ChannelCategory category = null;
-
-            if (name.isBlank())
-            {
-                ServerChannel channel = info.getChannel().asServerChannel().orElse(null);
-                if (channel != null)
-                    category = channel.asChannelCategory().orElse(null);
-            }
-            else
-            {
-                category = DCategory.getCategory(info.getServer(), id, name);
-            }
+            ChannelCategory category = getCategory(info, id, name);
 
             if (category != null)
             {

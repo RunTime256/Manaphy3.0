@@ -41,6 +41,11 @@ public class GetVoiceChannelCommand
         functionality.execute();
     }
 
+    public static ServerVoiceChannel getVoiceChannel(MessageReceivedInformation info, Long id, String name)
+    {
+        return DChannel.getVoiceChannel(info.getServer(), id, name);
+    }
+
     private static class GetVoiceChannelFunctionality
     {
         final DiscordApi api;
@@ -61,7 +66,7 @@ public class GetVoiceChannelCommand
 
         void execute()
         {
-            ServerVoiceChannel channel = DChannel.getVoiceChannel(info.getServer(), id, name);
+            ServerVoiceChannel channel = getVoiceChannel(info, id, name);
 
             if (channel != null)
             {

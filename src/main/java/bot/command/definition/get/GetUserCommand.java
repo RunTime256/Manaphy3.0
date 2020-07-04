@@ -38,6 +38,17 @@ public class GetUserCommand
         functionality.execute();
     }
 
+    public static User getUser(MessageReceivedInformation info, Long id, String name)
+    {
+        User user;
+        if (name.isBlank())
+            user = info.getUser();
+        else
+            user = DUser.getUser(info.getServer(), id, name);
+
+        return user;
+    }
+
     private static class GetUserFunctionality
     {
         final DiscordApi api;
@@ -58,11 +69,7 @@ public class GetUserCommand
 
         void execute()
         {
-            User user;
-            if (name.isBlank())
-                user = info.getUser();
-            else
-                user = DUser.getUser(info.getServer(), id, name);
+            User user = getUser(info, id, name);
 
             if (user != null)
             {
