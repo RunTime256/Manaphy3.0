@@ -4,6 +4,7 @@ import bot.command.MessageCommand;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import bot.exception.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
@@ -34,6 +35,8 @@ public class GetVoiceChannelCommand
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
+        if (vars.isEmpty())
+            throw new MissingArgumentException("channel");
         GetVoiceChannelFunctionality functionality = new GetVoiceChannelFunctionality(api, info, vars);
         functionality.execute();
     }

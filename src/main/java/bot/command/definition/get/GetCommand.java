@@ -17,6 +17,7 @@ public class GetCommand
     public static MessageCommand createCommand()
     {
         List<MessageCommand> subCommands = Arrays.asList(
+                GetUserCommand.createCommand(),
                 GetTextChannelCommand.createCommand(),
                 GetVoiceChannelCommand.createCommand(),
                 GetCategoryCommand.createCommand(),
