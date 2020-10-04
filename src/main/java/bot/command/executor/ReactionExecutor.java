@@ -6,5 +6,5 @@ import sql.Session;
 
 public interface ReactionExecutor
 {
-    void runCommand(DiscordApi api, ReactionReceivedInformation info, Session session);
+    void runCommand(DiscordApi api, ReactionReceivedInformation info, Session session, Object o);
 }

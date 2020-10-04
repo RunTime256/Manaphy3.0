@@ -59,12 +59,12 @@ public class TestReactionCommand
                 yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
                         new ReactionCommandListener(
                                 info.getUser(), info.getChannel(), ReactionCommand.YES, api,
-                                new ReactionCommand(TestReactionFunctionality::yesFunction, completed))).removeAfter(10, TimeUnit.SECONDS));
+                                new ReactionCommand(TestReactionFunctionality::yesFunction, completed, null))).removeAfter(10, TimeUnit.SECONDS));
 
                 noFuture.thenAccept(aVoid -> api.addReactionAddListener(
                         new ReactionCommandListener(
                                 info.getUser(), info.getChannel(), ReactionCommand.NO, api,
-                                new ReactionCommand(TestReactionFunctionality::noFunction, completed))).removeAfter(10, TimeUnit.SECONDS).addRemoveHandler(() -> {
+                                new ReactionCommand(TestReactionFunctionality::noFunction, completed, null))).removeAfter(10, TimeUnit.SECONDS).addRemoveHandler(() -> {
                     if (!completed[0])
                     {
                         DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
@@ -73,12 +73,12 @@ public class TestReactionCommand
             });
         }
 
-        private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session)
+        private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
             DMessage.sendMessage(info.getChannel(), "You selected yes!");
         }
 
-        private static void noFunction(DiscordApi api, ReactionReceivedInformation info, Session session)
+        private static void noFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
             DMessage.sendMessage(info.getChannel(), "You selected no.");
         }

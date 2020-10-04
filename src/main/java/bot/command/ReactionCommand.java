@@ -11,18 +11,20 @@ public class ReactionCommand
     public static final String NO = "\u274C";
     private final ReactionExecutor executor;
     private final boolean[] completed;
+    private final Object o;
 
-    public ReactionCommand(ReactionExecutor executor, boolean[] completed)
+    public ReactionCommand(ReactionExecutor executor, boolean[] completed, Object o)
     {
         this.executor = executor;
         this.completed = completed;
+        this.o = o;
     }
 
     public void execute(DiscordApi api, ReactionReceivedInformation info, Session session)
     {
         if (!completed[0])
         {
-            executor.runCommand(api, info, session);
+            executor.runCommand(api, info, session, o);
             completed[0] = true;
         }
     }

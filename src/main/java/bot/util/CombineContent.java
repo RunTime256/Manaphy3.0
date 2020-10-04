@@ -4,6 +4,10 @@ import java.util.List;
 
 public class CombineContent
 {
+    private CombineContent()
+    {
+    }
+
     public static String combine(List<String> vars)
     {
         StringBuilder builder = new StringBuilder();

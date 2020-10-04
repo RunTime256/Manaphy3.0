@@ -6,6 +6,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public class MessageReceivedInformation
@@ -41,5 +42,15 @@ public class MessageReceivedInformation
     public String getContent()
     {
         return event.getMessageContent();
+    }
+
+    public Instant getTime()
+    {
+        return event.getMessage().getCreationTimestamp();
+    }
+
+    public void delete()
+    {
+        event.getMessage().delete();
     }
 }
