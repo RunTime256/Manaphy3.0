@@ -27,7 +27,7 @@ public class Puzzle
 
         if (!exists(puzzleName, session))
             throw new NotAPuzzleException(puzzleName);
-        if (!isActive(puzzleName, session))
+        if (!isActive(puzzleName, time, session))
             throw new InactivePuzzleException(puzzleName);
 
         if (isInfinite(puzzleName, session) && alreadySolved(userId, puzzleName, session))
@@ -48,9 +48,9 @@ public class Puzzle
         return session.getMapper(PuzzleMapper.class).exists(puzzleName);
     }
 
-    public static boolean isActive(String puzzleName, Session session)
+    public static boolean isActive(String puzzleName, Instant time, Session session)
     {
-        return session.getMapper(PuzzleMapper.class).isActive(puzzleName);
+        return session.getMapper(PuzzleMapper.class).isActive(puzzleName, time);
     }
 
     public static boolean isInfinite(String puzzleName, Session session)

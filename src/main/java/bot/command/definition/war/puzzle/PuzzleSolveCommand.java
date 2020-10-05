@@ -10,12 +10,15 @@ import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
+import exception.war.puzzle.NotAPuzzleException;
+import exception.war.puzzle.PuzzleException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import sql.Session;
 import war.puzzle.Puzzle;
 import war.puzzle.PuzzleGuess;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -66,56 +69,81 @@ public class PuzzleSolveCommand
 
         void execute()
         {
-            if (info.getServer() != null)
+            try
             {
-                DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
-                info.delete();
-                return;
-            }
-
-            if (Puzzle.isInfinite(guess.getName(), session))
-            {
-                boolean correct = Puzzle.guess(guess, api, session);
-                if (correct)
+                if (info.getServer() != null)
                 {
-                    DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
+                    DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
+                    info.delete();
+                    return;
+                }
+
+                if (!Puzzle.exists(guess.getName(), session))
+                    throw new NotAPuzzleException(guess.getName());
+
+                if (Puzzle.isInfinite(guess.getName(), session))
+                {
+                    boolean correct = Puzzle.guess(guess, api, session);
+                    if (correct)
+                    {
+                        DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
+                    }
+                    else
+                    {
+                        DMessage.sendMessage(info.getChannel(), "You were incorrect. Please try again.");
+                    }
                 }
                 else
                 {
-                    DMessage.sendMessage(info.getChannel(), "You were incorrect. Please try again.");
+                    CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
+                            "Your solution for the puzzle `" + guess.getName() + "` is `" + guess.getGuess() + "`. Is that correct?");
+                    message.thenAccept(completedMessage ->
+                    {
+                        CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
+                        CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
+
+                        boolean[] completed = {false};
+                        yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                                new ReactionCommandListener(
+                                        info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                        new ReactionCommand(PuzzleSolveFunctionality::yesFunction, completed, guess))).removeAfter(30, TimeUnit.SECONDS));
+
+                        noFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                                new ReactionCommandListener(
+                                        info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                        new ReactionCommand(PuzzleSolveFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
+                        {
+                            if (!completed[0])
+                            {
+                                DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                            }
+                        }));
+                    });
                 }
             }
-            else
+            catch (PuzzleException e)
             {
-                CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
-                        "Your solution for the puzzle `" + guess.getName() + "` is `" + guess.getGuess() + "`. Is that correct?");
-                message.thenAccept(completedMessage -> {
-                    CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
-                    CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
-
-                    boolean[] completed = {false};
-                    yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                            new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.YES, api,
-                                    new ReactionCommand(PuzzleSolveFunctionality::yesFunction, completed, guess))).removeAfter(30, TimeUnit.SECONDS));
-
-                    noFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                            new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.NO, api,
-                                    new ReactionCommand(PuzzleSolveFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() -> {
-                        if (!completed[0])
-                        {
-                            DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
-                        }
-                    }));
-                });
+                if (e.getColor() == Color.YELLOW)
+                    DMessage.sendMessage(info.getChannel(), e.getMessage());
+                else
+                    throw e;
             }
         }
 
         private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
-            Puzzle.guess((PuzzleGuess)o, api, session);
-            DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
+            try
+            {
+                Puzzle.guess((PuzzleGuess) o, api, session);
+                DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
+            }
+            catch (PuzzleException e)
+            {
+                if (e.getColor() == Color.YELLOW)
+                    DMessage.sendMessage(info.getChannel(), e.getMessage());
+                else
+                    throw e;
+            }
         }
 
         private static void noFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
