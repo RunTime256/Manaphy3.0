@@ -63,7 +63,7 @@ public class MessageCommandListener implements MessageCreateListener
         String message = info.getContent();
         if (message != null && message.startsWith(prefix) &&
                 (!botCommand && !messageCreateEvent.getMessageAuthor().isBotUser() ||
-                        botCommand && messageCreateEvent.getMessageAuthor().isBotUser() && messageCreateEvent.getMessageAuthor().isYourself()))
+                        botCommand && messageCreateEvent.getMessageAuthor().isBotUser() && !messageCreateEvent.getMessageAuthor().isYourself()))
         {
             String commandString = message.substring(prefix.length());
             List<String> vars = new ArrayList<>(Arrays.asList(commandString.split(" ")));

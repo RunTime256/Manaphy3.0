@@ -126,8 +126,8 @@ public class BotRunner
 
     private static void addBotCommands(Bot bot, DiscordApi api, ErrorLogger logger)
     {
-        MessageCommandListener listener = new MessageCommandListener(bot.getPrefix(), true, api, logger);
-        listener.addCommand(TestCommand.createCommand());
+        MessageCommandListener listener = new MessageCommandListener(bot.getBotPrefix(), true, api, logger);
+        listener.addCommand(WarCommand.createBotCommand());
         bot.addListener(listener);
     }
 }

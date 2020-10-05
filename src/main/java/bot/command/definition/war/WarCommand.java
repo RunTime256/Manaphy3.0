@@ -1,6 +1,7 @@
 package bot.command.definition.war;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
 import bot.command.verification.RoleRequirement;
 
@@ -20,6 +21,15 @@ public class WarCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 PuzzleCommand.createCommand()
+        );
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+                .subCommands(subCommands).build();
+    }
+
+    public static MessageCommand createBotCommand()
+    {
+        List<MessageCommand> subCommands = Arrays.asList(
+                CodeCommand.createBotCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();
