@@ -26,10 +26,12 @@ public interface PuzzleMapper
             "WHERE p.name = #{name} AND pg.user_id = #{userId})")
     boolean hasSolved(@Param("name") String name, @Param("userId") Long userId);
 
-    @Select("WITH codes AS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_code pc ON p.id = pc.puzzle_id " +
+    @Select("WITH user_codes AS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_code pc ON p.id = pc.puzzle_id " +
             "LEFT JOIN cc4.code c ON pc.code_id = c.id LEFT JOIN cc4.code_retrieved cr ON c.id = cr.code_id " +
-            "WHERE p.name = #{name} AND c.id IS NOT NULL) " +
-            "SELECT (NOT EXISTS (SELECT * FROM codes) OR (SELECT count(*) FROM codes WHERE user_id = #{userId}) = (SELECT count(*) FROM codes))")
+            "WHERE p.name = #{name} AND c.id IS NOT NULL), " +
+            "codes AS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_code pc ON p.id = pc.puzzle_id " +
+            "LEFT JOIN cc4.code c ON pc.code_id = c.id WHERE p.name = #{name} AND c.id IS NOT NULL) " +
+            "SELECT (NOT EXISTS (SELECT * FROM user_codes) OR (SELECT count(*) FROM user_codes WHERE user_id = #{userId}) = (SELECT count(*) FROM codes))")
     boolean hasCodeRequirements(@Param("name") String name, @Param("userId") Long userId);
 
     @Select("SELECT server_id, role_id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_role pr ON p.id = pr.puzzle_id " +

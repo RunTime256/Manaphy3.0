@@ -102,7 +102,7 @@ public class BotRunner
     private static Long getLogChannel(Session session)
     {
         Long channelId;
-        channelId = session.getMapper(ChannelMapper.class).getChannel("pokemon", "log");
+        channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "log");
         return channelId;
     }
 
