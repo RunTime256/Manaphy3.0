@@ -1,4 +1,4 @@
-package bot.exception;
+package exception;
 
 import java.awt.Color;
 

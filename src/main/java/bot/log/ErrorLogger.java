@@ -2,7 +2,7 @@ package bot.log;
 
 import bot.discord.channel.DChannel;
 import bot.discord.message.DMessage;
-import bot.exception.BotException;
+import exception.BotException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 

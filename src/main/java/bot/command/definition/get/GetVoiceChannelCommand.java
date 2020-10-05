@@ -4,7 +4,7 @@ import bot.command.MessageCommand;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
-import bot.exception.argument.MissingArgumentException;
+import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;

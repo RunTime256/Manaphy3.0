@@ -1,5 +1,6 @@
 package bot.discord.server;
 
+import bot.discord.user.DUser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -12,6 +13,20 @@ public class DServer
 {
     private DServer()
     {
+    }
+
+    public static boolean hasRole(DiscordApi api, Long serverId, Long roleId, Long userId)
+    {
+        Server server = getServer(api, serverId, null);
+        if (server == null)
+            return false;
+
+        User user = DUser.getUser(server, userId, null);
+        if (user == null)
+            return false;
+
+        Optional<Role> role = api.getRoleById(roleId);
+        return role.map(value -> value.hasUser(user)).orElse(false);
     }
 
     public static boolean hasRole(DiscordApi api, User user, Long roleId)

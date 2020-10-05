@@ -1,6 +1,6 @@
 package bot.discord.message;
 
-import bot.exception.BotException;
+import exception.BotException;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

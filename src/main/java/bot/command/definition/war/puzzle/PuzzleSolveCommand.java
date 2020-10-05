@@ -8,7 +8,7 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
-import bot.exception.argument.MissingArgumentException;
+import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
@@ -43,7 +43,7 @@ public class PuzzleSolveCommand
         else if (vars.size() == 1)
             throw new MissingArgumentException("guess");
 
-        PuzzleSolveFunctionality functionality = new PuzzleSolveFunctionality(api, info, vars);
+        PuzzleSolveFunctionality functionality = new PuzzleSolveFunctionality(api, info, vars, session);
         functionality.execute();
     }
 
@@ -51,14 +51,16 @@ public class PuzzleSolveCommand
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
+        private final Session session;
         private final PuzzleGuess guess;
 
-        PuzzleSolveFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars)
+        PuzzleSolveFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
         {
             this.api = api;
             this.info = info;
-            String puzzleName = vars.remove(0);
-            String puzzleGuess = CombineContent.combine(vars);
+            this.session = session;
+            String puzzleName = vars.remove(0).toUpperCase();
+            String puzzleGuess = CombineContent.combine(vars).toUpperCase();
             guess = new PuzzleGuess(puzzleName, puzzleGuess, info.getUser().getId(), info.getTime());
         }
 
@@ -71,9 +73,9 @@ public class PuzzleSolveCommand
                 return;
             }
 
-            if (Puzzle.isInfinite(guess.getName()))
+            if (Puzzle.isInfinite(guess.getName(), session))
             {
-                boolean correct = Puzzle.guess(guess);
+                boolean correct = Puzzle.guess(guess, api, session);
                 if (correct)
                 {
                     DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
@@ -112,7 +114,7 @@ public class PuzzleSolveCommand
 
         private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
-            Puzzle.guess((PuzzleGuess)o);
+            Puzzle.guess((PuzzleGuess)o, api, session);
             DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
         }
 

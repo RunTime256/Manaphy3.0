@@ -6,9 +6,9 @@ import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
-import bot.exception.argument.InvalidArgumentException;
-import bot.exception.argument.MissingArgumentException;
-import bot.exception.argument.NoExecutorException;
+import exception.bot.argument.InvalidArgumentException;
+import exception.bot.argument.MissingArgumentException;
+import exception.bot.argument.NoExecutorException;
 import bot.log.ErrorLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +21,6 @@ import sql.SessionFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class MessageCommandListener implements MessageCreateListener
