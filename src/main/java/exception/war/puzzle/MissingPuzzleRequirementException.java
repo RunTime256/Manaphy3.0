@@ -2,10 +2,10 @@ package exception.war.puzzle;
 
 import java.awt.Color;
 
-public class NotAPuzzleException extends PuzzleException
+public class MissingPuzzleRequirementException extends PuzzleException
 {
-    public NotAPuzzleException(String name)
+    public MissingPuzzleRequirementException(String name)
     {
-        super(Color.YELLOW, "The puzzle `" + name + "` does not exist");
+        super(Color.YELLOW, "You are missing a requirement for the puzzle `" + name + "`");
     }
 }

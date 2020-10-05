@@ -1,13 +1,11 @@
-package exception.bot.argument;
-
-import exception.bot.BotException;
+package exception.war.puzzle;
 
 import java.awt.Color;
 
-public class NoExecutorException extends BotException
+public class NotAPuzzleException extends PuzzleException
 {
-    public NoExecutorException()
+    public NotAPuzzleException(String name)
     {
-        super(Color.YELLOW, "Command does not have an executor");
+        super(Color.YELLOW, "The puzzle `" + name + "` does not exist");
     }
 }

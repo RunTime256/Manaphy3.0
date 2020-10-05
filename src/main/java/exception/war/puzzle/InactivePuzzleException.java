@@ -2,10 +2,10 @@ package exception.war.puzzle;
 
 import java.awt.Color;
 
-public class NotAPuzzleException extends PuzzleException
+public class InactivePuzzleException extends PuzzleException
 {
-    public NotAPuzzleException()
+    public InactivePuzzleException(String name)
     {
-        super(Color.YELLOW, "Puzzle name does not exist");
+        super(Color.YELLOW, "The puzzle `" + name + "` is no longer active");
     }
 }

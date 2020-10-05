@@ -1,6 +1,6 @@
-package bot.exception.argument;
+package exception.bot.argument;
 
-import bot.exception.BotException;
+import exception.BotException;
 
 import java.awt.Color;
 

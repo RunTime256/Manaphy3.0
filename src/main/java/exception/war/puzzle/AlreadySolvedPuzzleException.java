@@ -2,10 +2,10 @@ package exception.war.puzzle;
 
 import java.awt.Color;
 
-public class NotAPuzzleException extends PuzzleException
+public class AlreadySolvedPuzzleException extends PuzzleException
 {
-    public NotAPuzzleException()
+    public AlreadySolvedPuzzleException(String name)
     {
-        super(Color.YELLOW, "Puzzle name does not exist");
+        super(Color.YELLOW, "You have already solved the puzzle `" + name + "`");
     }
 }
