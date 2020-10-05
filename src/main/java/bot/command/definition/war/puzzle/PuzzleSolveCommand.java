@@ -11,6 +11,7 @@ import bot.discord.reaction.DReaction;
 import bot.log.PuzzleLogger;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
+import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
 import exception.war.puzzle.PuzzleException;
 import org.javacord.api.DiscordApi;
@@ -80,6 +81,11 @@ public class PuzzleSolveCommand
             {
                 solvePuzzle();
             }
+            catch (MissingPuzzleRequirementException e)
+            {
+                logMissingRequirement(guess);
+                DMessage.sendMessage(info.getChannel(), e.getMessage());
+            }
             catch (PuzzleException e)
             {
                 if (e.getColor() == Color.YELLOW)
@@ -147,6 +153,12 @@ public class PuzzleSolveCommand
         {
             if (puzzleLogger != null)
                 puzzleLogger.log(guess, correct);
+        }
+
+        private static void logMissingRequirement(PuzzleGuess guess)
+        {
+            if (puzzleLogger != null)
+                puzzleLogger.logMissingRequirement(guess);
         }
 
         private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
