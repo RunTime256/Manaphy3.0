@@ -8,6 +8,7 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
+import bot.log.PuzzleLogger;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import exception.war.puzzle.NotAPuzzleException;
@@ -28,9 +29,15 @@ public class PuzzleSolveCommand
     private static final String NAME = "solve";
     private static final String DESCRIPTION = "Solve a puzzle";
     private static final String SYNTAX = "<puzzle name> <guess>";
+    private static PuzzleLogger puzzleLogger = null;
 
     private PuzzleSolveCommand()
     {
+    }
+
+    public static void setPuzzleLogger(PuzzleLogger puzzleLogger)
+    {
+        PuzzleSolveCommand.puzzleLogger = puzzleLogger;
     }
 
     public static MessageCommand createCommand()
@@ -71,55 +78,7 @@ public class PuzzleSolveCommand
         {
             try
             {
-                if (info.getServer() != null)
-                {
-                    DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
-                    info.delete();
-                    return;
-                }
-
-                if (!Puzzle.exists(guess.getName(), session))
-                    throw new NotAPuzzleException(guess.getName());
-
-                if (Puzzle.isInfinite(guess.getName(), session))
-                {
-                    boolean correct = Puzzle.guess(guess, api, session);
-                    if (correct)
-                    {
-                        DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
-                    }
-                    else
-                    {
-                        DMessage.sendMessage(info.getChannel(), "You were incorrect. Please try again.");
-                    }
-                }
-                else
-                {
-                    CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
-                            "Your solution for the puzzle `" + guess.getName() + "` is `" + guess.getGuess() + "`. Is that correct?");
-                    message.thenAccept(completedMessage ->
-                    {
-                        CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
-                        CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
-
-                        boolean[] completed = {false};
-                        yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                                new ReactionCommandListener(
-                                        info.getUser(), info.getChannel(), ReactionCommand.YES, api,
-                                        new ReactionCommand(PuzzleSolveFunctionality::yesFunction, completed, guess))).removeAfter(30, TimeUnit.SECONDS));
-
-                        noFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                                new ReactionCommandListener(
-                                        info.getUser(), info.getChannel(), ReactionCommand.NO, api,
-                                        new ReactionCommand(PuzzleSolveFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
-                        {
-                            if (!completed[0])
-                            {
-                                DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
-                            }
-                        }));
-                    });
-                }
+                solvePuzzle();
             }
             catch (PuzzleException e)
             {
@@ -130,11 +89,73 @@ public class PuzzleSolveCommand
             }
         }
 
+        private void solvePuzzle()
+        {
+            if (info.getServer() != null)
+            {
+                DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
+                info.delete();
+                return;
+            }
+
+            if (!Puzzle.exists(guess.getName(), session))
+                throw new NotAPuzzleException(guess.getName());
+
+            if (Puzzle.isInfinite(guess.getName(), session))
+            {
+                boolean correct = Puzzle.guess(guess, api, session);
+                log(guess, correct);
+                if (correct)
+                {
+                    DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
+                }
+                else
+                {
+                    DMessage.sendMessage(info.getChannel(), "You were incorrect. Please try again.");
+                }
+            }
+            else
+            {
+                CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
+                        "Your solution for the puzzle `" + guess.getName() + "` is `" + guess.getGuess() + "`. Is that correct?");
+                message.thenAccept(completedMessage ->
+                {
+                    CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
+                    CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
+
+                    boolean[] completed = {false};
+                    yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                            new ReactionCommandListener(
+                                    info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                    new ReactionCommand(PuzzleSolveFunctionality::yesFunction, completed, guess))).removeAfter(30, TimeUnit.SECONDS));
+
+                    noFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                            new ReactionCommandListener(
+                                    info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                    new ReactionCommand(PuzzleSolveFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
+                    {
+                        if (!completed[0])
+                        {
+                            DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                        }
+                    }));
+                });
+            }
+        }
+
+        private static void log(PuzzleGuess guess, boolean correct)
+        {
+            if (puzzleLogger != null)
+                puzzleLogger.log(guess, correct);
+        }
+
         private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
             try
             {
-                Puzzle.guess((PuzzleGuess) o, api, session);
+                PuzzleGuess guess = (PuzzleGuess)o;
+                boolean correct = Puzzle.guess(guess, api, session);
+                log(guess, correct);
                 DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
             }
             catch (PuzzleException e)
