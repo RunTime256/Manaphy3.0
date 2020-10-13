@@ -22,7 +22,8 @@ public interface PuzzleMapper
             "WHERE p.name = #{name} AND pg.user_id = #{userId})")
     boolean hasGuessed(@Param("name") String name, @Param("userId") Long userId);
 
-    @Select("SELECT EXISTS (SELECT FROM cc4.puzzle p LEFT JOIN cc4.puzzle_guess pg ON p.solution = pg.guess " +
+    @Select("SELECT EXISTS (SELECT FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON ps.solution = pg.guess " +
             "WHERE p.name = #{name} AND pg.user_id = #{userId})")
     boolean hasSolved(@Param("name") String name, @Param("userId") Long userId);
 
@@ -38,7 +39,8 @@ public interface PuzzleMapper
             "WHERE p.name = #{name} AND server_id IS NOT NULL AND role_id IS NOT NULL")
     List<PuzzleRoleRequirement> roleRequirements(@Param("name") String name);
 
-    @Select("SELECT EXISTS (SELECT * FROM cc4.puzzle WHERE name = #{name} AND solution = #{guess})")
+    @Select("SELECT EXISTS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id" +
+            " WHERE p.name = #{name} AND ps.solution = #{guess})")
     boolean correct(@Param("name") String name, @Param("guess") String guess);
 
     @Insert("INSERT INTO cc4.puzzle_guess( " +

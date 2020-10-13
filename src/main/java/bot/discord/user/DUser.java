@@ -19,9 +19,7 @@ public class DUser
 
     public static User getUser(Server server, long id, String name)
     {
-        User user = server.getMemberByDiscriminatedName(name).orElse(null);
-        if (user != null)
-            return user;
+        User user;
 
         if (id != 0L)
         {
@@ -29,6 +27,10 @@ public class DUser
         }
         else
         {
+            user = server.getMemberByDiscriminatedName(name).orElse(null);
+            if (user != null)
+                return user;
+
             Iterator<User> iter = server.getMembersByNickname(name).iterator();
             if (iter.hasNext())
             {
