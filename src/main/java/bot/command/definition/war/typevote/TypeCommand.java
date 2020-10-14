@@ -10,13 +10,14 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import sql.Session;
 import war.typevote.TypeVote;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
 public class TypeCommand
 {
     private static final String NAME = "type";
-    private static final String DESCRIPTION = "Pokémon types that can be selected";
+    private static final String DESCRIPTION = "Pok\u00E9mon types that can be selected";
 
     private TypeCommand()
     {
@@ -66,6 +67,8 @@ public class TypeCommand
             int total = TypeVote.TOTAL_VOTES;
             int count = voted.size();
             String combinedVoted = CombineContent.combine(voted).replace(" ", "\n");
+            if (combinedVoted.isEmpty())
+                combinedVoted = "\u200B";
             String description;
 
             if (count >= total)
@@ -77,12 +80,15 @@ public class TypeCommand
                 description = "Use the command `+war type vote <type>` to choose a type to vote for (" + (total - count) + "/" + total + " votes remain):";
 
                 String combinedAvailable = CombineContent.combine(available).replace(" ", "\n");
+                if (combinedAvailable.isEmpty())
+                    combinedAvailable = "\u200B";
 
                 builder.addField("Available", combinedAvailable);
             }
 
             builder.setTitle("Type Vote").setDescription(description)
-                    .addField("Voted", combinedVoted);
+                    .addField("Voted", combinedVoted)
+                    .setColor(new Color(254, 254, 254));
 
             return builder;
         }

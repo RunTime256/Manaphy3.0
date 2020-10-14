@@ -68,7 +68,7 @@ public class BotRunner
             channelId = getTypeVoteLogChannel(session);
             TypeVoteLogger typeVoteLogger = null;
             if (channelId != null)
-                puzzleLogger = new PuzzleLogger(api, channelId);
+                typeVoteLogger = new TypeVoteLogger(api, channelId);
 
             addUserCommands(bot, api, logger);
             addBotCommands(bot, api, logger);

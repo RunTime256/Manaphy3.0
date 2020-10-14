@@ -1,10 +1,8 @@
 package exception.typevote;
 
-import exception.war.WarException;
-
 import java.awt.Color;
 
-public class UnavailableTypeException extends WarException
+public class UnavailableTypeException extends TypeVoteException
 {
     public UnavailableTypeException(String type)
     {

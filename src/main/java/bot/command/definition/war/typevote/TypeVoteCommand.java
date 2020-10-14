@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class TypeVoteCommand
 {
     private static final String NAME = "vote";
-    private static final String DESCRIPTION = "Vote on Pokémon types";
+    private static final String DESCRIPTION = "Vote on Pok\u00E9mon types";
     private static final String SYNTAX = "<type>";
     private static TypeVoteLogger typeVoteLogger;
 
@@ -72,44 +72,51 @@ public class TypeVoteCommand
 
         void execute()
         {
-            int total = TypeVote.TOTAL_VOTES;
-            long userId = info.getUser().getId();
-            int count = TypeVote.getRemainingTypeVoteCount(userId, session);
-            if (count >= total)
-                throw new MaxVoteException();
-
-            if (!TypeVote.exists(type, session))
-                throw new InvalidTypeException(type);
-
-            if (!TypeVote.canVote(type, userId, session))
-                throw new UnavailableTypeException(type);
-
-            TypeVoteSelection selection = new TypeVoteSelection(type, count, userId, info.getTime());
-
-            CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
-                    "Your vote for a type is `" + type + "`. Is that correct?");
-            message.thenAccept(completedMessage ->
+            try
             {
-                CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
-                CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
+                int total = TypeVote.TOTAL_VOTES;
+                long userId = info.getUser().getId();
+                int count = TypeVote.getRemainingTypeVoteCount(userId, session);
+                if (count >= total)
+                    throw new MaxVoteException();
 
-                boolean[] completed = {false};
-                yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                        new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.YES, api,
-                                new ReactionCommand(TypeVoteFunctionality::yesFunction, completed, selection))).removeAfter(30, TimeUnit.SECONDS));
+                if (!TypeVote.exists(type, session))
+                    throw new InvalidTypeException(type);
 
-                noFuture.thenAccept(aVoid -> api.addReactionAddListener(
-                        new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.NO, api,
-                                new ReactionCommand(TypeVoteFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
+                if (!TypeVote.canVote(type, userId, session))
+                    throw new UnavailableTypeException(type);
+
+                TypeVoteSelection selection = new TypeVoteSelection(type, count, userId, info.getTime());
+
+                CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(),
+                        "Your vote for a type is `" + type + "`. Is that correct?");
+                message.thenAccept(completedMessage ->
                 {
-                    if (!completed[0])
+                    CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
+                    CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
+
+                    boolean[] completed = {false};
+                    yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                            new ReactionCommandListener(
+                                    info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                    new ReactionCommand(TypeVoteFunctionality::yesFunction, completed, selection))).removeAfter(30, TimeUnit.SECONDS));
+
+                    noFuture.thenAccept(aVoid -> api.addReactionAddListener(
+                            new ReactionCommandListener(
+                                    info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                    new ReactionCommand(TypeVoteFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
                     {
-                        DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
-                    }
-                }));
-            });
+                        if (!completed[0])
+                        {
+                            DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                        }
+                    }));
+                });
+            }
+            catch (MaxVoteException | InvalidTypeException | UnavailableTypeException e)
+            {
+                DMessage.sendMessage(info.getChannel(), e.getMessage());
+            }
         }
 
         private static void log(TypeVoteSelection selection)
@@ -124,11 +131,18 @@ public class TypeVoteCommand
 
             int total = TypeVote.TOTAL_VOTES;
 
-            TypeVote.addTypeVote(selection.getType(), selection.getUserId(), selection.getTime(), session);
-            int count = selection.getCount() + 1;
-            log(selection);
+            try
+            {
+                TypeVote.addTypeVote(selection.getType(), selection.getUserId(), selection.getTime(), session);
+                int count = selection.getCount() + 1;
+                log(selection);
 
-            DMessage.sendMessage(info.getChannel(), "Vote successful. Thank you for supporting democracy! You have " + (total - count) + "/" + total + " votes remaining.");
+                DMessage.sendMessage(info.getChannel(), "Vote successful. Thank you for supporting democracy! You have " + (total - count) + "/" + total + " votes remaining.");
+            }
+            catch (MaxVoteException | InvalidTypeException | UnavailableTypeException e)
+            {
+                DMessage.sendMessage(info.getChannel(), e.getMessage());
+            }
         }
 
         private static void noFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)

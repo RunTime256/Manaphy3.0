@@ -25,10 +25,10 @@ public class TypeVoteLogger
     public void log(TypeVoteSelection selection)
     {
         TextChannel channel = DChannel.getChannel(api, channelId);
-        DMessage.sendMessage(channel, puzzleEmbed(selection));
+        DMessage.sendMessage(channel, typeVoteEmbed(selection));
     }
 
-    private EmbedBuilder puzzleEmbed(TypeVoteSelection selection)
+    private EmbedBuilder typeVoteEmbed(TypeVoteSelection selection)
     {
         EmbedBuilder builder = new EmbedBuilder();
         User user = DUser.getUser(api, selection.getUserId());
@@ -36,7 +36,7 @@ public class TypeVoteLogger
         builder.setAuthor(user.getDiscriminatedName(), null, user.getAvatar()).setDescription("New type vote")
                 .addField("Type", selection.getType())
                 .addField("User ID", String.valueOf(selection.getUserId()))
-                .setColor(Color.WHITE);
+                .setColor(new Color(254, 254, 254));
 
         return builder;
     }

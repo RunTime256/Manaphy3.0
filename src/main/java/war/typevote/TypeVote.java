@@ -1,5 +1,8 @@
 package war.typevote;
 
+import exception.typevote.InvalidTypeException;
+import exception.typevote.MaxVoteException;
+import exception.typevote.UnavailableTypeException;
 import sql.Session;
 
 import java.time.Instant;
@@ -40,6 +43,15 @@ public class TypeVote
 
     public static void addTypeVote(String type, long userId, Instant time, Session session)
     {
+        if (getRemainingTypeVoteCount(userId, session) >= TOTAL_VOTES)
+            throw new MaxVoteException();
+
+        if (!exists(type, session))
+            throw new InvalidTypeException(type);
+
+        if (!canVote(type, userId, session))
+            throw new UnavailableTypeException(type);
+
         session.getMapper(TypeVoteMapper.class).addTypeVote(type, userId, time);
     }
 }
