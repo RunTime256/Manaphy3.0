@@ -6,6 +6,7 @@ import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.command.definition.war.WarCommand;
 import bot.command.definition.war.puzzle.PuzzleSolveCommand;
+import bot.command.definition.war.typevote.TypeVoteCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.channel.ChannelMapper;
@@ -13,6 +14,7 @@ import bot.discord.listener.MessageCommandListener;
 import bot.discord.listener.ReactionCommandListener;
 import bot.log.ErrorLogger;
 import bot.log.PuzzleLogger;
+import bot.log.TypeVoteLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
@@ -63,11 +65,17 @@ public class BotRunner
             if (channelId != null)
                 puzzleLogger = new PuzzleLogger(api, channelId);
 
+            channelId = getTypeVoteLogChannel(session);
+            TypeVoteLogger typeVoteLogger = null;
+            if (channelId != null)
+                puzzleLogger = new PuzzleLogger(api, channelId);
+
             addUserCommands(bot, api, logger);
             addBotCommands(bot, api, logger);
 
             ReactionCommandListener.setLogger(logger);
             PuzzleSolveCommand.setPuzzleLogger(puzzleLogger);
+            TypeVoteCommand.setTypeVoteLogger(typeVoteLogger);
         }
     }
 
@@ -110,6 +118,13 @@ public class BotRunner
     {
         Long channelId;
         channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "puzzle");
+        return channelId;
+    }
+
+    private static Long getTypeVoteLogChannel(Session session)
+    {
+        Long channelId;
+        channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "type");
         return channelId;
     }
 

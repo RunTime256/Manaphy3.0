@@ -13,6 +13,16 @@ public class TypeVote
     {
     }
 
+    public static boolean exists(String type, Session session)
+    {
+        return session.getMapper(TypeVoteMapper.class).exists(type);
+    }
+
+    public static boolean canVote(String type, long userId, Session session)
+    {
+        return session.getMapper(TypeVoteMapper.class).canVote(type, userId);
+    }
+
     public static List<String> getAvailableTypes(long userId, Session session)
     {
         return session.getMapper(TypeVoteMapper.class).getAvailableTypes(userId);
@@ -28,7 +38,7 @@ public class TypeVote
         return session.getMapper(TypeVoteMapper.class).getRemainingTypeVoteCount(userId);
     }
 
-    public void addTypeVote(String type, long userId, Instant time, Session session)
+    public static void addTypeVote(String type, long userId, Instant time, Session session)
     {
         session.getMapper(TypeVoteMapper.class).addTypeVote(type, userId, time);
     }
