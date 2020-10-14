@@ -19,9 +19,9 @@ public interface TypeVoteMapper
     boolean canVote(@Param("type") String type, @Param("userId") long userId);
 
     @Select("SELECT DISTINCT tv.type FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
-            "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id LEFT JOIN cc4.type_vote tv ON p.id = tv.puzzle_id " +
+            "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id RIGHT JOIN cc4.type_vote tv ON p.id = tv.puzzle_id " +
             "LEFT JOIN cc4.type_vote_selection tvs ON tv.id = tvs.type_id " +
-            "WHERE pg.user_id = #{userId} AND tv.type IS NOT NULL AND tvs.id IS NULL")
+            "WHERE pg.user_id = #{userId} AND tvs.id IS NULL AND pg.guess = ps.solution")
     List<String> getAvailableTypes(@Param("userId") long userId);
 
     @Select("SELECT DISTINCT tv.type FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
