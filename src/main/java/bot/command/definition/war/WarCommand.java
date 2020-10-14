@@ -3,6 +3,7 @@ package bot.command.definition.war;
 import bot.command.MessageCommand;
 import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
+import bot.command.definition.war.typevote.TypeCommand;
 import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
@@ -20,7 +21,8 @@ public class WarCommand
     public static MessageCommand createCommand()
     {
         List<MessageCommand> subCommands = Arrays.asList(
-                PuzzleCommand.createCommand()
+                PuzzleCommand.createCommand(),
+                TypeCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();
