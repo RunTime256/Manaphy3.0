@@ -77,7 +77,8 @@ public class TypeCommand
             }
             else
             {
-                description = "Use the command `+war type vote <type>` to choose a type to vote for (" + (total - count) + "/" + total + " votes remain):";
+                description = "Use the command `+war type vote <type>` to choose a type to vote and pledge your allegiance for:\n\n" +
+                        "*(" + (total - count) + "/" + total + " votes remain)*";
 
                 String combinedAvailable = CombineContent.combine(available).replace(" ", "\n");
                 if (combinedAvailable.isEmpty())
