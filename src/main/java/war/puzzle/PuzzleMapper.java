@@ -3,6 +3,7 @@ package war.puzzle;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,6 +15,12 @@ public interface PuzzleMapper
 
     @Select("SELECT EXISTS (SELECT FROM cc4.puzzle WHERE name = #{name} AND start_time < #{time} AND (end_time > #{time} OR end_time IS NULL))")
     boolean isActive(@Param("name") String name, @Param("time") Instant time);
+
+    @Select("SELECT EXISTS (SELECT FROM cc4.puzzle WHERE name = #{name} AND start_time > #{time})")
+    boolean hasStarted(@Param("name") String name, @Param("time") Instant time);
+
+    @Select("SELECT EXISTS (SELECT FROM cc4.puzzle WHERE name = #{name} AND end_time < #{time})")
+    boolean hasEnded(@Param("name") String name, @Param("time") Instant time);
 
     @Select("SELECT infinite FROM cc4.puzzle p WHERE p.name = #{name}")
     boolean isInfinite(@Param("name") String name);
@@ -43,8 +50,22 @@ public interface PuzzleMapper
             " WHERE p.name = #{name} AND ps.solution = #{guess})")
     boolean correct(@Param("name") String name, @Param("guess") String guess);
 
+    @Select("SELECT DISTINCT pg.user_id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution WHERE p.name = #{name}")
+    List<Long> puzzleSolvers(@Param("name") String name);
+
+    @Select("SELECT DISTINCT pg.user_id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id WHERE p.name = #{name}")
+    List<Long> puzzleGuessers(@Param("name") String name);
+
     @Insert("INSERT INTO cc4.puzzle_guess( " +
             "puzzle_id, user_id, guess, time) " +
             "VALUES ((SELECT id FROM cc4.puzzle WHERE name = #{name}), #{userId}, #{guess}, #{time});")
     void addGuess(@Param("name") String name, @Param("guess") String guess, @Param("userId") Long userId, @Param("time") Instant time);
+
+    @Update("UPDATE cc4.puzzle SET start_time = #{time} WHERE name = #{name}")
+    void start(@Param("name") String name, @Param("time") Instant time);
+
+    @Update("UPDATE cc4.puzzle SET end_time = #{time} WHERE name = #{name}")
+    void end(@Param("name") String name, @Param("time") Instant time);
 }

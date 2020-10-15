@@ -1,4 +1,4 @@
-package exception.typevote;
+package exception.war.typevote;
 
 import exception.war.WarException;
 

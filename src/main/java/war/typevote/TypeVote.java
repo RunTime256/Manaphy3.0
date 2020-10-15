@@ -1,8 +1,8 @@
 package war.typevote;
 
-import exception.typevote.InvalidTypeException;
-import exception.typevote.MaxVoteException;
-import exception.typevote.UnavailableTypeException;
+import exception.war.typevote.InvalidTypeException;
+import exception.war.typevote.MaxVoteException;
+import exception.war.typevote.UnavailableTypeException;
 import sql.Session;
 
 import java.time.Instant;

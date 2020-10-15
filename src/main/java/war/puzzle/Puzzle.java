@@ -6,6 +6,9 @@ import exception.war.puzzle.AlreadySolvedPuzzleException;
 import exception.war.puzzle.InactivePuzzleException;
 import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
+import exception.war.puzzle.PuzzleAlreadyEndedException;
+import exception.war.puzzle.PuzzleAlreadyStartedException;
+import exception.war.puzzle.PuzzleNotStartedException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
 
@@ -38,7 +41,7 @@ public class Puzzle
         if (!(hasRole(userId, puzzleName, api, session) && hasCode(userId, puzzleName, session)))
             throw new MissingPuzzleRequirementException(puzzleName);
 
-        makeGuess(puzzleName, puzzleGuess, userId, time, session);
+        session.getMapper(PuzzleMapper.class).addGuess(puzzleName, puzzleGuess, userId, time);
 
         return isCorrect(puzzleName, puzzleGuess, session);
     }
@@ -51,6 +54,16 @@ public class Puzzle
     public static boolean isActive(String puzzleName, Instant time, Session session)
     {
         return session.getMapper(PuzzleMapper.class).isActive(puzzleName, time);
+    }
+
+    public static boolean hasStarted(String puzzleName, Instant time, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasStarted(puzzleName, time);
+    }
+
+    public static boolean hasEnded(String puzzleName, Instant time, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasEnded(puzzleName, time);
     }
 
     public static boolean isInfinite(String puzzleName, Session session)
@@ -91,8 +104,25 @@ public class Puzzle
         return session.getMapper(PuzzleMapper.class).correct(puzzleName, puzzleGuess);
     }
 
-    private static void makeGuess(String puzzleName, String puzzleGuess, Long userId, Instant time, Session session)
+    public static void start(String puzzleName, Instant time, Session session)
     {
-        session.getMapper(PuzzleMapper.class).addGuess(puzzleName, puzzleGuess, userId, time);
+        if (!exists(puzzleName, session))
+            throw new NotAPuzzleException(puzzleName);
+        if (hasStarted(puzzleName, time, session))
+            throw new PuzzleAlreadyStartedException(puzzleName);
+        if (hasEnded(puzzleName, time, session))
+            throw new PuzzleAlreadyEndedException(puzzleName);
+        session.getMapper(PuzzleMapper.class).start(puzzleName, time);
+    }
+
+    public static void end(String puzzleName, Instant time, Session session)
+    {
+        if (!exists(puzzleName, session))
+            throw new NotAPuzzleException(puzzleName);
+        if (!hasStarted(puzzleName, time, session))
+            throw new PuzzleNotStartedException(puzzleName);
+        if (hasEnded(puzzleName, time, session))
+            throw new PuzzleAlreadyEndedException(puzzleName);
+        session.getMapper(PuzzleMapper.class).end(puzzleName, time);
     }
 }
