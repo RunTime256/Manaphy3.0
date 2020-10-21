@@ -6,7 +6,7 @@ import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.command.definition.war.WarCommand;
 import bot.command.definition.war.puzzle.PuzzleSolveCommand;
-import bot.command.definition.war.typevote.TypeVoteCommand;
+import bot.command.definition.war.prewar.typevote.TypeVoteCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.channel.ChannelMapper;

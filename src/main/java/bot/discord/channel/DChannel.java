@@ -37,6 +37,10 @@ public class DChannel
     public static ServerTextChannel getServerChannel(Server server, long id, String name)
     {
         ServerTextChannel channel = null;
+
+        if (server == null)
+            return null;
+
         if (id != 0L)
         {
             channel = server.getTextChannelById(id).orElse(null);
@@ -59,6 +63,10 @@ public class DChannel
     public static ServerVoiceChannel getVoiceChannel(Server server, long id, String name)
     {
         ServerVoiceChannel channel = null;
+
+        if (server == null)
+            return null;
+
         if (id != 0L)
         {
             channel = server.getVoiceChannelById(id).orElse(null);

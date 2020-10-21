@@ -3,7 +3,7 @@ package bot.command.definition.war;
 import bot.command.MessageCommand;
 import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
-import bot.command.definition.war.typevote.TypeCommand;
+import bot.command.definition.war.prewar.typevote.TypeCommand;
 import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
