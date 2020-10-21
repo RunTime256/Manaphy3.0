@@ -98,12 +98,12 @@ public class TypeVoteCommand
                     boolean[] completed = {false};
                     yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
                             new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                    info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.YES, api,
                                     new ReactionCommand(TypeVoteFunctionality::yesFunction, completed, selection))).removeAfter(30, TimeUnit.SECONDS));
 
                     noFuture.thenAccept(aVoid -> api.addReactionAddListener(
                             new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                    info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.NO, api,
                                     new ReactionCommand(TypeVoteFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
                     {
                         if (!completed[0])

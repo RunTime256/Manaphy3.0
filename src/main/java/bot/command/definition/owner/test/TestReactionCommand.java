@@ -58,12 +58,12 @@ public class TestReactionCommand
                 boolean[] completed = {false};
                 yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
                         new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.YES, api,
                                 new ReactionCommand(TestReactionFunctionality::yesFunction, completed, null))).removeAfter(10, TimeUnit.SECONDS));
 
                 noFuture.thenAccept(aVoid -> api.addReactionAddListener(
                         new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.NO, api,
                                 new ReactionCommand(TestReactionFunctionality::noFunction, completed, null))).removeAfter(10, TimeUnit.SECONDS).addRemoveHandler(() -> {
                     if (!completed[0])
                     {
