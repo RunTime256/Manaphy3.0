@@ -36,14 +36,14 @@ public class TypeVote
         return session.getMapper(TypeVoteMapper.class).getVotedTypes(userId);
     }
 
-    public static int getRemainingTypeVoteCount(long userId, Session session)
+    public static int getUsedVoteCount(long userId, Session session)
     {
-        return session.getMapper(TypeVoteMapper.class).getRemainingTypeVoteCount(userId);
+        return session.getMapper(TypeVoteMapper.class).getUsedVoteCount(userId);
     }
 
     public static void addTypeVote(String type, long userId, Instant time, Session session)
     {
-        if (getRemainingTypeVoteCount(userId, session) >= TOTAL_VOTES)
+        if (getUsedVoteCount(userId, session) >= TOTAL_VOTES)
             throw new MaxVoteException();
 
         if (!exists(type, session))

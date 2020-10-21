@@ -76,7 +76,7 @@ public class TypeVoteCommand
             {
                 int total = TypeVote.TOTAL_VOTES;
                 long userId = info.getUser().getId();
-                int count = TypeVote.getRemainingTypeVoteCount(userId, session);
+                int count = TypeVote.getUsedVoteCount(userId, session);
                 if (count >= total)
                     throw new MaxVoteException();
 
