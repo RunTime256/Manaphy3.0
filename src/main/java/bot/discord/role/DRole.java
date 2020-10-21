@@ -23,6 +23,10 @@ public class DRole
     public static Role getRole(Server server, long id, String name)
     {
         Role role = null;
+
+        if (server == null)
+            return null;
+
         if (id != 0L)
         {
             role = server.getRoleById(id).orElse(null);

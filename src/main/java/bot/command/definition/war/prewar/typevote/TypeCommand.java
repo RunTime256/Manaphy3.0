@@ -1,4 +1,4 @@
-package bot.command.definition.war.typevote;
+package bot.command.definition.war.prewar.typevote;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;

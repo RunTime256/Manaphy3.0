@@ -21,6 +21,9 @@ public class DUser
     {
         User user;
 
+        if (server == null)
+            return null;
+
         if (id != 0L)
         {
             user = server.getMemberById(id).orElse(null);
