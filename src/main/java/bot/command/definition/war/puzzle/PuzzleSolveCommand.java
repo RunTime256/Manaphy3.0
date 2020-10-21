@@ -132,12 +132,12 @@ public class PuzzleSolveCommand
                     boolean[] completed = {false};
                     yesFuture.thenAccept(aVoid -> api.addReactionAddListener(
                             new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.YES, api,
+                                    info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.YES, api,
                                     new ReactionCommand(PuzzleSolveFunctionality::yesFunction, completed, guess))).removeAfter(30, TimeUnit.SECONDS));
 
                     noFuture.thenAccept(aVoid -> api.addReactionAddListener(
                             new ReactionCommandListener(
-                                    info.getUser(), info.getChannel(), ReactionCommand.NO, api,
+                                    info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.NO, api,
                                     new ReactionCommand(PuzzleSolveFunctionality::noFunction, completed, null))).removeAfter(30, TimeUnit.SECONDS).addRemoveHandler(() ->
                     {
                         if (!completed[0])

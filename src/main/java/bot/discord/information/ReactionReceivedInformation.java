@@ -27,4 +27,9 @@ public class ReactionReceivedInformation
     {
         return reactionAddEvent.getChannel();
     }
+
+    public long getMessageId()
+    {
+        return reactionAddEvent.getMessageId();
+    }
 }

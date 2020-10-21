@@ -1,27 +1,27 @@
 package bot.command.parser;
 
 import bot.command.ReactionCommand;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.user.User;
 
 public class ReactionCommandParser
 {
-    private final User user;
-    private final TextChannel channel;
+    private final long userId;
+    private final long channelId;
+    private final long messageId;
     private final String reaction;
     private final ReactionCommand command;
 
-    public ReactionCommandParser(User user, TextChannel channel, String reaction, ReactionCommand command)
+    public ReactionCommandParser(long userId, long channelId, long messageId, String reaction, ReactionCommand command)
     {
-        this.user = user;
-        this.channel = channel;
+        this.userId = userId;
+        this.channelId = channelId;
+        this.messageId = messageId;
         this.reaction = reaction;
         this.command = command;
     }
 
-    public ReactionCommand getCommand(User user, TextChannel channel, String reaction)
+    public ReactionCommand getCommand(long userId, long channelId, long messageId, String reaction)
     {
-        if (this.user.getId() == user.getId() && this.channel.getId() == channel.getId() && this.reaction.equals(reaction))
+        if (this.userId == userId && this.channelId == channelId && this.messageId == messageId && this.reaction.equals(reaction))
             return command;
         else
             return null;
