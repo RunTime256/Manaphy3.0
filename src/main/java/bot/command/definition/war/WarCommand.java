@@ -3,6 +3,7 @@ package bot.command.definition.war;
 import bot.command.MessageCommand;
 import bot.command.definition.war.battle.BattleCommand;
 import bot.command.definition.war.code.CodeCommand;
+import bot.command.definition.war.join.JoinCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
 import bot.command.definition.war.prewar.typevote.TypeCommand;
 import bot.command.verification.RoleRequirement;
@@ -23,6 +24,7 @@ public class WarCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 BattleCommand.createCommand(),
+                JoinCommand.createCommand(),
                 PuzzleCommand.createCommand(),
                 TypeCommand.createCommand()
         );
