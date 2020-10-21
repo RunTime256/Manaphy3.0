@@ -1,6 +1,7 @@
 package bot.command.definition.war;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.battle.BattleCommand;
 import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
 import bot.command.definition.war.typevote.TypeCommand;
@@ -21,6 +22,7 @@ public class WarCommand
     public static MessageCommand createCommand()
     {
         List<MessageCommand> subCommands = Arrays.asList(
+                BattleCommand.createCommand(),
                 PuzzleCommand.createCommand(),
                 TypeCommand.createCommand()
         );
