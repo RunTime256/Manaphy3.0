@@ -30,7 +30,7 @@ public interface PuzzleMapper
     boolean hasGuessed(@Param("name") String name, @Param("userId") Long userId);
 
     @Select("SELECT EXISTS (SELECT FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
-            "LEFT JOIN cc4.puzzle_guess pg ON ps.solution = pg.guess " +
+            "LEFT JOIN cc4.puzzle_guess pg ON ps.solution = pg.guess AND p.id = pg.puzzle_id " +
             "WHERE p.name = #{name} AND pg.user_id = #{userId})")
     boolean hasSolved(@Param("name") String name, @Param("userId") Long userId);
 
