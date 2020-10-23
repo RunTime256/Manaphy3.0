@@ -5,6 +5,7 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
 import exception.bot.argument.TooManyArgumentsException;
 import org.javacord.api.DiscordApi;
@@ -55,7 +56,14 @@ public class SayCommand
         {
             this.api = api;
             this.info = info;
-            channelId = Long.parseLong(vars.remove(0));
+            try
+            {
+                channelId = Long.parseLong(vars.remove(0));
+            }
+            catch (NumberFormatException e)
+            {
+                throw new InvalidArgumentException("channel id");
+            }
             StringBuilder builder = new StringBuilder();
             for (String var: vars)
             {
