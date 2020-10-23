@@ -3,9 +3,11 @@ package bot.discord.message;
 import exception.BotException;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class DMessage
@@ -58,5 +60,29 @@ public class DMessage
             builder.setColor(Color.RED);
         }
         return channel.sendMessage(builder);
+    }
+
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, String message, MessageAttachment attachment)
+    {
+        try
+        {
+            return channel.sendMessage(message, attachment.downloadAsInputStream(), attachment.getFileName());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, MessageAttachment attachment)
+    {
+        try
+        {
+            return channel.sendMessage(attachment.downloadAsInputStream(), attachment.getFileName());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }
