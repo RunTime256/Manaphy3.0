@@ -6,6 +6,7 @@ import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import bot.util.CombineContent;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
 import exception.bot.argument.NoExecutorException;
@@ -110,8 +111,8 @@ public class MessageCommandListener implements MessageCreateListener
                 {
                     logger.fatal("Exception occurred", e);
                     if (errorLogger != null)
-                        errorLogger.log(e);
-                    DMessage.sendMessage(info.getChannel(), e, false);
+                        errorLogger.log(info.getContent(), info.getUser().getId(), e);
+                    DMessage.sendMessage(info.getChannel(), null, e, false);
                     session.rollback();
                 }
             }

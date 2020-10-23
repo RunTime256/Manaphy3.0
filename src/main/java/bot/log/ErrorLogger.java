@@ -19,10 +19,17 @@ public class ErrorLogger
         this.channelId = channelId;
     }
 
-    public void log(Exception e)
+    public void log(long userId, Exception e)
     {
         TextChannel channel = DChannel.getChannel(api, channelId);
         if (!(e instanceof BotException) || ((BotException) e).getColor() == Color.RED)
-            DMessage.sendMessage(channel, e, true);
+            DMessage.sendMessage(channel, userId, e, true);
+    }
+
+    public void log(String command, long userId, Exception e)
+    {
+        TextChannel channel = DChannel.getChannel(api, channelId);
+        if (!(e instanceof BotException) || ((BotException) e).getColor() == Color.RED)
+            DMessage.sendMessage(channel, command, userId, e, true);
     }
 }

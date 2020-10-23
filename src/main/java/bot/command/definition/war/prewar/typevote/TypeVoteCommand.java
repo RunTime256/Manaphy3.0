@@ -12,6 +12,7 @@ import bot.discord.role.DRole;
 import bot.discord.server.DServer;
 import bot.log.TypeVoteLogger;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.argument.TooManyArgumentsException;
 import exception.typevote.InvalidTypeException;
 import exception.typevote.MaxVoteException;
 import exception.typevote.UnavailableTypeException;
@@ -52,7 +53,7 @@ public class TypeVoteCommand
         if (vars.isEmpty())
             throw new MissingArgumentException("type");
         if (vars.size() > 1)
-            throw new IllegalArgumentException("Too many arguments");
+            throw new TooManyArgumentsException();
         TypeVoteFunctionality functionality = new TypeVoteFunctionality(api, info, vars, session);
         functionality.execute();
     }

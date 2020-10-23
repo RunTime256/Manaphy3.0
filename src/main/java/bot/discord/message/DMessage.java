@@ -24,7 +24,7 @@ public class DMessage
         return channel.sendMessage(builder);
     }
 
-    public static CompletableFuture<Message> sendMessage(TextChannel channel, Exception e, boolean log)
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, Long userId, Exception e, boolean log)
     {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Exception occurred: " + e.getClass().getName());
@@ -36,7 +36,25 @@ public class DMessage
         else
         {
             if (log)
-                builder.setDescription(e.getMessage());
+                builder.addField("Caused by User ID", String.valueOf(userId)).addField("Details", e.getMessage());
+            builder.setColor(Color.RED);
+        }
+        return channel.sendMessage(builder);
+    }
+
+    public static CompletableFuture<Message> sendMessage(TextChannel channel, String command, Long userId, Exception e, boolean log)
+    {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Exception occurred: " + e.getClass().getName());
+        if (e instanceof BotException)
+        {
+            BotException exception = (BotException)e;
+            builder.setColor(exception.getColor()).setDescription(exception.getMessage());
+        }
+        else
+        {
+            if (log)
+                builder.setDescription(command).addField("Caused by User ID", String.valueOf(userId)).addField("Details", e.getMessage());
             builder.setColor(Color.RED);
         }
         return channel.sendMessage(builder);
