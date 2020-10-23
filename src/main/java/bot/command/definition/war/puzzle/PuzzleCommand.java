@@ -18,7 +18,8 @@ public class PuzzleCommand
     public static MessageCommand createCommand()
     {
         List<MessageCommand> subCommands = Arrays.asList(
-                PuzzleSolveCommand.createCommand()
+                PuzzleSolveCommand.createCommand(),
+                PuzzleListCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

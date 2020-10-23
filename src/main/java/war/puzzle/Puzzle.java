@@ -18,6 +18,20 @@ public class Puzzle
     {
     }
 
+    public static List<String> getSolvedInfinitePuzzles(long userId, Session session)
+    {
+        List<String> puzzles = session.getMapper(PuzzleMapper.class).getSolvedInfinitePuzzles(userId);
+        puzzles.sort(String::compareTo);
+        return puzzles;
+    }
+
+    public static List<String> getUnsolvedDiscoveredInfinitePuzzles(long userId, Session session)
+    {
+        List<String> puzzles = session.getMapper(PuzzleMapper.class).getUnsolvedDiscoveredInfinitePuzzles(userId);
+        puzzles.sort(String::compareTo);
+        return puzzles;
+    }
+
     public static boolean guess(PuzzleGuess guess, DiscordApi api, Session session)
     {
         String puzzleName = guess.getName();
