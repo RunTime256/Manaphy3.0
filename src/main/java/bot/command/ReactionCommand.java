@@ -9,6 +9,11 @@ public class ReactionCommand
 {
     public static final String YES = "\u2705";
     public static final String NO = "\u274C";
+    public static final String NEXT = "\u25B6";
+    public static final String PREV = "\u25C0";
+    public static final String STOP = "\u23F9";
+
+
     private final ReactionExecutor executor;
     private final boolean[] completed;
 
