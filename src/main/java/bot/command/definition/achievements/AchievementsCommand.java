@@ -8,6 +8,7 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
+import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class AchievementsCommand
 {
-    private static final String NAME = "achievements";
+    private static final String NAME = "war medals";
     private static final String DESCRIPTION = "List your war achievements.";
     private static final String SYNTAX = "<user> <summary>?";
 
@@ -47,9 +48,10 @@ public class AchievementsCommand
         final MessageReceivedInformation info;
         final Session session;
 
+        final Boolean isCategory;
         final Boolean isSummary;
-        final String userName;
-        final Long userId;
+        final AchievementCategory achievementCategory;
+        final String achievementName;
 
         AchievementsFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
         {
@@ -57,50 +59,82 @@ public class AchievementsCommand
             this.info = info;
             this.session = session;
 
-            // Check if summary view.
-            if (vars.size() < 2) {
-                isSummary = false;
-            } else {
-                isSummary = vars.get(1) == "summary";
+            // Check if using summary mode
+            if (vars.size() == 1 && vars.get(0).toLowerCase() == "summary") {
+                isSummary = true;
+                isCategory = false;
+                achievementCategory = null;
+                achievementName = null;
+                return;
+            }
+            isSummary = false;
+
+            // Check for valid argument length
+            if (vars.size() == 0) {
+                isCategory = false;
+                achievementCategory = null;
+                achievementName = null;
+                return;
             }
 
-            // Check for passed user ID
-            if (vars.size() < 1) {
-                userName = "";
-                userId = 0L;
-            } else {
-                userName = vars.get(0);
-                userId = IdExtractor.getId(userName);
+            // Check for category
+            AchievementCategory category = null;
+
+            try {
+                category = AchievementCategory.valueOf(vars.get(0).toUpperCase());
+            } catch (IllegalArgumentException exc) {
+                category = null;
             }
 
+            if (category != null) {
+                achievementCategory = category;
+                if (vars.size() == 1){
+                    isCategory = true;
+                    achievementName = null;
+                    return;
+                }
+            } else {
+                achievementCategory = null;
+            }
 
+            isCategory = false;
+
+            // Check for command name
+            if (vars.size() > 1) {
+                achievementName = CombineContent.combine(vars.subList(1, vars.size() - 1));
+            } else {
+                achievementName = null;
+            }
         }
 
         void execute()
         {
-            // Fetch the User
-            User user = GetUserCommand.getUser(info, userId, userName);
-            if (user == null) {
-                DMessage.sendMessage(info.getChannel(), "User `" + userName + "` could not be found.");
-                return;
-            }
-
             // Retrieve Users Achievements
             UserAchievementMapper mapper = session.getMapper(UserAchievementMapper.class);
-            List<UserAchievement> userAchievements = mapper.getUserAchievements(user.getId());
+            List<UserAchievement> userAchievements = mapper.getUserAchievements(info.getUser().getId());
+
+            EmbedBuilder start = null;
 
             // Generate the Embeds
             List<EmbedBuilder>  embeds = List.of();
             for (UserAchievement userAchievement : userAchievements)
             {
-                embeds.add(userAchievementEmbed(user, userAchievement));
+                EmbedBuilder embed = userAchievementEmbed(info.getUser(), userAchievement);
+
+                if (achievementName != null) {
+                    if (achievementName == userAchievement.getAchievement().getName()) {
+                        start = embed;
+                    }
+                }
+
+                embeds.add(embed);
             }
 
             // Error out if user has no achievements.
             if (embeds.size() == 0) {
                 EmbedBuilder builder = new EmbedBuilder();
 
-                builder.setTitle("You currently have no achievements");
+                builder.setTitle("You currently have no medals.");
                 DMessage.sendMessage(info.getChannel(), builder);
                 return;
             }
@@ -109,10 +143,10 @@ public class AchievementsCommand
             if (isSummary) {
                 EmbedBuilder builder = new EmbedBuilder();
 
-                String authorName = String.format("%s's Achievements", user.getName());
-                builder.setAuthor(authorName, null, user.getAvatar());
+                String authorName = String.format("%s's Medals", info.getUser().getName());
+                builder.setAuthor(authorName, null, info.getUser().getAvatar());
 
-                builder.addField("Total Achievements:", String.format("%d", userAchievements.size()), false);
+                builder.addField("Total Medals:", String.format("%d", userAchievements.size()), false);
 
 
                 StringBuilder categoryBuilder = new StringBuilder();
@@ -124,10 +158,32 @@ public class AchievementsCommand
 
                     categoryBuilder.append(String.format("%s: %d\n", Achievement.getCategoryEmoji(category), count));
                 }
-                builder.addField("Achievements:", categoryBuilder.toString());
+                builder.addField("Medals:", categoryBuilder.toString());
 
                 // TODO: ADD MORE INFORMATION ?
 
+                DMessage.sendMessage(info.getChannel(), builder);
+                return;
+            }
+
+            // Show category view if requested.
+            if (isCategory) {
+                EmbedBuilder builder = new EmbedBuilder();
+
+                String authorName = String.format("%s's Medals", info.getUser().getName());
+                builder.setAuthor(authorName, null, info.getUser().getAvatar());
+
+                // TODO: ADD MORE INFORMATION ?
+
+                DMessage.sendMessage(info.getChannel(), builder);
+                return;
+            }
+
+            // Show error if required.
+            if (achievementName != null && start == null) {
+                EmbedBuilder builder = new EmbedBuilder();
+
+                builder.setTitle("Invalid medal name passed.");
                 DMessage.sendMessage(info.getChannel(), builder);
                 return;
             }
@@ -139,7 +195,12 @@ public class AchievementsCommand
             }
 
             // Start the menu session
-            new AchievementMenu(embeds).startMenu(api, info);
+            AchievementMenu menu = new AchievementMenu(embeds);
+            if (start != null){
+                menu.startMenu(api, info, start);
+            } else {
+                menu.startMenu(api, info);
+            }
         }
 
         private EmbedBuilder userAchievementEmbed(User user, UserAchievement userAchievement) {
@@ -150,12 +211,12 @@ public class AchievementsCommand
             builder.setTitle(String.format("%s - %s", achievement.getCategoryEmoji(),achievement.getName()));
             builder.setDescription(achievement.getDescription());
 
-            String authorName = String.format("%s's Achievements", user.getName());
+            String authorName = String.format("%s's Medals", user.getName());
             builder.setAuthor(authorName, null, user.getAvatar());
 
             builder.addField(ZWSP, achievement.getUnlockMethod());
 
-            builder.setFooter("Achieved");
+            builder.setFooter("Obtained");
             builder.setTimestamp(userAchievement.getAttainedAt());
 
             // TODO: ADD MORE INFORMATION ?
@@ -208,6 +269,16 @@ public class AchievementsCommand
                         listeners.add(listener);
                     });
                 });
+            }
+
+            public void startMenu(DiscordApi api, MessageReceivedInformation info, EmbedBuilder embed) {
+                for (int i = 0; i < embeds.size(); i++) {
+                    if (embeds.get(i).hashCode() == embed.hashCode()) {
+                        page = i;
+                        break;
+                    }
+                }
+                startMenu(api, info);
             }
 
             private void UpdateMenu(String lastReaction) {
