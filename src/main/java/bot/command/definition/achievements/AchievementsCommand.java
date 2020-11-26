@@ -8,6 +8,7 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
+import bot.discord.user.DUser;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import org.javacord.api.DiscordApi;
@@ -26,6 +27,12 @@ public class AchievementsCommand
 
     private static final String ZWSP = "\u200B";
 
+    private static final String GRANT = "GRANT";
+    private static final String CREATE = "CREATE";
+    private static final String UPDATE = "UPDATE";
+    private static final String SHOW = "SHOW";
+
+
     private AchievementsCommand()
     {
     }
@@ -38,11 +45,196 @@ public class AchievementsCommand
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        AchievementsFunctionality functionality = new AchievementsFunctionality(api, info, vars, session);
-        functionality.execute();
+        if (vars.size() == 0) {
+            new AchievementsShowFunctionality(api, info, vars, session).execute();
+        } else {
+            switch (vars.get(0).toUpperCase()) {
+                case (GRANT):
+                    new AchievementsGrantFunctionality(api, info, vars, session).execute();
+                    break;
+                case (CREATE):
+                    new AchievementsCreateFunctionality(api, info, vars, session).execute();
+                    break;
+                case (UPDATE):
+                    new AchievementsUpdateFunctionality(api, info, vars, session).execute();
+                    break;
+                case (SHOW):
+                    new AchievementsShowFunctionality(api, info, vars, session).execute();
+                    break;
+            }
+        }
     }
 
-    private static class AchievementsFunctionality
+    public static User getUser(MessageReceivedInformation info, Long id, String name)
+    {
+        User user;
+        if (name.isBlank())
+            user = info.getUser();
+        else
+            user = DUser.getUser(info.getServer(), id, name);
+
+        return user;
+    }
+
+    private static class AchievementsGrantFunctionality
+    {
+        final DiscordApi api;
+        final MessageReceivedInformation info;
+        final Session session;
+
+        final String userName;
+        final Long userId;
+        final String achievementName;
+
+        AchievementsGrantFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
+        {
+            this.api = api;
+            this.info = info;
+            this.session = session;
+
+            if (vars.size() < 2) {
+                userName = "";
+                userId = 0L;
+            } else {
+                userName = vars.get(1);
+                userId = IdExtractor.getId(userName);
+            }
+
+            achievementName = vars.size() < 3 ? null : vars.get(2);
+        }
+
+        void execute()
+        {
+            User user = getUser(info, userId, userName);
+
+            if (user == null) {
+                DMessage.sendMessage(info.getChannel(), "User `" + userName + "` could not be found.");
+                return;
+            }
+
+            // Retrieve Achievement
+            AchievementMapper mapper = session.getMapper(AchievementMapper.class);
+            Achievement achievement = mapper.getAchievement(achievementName);
+
+            if (achievement == null) {
+                DMessage.sendMessage(info.getChannel(), "Achievement `" + achievementName + "` could not be found.");
+                return;
+            }
+
+            // TODO: Store in UserAchivement object
+
+        }
+    }
+
+    private static class AchievementsCreateFunctionality
+    {
+        final DiscordApi api;
+        final MessageReceivedInformation info;
+        final Session session;
+
+        final String categoryName;
+        final String name;
+        final String image_url;
+
+        AchievementsCreateFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
+        {
+            this.api = api;
+            this.info = info;
+            this.session = session;
+
+            categoryName = vars.size() < 2 ? null : vars.get(1);
+            name = vars.size() < 3 ? null : vars.get(2);
+            image_url = vars.size() < 4 ? null : vars.get(3);
+        }
+
+        void execute()
+        {
+            if (name == null) {
+                DMessage.sendMessage(info.getChannel(), "Name not passed.");
+                return;
+            } else if (categoryName == null) {
+                DMessage.sendMessage(info.getChannel(), "Category not passed.");
+                return;
+            } else if (image_url == null) {
+                DMessage.sendMessage(info.getChannel(), "Image url not passed.");
+                return;
+            }
+
+            // Check if name is already used.
+            AchievementMapper mapper = session.getMapper(AchievementMapper.class);
+            if (mapper.getAchievement(name) != null) {
+                DMessage.sendMessage(info.getChannel(), "Achievement `" + name + "` already exists.");
+                return;
+            }
+
+            // Check if valid category
+            if (AchievementCategory.valueOf(categoryName) == null) {
+                DMessage.sendMessage(info.getChannel(), "Achievement Category`" + categoryName + "` does not exist.");
+                return;
+            }
+
+            // TODO: create achievement object and store in db
+
+        }
+    }
+
+    private static class AchievementsUpdateFunctionality
+    {
+        final DiscordApi api;
+        final MessageReceivedInformation info;
+        final Session session;
+
+        final String field;
+        final String name;
+        final String value;
+
+        AchievementsUpdateFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
+        {
+            this.api = api;
+            this.info = info;
+            this.session = session;
+
+            field = vars.size() < 2 ? null : vars.get(1);
+            name = vars.size() < 3 ? null : vars.get(2);
+            value = vars.size() < 4 ? null : CombineContent.combine(vars.subList(3, vars.size() - 1));
+        }
+
+        void execute()
+        {
+            if (field == null) {
+                DMessage.sendMessage(info.getChannel(), "Field not passed.");
+                return;
+            } else if (name == null) {
+                DMessage.sendMessage(info.getChannel(), "Achievement name not passed.");
+                return;
+            } else if (value == null) {
+                DMessage.sendMessage(info.getChannel(), "Value not passed.");
+                return;
+            }
+
+            // TODO: update achievement object to store.
+
+            switch (field.toLowerCase()) {
+                case ("description"):
+                    // TODO: THIS
+                    break;
+                case ("method"):
+                    // TODO: THIS
+                    break;
+                case ("display_name"):
+                    // TODO: THIS
+                    break;
+                case ("image_url"):
+                    // TODO: THIS
+                    break;
+                default:
+                    DMessage.sendMessage(info.getChannel(), "Invalid field name passed.");
+                    return;
+            }
+        }
+    }
+
+    private static class AchievementsShowFunctionality
     {
         final DiscordApi api;
         final MessageReceivedInformation info;
@@ -53,7 +245,7 @@ public class AchievementsCommand
         final AchievementCategory achievementCategory;
         final String achievementName;
 
-        AchievementsFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
+        AchievementsShowFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
         {
             this.api = api;
             this.info = info;
@@ -314,8 +506,9 @@ public class AchievementsCommand
                 message.removeOwnReactionByEmoji(ReactionCommand.STOP);
                 // message.delete();
             }
-
         }
     }
+
+
 }
 
