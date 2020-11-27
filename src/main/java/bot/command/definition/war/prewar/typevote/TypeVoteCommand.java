@@ -8,11 +8,14 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
+import bot.discord.role.DRole;
+import bot.discord.server.DServer;
 import bot.log.TypeVoteLogger;
 import exception.bot.argument.MissingArgumentException;
-import exception.war.typevote.InvalidTypeException;
-import exception.war.typevote.MaxVoteException;
-import exception.war.typevote.UnavailableTypeException;
+import exception.bot.argument.TooManyArgumentsException;
+import exception.typevote.InvalidTypeException;
+import exception.typevote.MaxVoteException;
+import exception.typevote.UnavailableTypeException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import sql.Session;
@@ -50,7 +53,7 @@ public class TypeVoteCommand
         if (vars.isEmpty())
             throw new MissingArgumentException("type");
         if (vars.size() > 1)
-            throw new IllegalArgumentException("Too many arguments");
+            throw new TooManyArgumentsException();
         TypeVoteFunctionality functionality = new TypeVoteFunctionality(api, info, vars, session);
         functionality.execute();
     }
@@ -137,7 +140,21 @@ public class TypeVoteCommand
                 int count = selection.getCount() + 1;
                 log(selection);
 
-                DMessage.sendMessage(info.getChannel(), "Vote successful. Thank you for supporting democracy! You have " + (total - count) + "/" + total + " votes remaining.");
+                CompletableFuture<Void> roleFuture = null;
+                if (count == total)
+                {
+                    roleFuture = DRole.addRole(DServer.getServer(api, "pokemon", session), "pokemon", "pledge", info.getUser().getId(), session);
+                }
+
+                CompletableFuture<Message> futureMessage = DMessage.sendMessage(info.getChannel(), "Vote successful. Thank you for supporting democracy! You have " + (total - count) + "/" + total + " votes remaining.");
+                CompletableFuture<Void> finalRoleFuture = roleFuture;
+                futureMessage.thenAccept(message -> {
+
+                    if (finalRoleFuture != null)
+                    {
+                        finalRoleFuture.thenAccept(aVoid -> DMessage.sendMessage(info.getChannel(), "With your final vote, you have earned the Pledge of Allegiance role. Congratulations!"));
+                    }
+                });
             }
             catch (MaxVoteException | InvalidTypeException | UnavailableTypeException e)
             {

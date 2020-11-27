@@ -61,8 +61,8 @@ public class ReactionCommandListener implements ReactionAddListener
             {
                 logger.fatal("Exception occurred", e);
                 if (errorLogger != null)
-                    errorLogger.log(e);
-                DMessage.sendMessage(info.getChannel(), e, false);
+                    errorLogger.log(info.getUser().getId(), e);
+                DMessage.sendMessage(info.getChannel(), null, e, false);
                 session.rollback();
             }
         }

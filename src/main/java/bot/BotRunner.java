@@ -2,6 +2,7 @@ package bot;
 
 import bot.command.definition.get.GetCommand;
 import bot.command.definition.help.HelpCommand;
+import bot.command.definition.mod.SayCommand;
 import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.command.definition.war.WarCommand;
@@ -134,6 +135,7 @@ public class BotRunner
         listener.addCommand(TestCommand.createCommand());
         listener.addCommand(StopCommand.createCommand());
         listener.addCommand(GetCommand.createCommand());
+        listener.addCommand(SayCommand.createCommand());
         listener.addCommand(WarCommand.createCommand());
         listener.addHelpCommand(HelpCommand.createCommand(bot.getPrefix(), bot.getName()));
         bot.addListener(listener);
