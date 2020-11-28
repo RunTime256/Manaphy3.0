@@ -1,8 +1,12 @@
 package bot.discord.information;
 
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
+
+import java.time.Instant;
+import java.util.Optional;
 
 public class ReactionReceivedInformation
 {
