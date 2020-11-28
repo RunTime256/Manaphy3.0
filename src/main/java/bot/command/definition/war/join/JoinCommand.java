@@ -62,6 +62,13 @@ public class JoinCommand
 
         void execute()
         {
+            if (info.getServer() != null)
+            {
+                DMessage.sendMessage(info.getChannel(), "Please perform this command in DMs only.");
+                info.delete();
+                return;
+            }
+
             long userId = info.getUser().getId();
             int tokens = Member.getPrewarTokens(userId, session);
 
@@ -153,7 +160,8 @@ public class JoinCommand
             String title = "Welcome to the " + team.getShortName() + " team!";
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.setTitle(title).setDescription(team.getWelcomeText()).setThumbnail(team.getLeaderImage());
+            builder.setTitle(title).setDescription(team.getWelcomeText()).setThumbnail(team.getLeaderImage())
+                    .setColor(team.getColorValue());
 
             return builder;
         }
