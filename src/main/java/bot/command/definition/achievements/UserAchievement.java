@@ -6,6 +6,7 @@ public class UserAchievement {
     private Long userId;
     private Achievement achievement;
     private Instant attainedAt;
+    private Integer timesAttained;
 
     public Long getUserId() {
         return userId;
@@ -17,5 +18,9 @@ public class UserAchievement {
 
     public Instant getAttainedAt() {
         return attainedAt;
+    }
+
+    public Integer getTimesAttained() {
+        return timesAttained;
     }
 }

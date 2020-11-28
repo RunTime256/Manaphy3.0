@@ -6,6 +6,7 @@ public class Achievement {
     private AchievementCategory category;
     private String description;
     private String unlockMethod;
+    private Boolean singleTime;
 
     public String getIdentifier() {
         return identifier;
@@ -40,5 +41,9 @@ public class Achievement {
             case SECRET: return "\u2728";
         }
         return null;
+    }
+
+    public Boolean isSingleTime() {
+        return singleTime;
     }
 }

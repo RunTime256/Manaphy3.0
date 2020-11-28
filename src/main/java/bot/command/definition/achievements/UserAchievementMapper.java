@@ -6,5 +6,6 @@ public interface UserAchievementMapper {
 
     List<UserAchievement> getUserAchievements(Long userId);
 
+    UserAchievement getUserAchievement(String name, Long userId);
 
 }

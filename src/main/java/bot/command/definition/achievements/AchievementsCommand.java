@@ -121,7 +121,22 @@ public class AchievementsCommand
                 return;
             }
 
-            // TODO: Store in UserAchivement object
+            // TODO: Store in UserAchievement object
+
+            UserAchievementMapper userMapper = session.getMapper(UserAchievementMapper.class);
+            UserAchievement userAchievement = userMapper.getUserAchievement(achievementName, user.getUserId());
+
+            if (userAchievement == null) {
+                // TODO: Store in UserAchievement object
+                return;
+            }
+
+            if (achievement.isSingleTime()) {
+                DMessage.sendMessage(info.getChannel(), "User `" + user.getName() + "` already has this achievement.");
+                return;
+            }
+
+            // TODO: Increment times attained for userAchievement and store in DB
 
         }
     }
@@ -134,7 +149,8 @@ public class AchievementsCommand
 
         final String categoryName;
         final String name;
-        final String image_url;
+        final String imageUrl;
+        final Boolean isSingleUse;
 
         AchievementsCreateFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
         {
@@ -144,7 +160,12 @@ public class AchievementsCommand
 
             categoryName = vars.size() < 2 ? null : vars.get(1);
             name = vars.size() < 3 ? null : vars.get(2);
-            image_url = vars.size() < 4 ? null : vars.get(3);
+            imageUrl = vars.size() < 4 ? null : vars.get(3);
+            if (vars.size() < 5) {
+                isSingleUse = null;
+            } else {
+                isSingleUse = vars.get(4).toLowerCase() == 'yes';
+            }
         }
 
         void execute()
@@ -155,9 +176,11 @@ public class AchievementsCommand
             } else if (categoryName == null) {
                 DMessage.sendMessage(info.getChannel(), "Category not passed.");
                 return;
-            } else if (image_url == null) {
+            } else if (imageUrl == null) {
                 DMessage.sendMessage(info.getChannel(), "Image url not passed.");
                 return;
+            } else if (isSingleUse == null) {
+                DMessage.sendMessage(info.getChannel(), "achievement state not set.")
             }
 
             // Check if name is already used.
