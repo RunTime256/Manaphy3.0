@@ -25,8 +25,8 @@ public class WarCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 BattleCommand.createCommand(),
                 JoinCommand.createCommand(),
-                PuzzleCommand.createCommand(),
-                TypeCommand.createCommand()
+                PuzzleCommand.createCommand()
+//                TypeCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();
