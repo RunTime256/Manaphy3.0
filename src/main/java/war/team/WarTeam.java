@@ -9,20 +9,22 @@ public class WarTeam
     private final String fullName;
     private final String welcomeText;
     private final String leaderImage;
+    private final String tokenImage;
     private final int colorValue;
     private final int memberCount;
     private final int prewarTokens;
 
     private Color color;
 
-    public WarTeam(long roleId, String shortName, String fullName, String welcomeText, String leaderImage, int colorValue,
-                   int memberCount, int prewarTokens)
+    public WarTeam(long roleId, String shortName, String fullName, String welcomeText, String leaderImage, String tokenImage,
+                   int colorValue, int memberCount, int prewarTokens)
     {
         this.roleId = roleId;
         this.shortName = shortName;
         this.fullName = fullName;
         this.welcomeText = welcomeText;
         this.leaderImage = leaderImage;
+        this.tokenImage = tokenImage;
         this.colorValue = colorValue;
         color = new Color(colorValue);
 
@@ -55,7 +57,12 @@ public class WarTeam
         return leaderImage;
     }
 
-    public Color getColorValue()
+    public String getTokenImage()
+    {
+        return tokenImage;
+    }
+
+    public Color getColor()
     {
         if (color != null)
             color = new Color(colorValue);

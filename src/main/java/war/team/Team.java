@@ -27,6 +27,7 @@ public class Team
 
         return team;
     }
+
     public static WarTeam joinPrewarTeam(long userId, int tokens, Instant joinTime, Session session)
     {
         String selectedClass = "prewar";
@@ -41,6 +42,11 @@ public class Team
         mapper.addTeamMember(userId, team.getShortName(), selectedClass, joinTime);
 
         return team;
+    }
+
+    public static WarTeam getTeam(long userId, Session session)
+    {
+        return session.getMapper(TeamMapper.class).getTeam(userId);
     }
 
     public static boolean isTeamMember(long userId, Session session)

@@ -161,7 +161,7 @@ public class JoinCommand
             EmbedBuilder builder = new EmbedBuilder();
 
             builder.setTitle(title).setDescription(team.getWelcomeText()).setThumbnail(team.getLeaderImage())
-                    .setColor(team.getColorValue());
+                    .setColor(team.getColor());
 
             return builder;
         }
