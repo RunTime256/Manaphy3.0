@@ -1,6 +1,7 @@
 package bot.command.definition.war.puzzle;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.puzzle.list.PuzzleListCommand;
 import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
@@ -20,7 +21,8 @@ public class PuzzleCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 PuzzleSolveCommand.createCommand(),
                 PuzzleStartCommand.createCommand(),
-                PuzzleStopCommand.createCommand()
+                PuzzleStopCommand.createCommand(),
+                PuzzleListCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

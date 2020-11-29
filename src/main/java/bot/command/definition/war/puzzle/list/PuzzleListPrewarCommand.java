@@ -1,4 +1,4 @@
-package bot.command.definition.war.puzzle;
+package bot.command.definition.war.puzzle.list;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
@@ -13,33 +13,33 @@ import war.puzzle.PuzzleMapper;
 import java.awt.Color;
 import java.util.List;
 
-public class PuzzleListCommand
+public class PuzzleListPrewarCommand
 {
-    private static final String NAME = "list";
-    private static final String DESCRIPTION = "List of discovered and solved puzzles";
+    private static final String NAME = "prewar";
+    private static final String DESCRIPTION = "List of discovered and solved prewar puzzles";
 
-    private PuzzleListCommand()
+    private PuzzleListPrewarCommand()
     {
     }
 
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .requirement(RoleRequirement.VERIFIED).executor(PuzzleListCommand::function).build();
+                .requirement(RoleRequirement.VERIFIED).executor(PuzzleListPrewarCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        PuzzleListFunctionality functionality = new PuzzleListFunctionality(info, session);
+        PuzzleListPrewarFunctionality functionality = new PuzzleListPrewarFunctionality(info, session);
         functionality.execute();
     }
 
-    private static class PuzzleListFunctionality
+    private static class PuzzleListPrewarFunctionality
     {
         private final MessageReceivedInformation info;
         private final Session session;
 
-        PuzzleListFunctionality(MessageReceivedInformation info, Session session)
+        PuzzleListPrewarFunctionality(MessageReceivedInformation info, Session session)
         {
             this.info = info;
             this.session = session;
@@ -48,14 +48,13 @@ public class PuzzleListCommand
         void execute()
         {
             PuzzleMapper mapper = session.getMapper(PuzzleMapper.class);
-            List<String> unsolvedDiscoveredInfinitePuzzles = mapper.getUnsolvedDiscoveredInfinitePuzzles(info.getUser().getId());
-            List<String> solvedInfinitePuzzles = mapper.getSolvedInfinitePuzzles(info.getUser().getId());
+            List<String> unsolvedDiscoveredInfinitePuzzles = mapper.getUnsolvedDiscoveredInfinitePrewarPuzzles(info.getUser().getId());
+            List<String> solvedInfinitePuzzles = mapper.getSolvedInfinitePrewarPuzzles(info.getUser().getId());
             DMessage.sendMessage(info.getChannel(), createEmbed(unsolvedDiscoveredInfinitePuzzles, solvedInfinitePuzzles));
         }
 
         private EmbedBuilder createEmbed(List<String> unsolvedDiscoveredInfinitePuzzles, List<String> solvedInfinitePuzzles)
         {
-            // TODO work with single guess puzzles and separate pre-event from main event
             EmbedBuilder builder = new EmbedBuilder();
             User user = info.getUser();
 

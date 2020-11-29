@@ -46,8 +46,8 @@ public interface PuzzleMapper
             "WHERE p.name = #{name} AND server_id IS NOT NULL AND role_id IS NOT NULL")
     List<PuzzleRoleRequirement> roleRequirements(@Param("name") String name);
 
-    @Select("SELECT EXISTS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id" +
-            " WHERE p.name = #{name} AND ps.solution = #{guess})")
+    @Select("SELECT EXISTS (SELECT * FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "WHERE p.name = #{name} AND ps.solution = #{guess})")
     boolean correct(@Param("name") String name, @Param("guess") String guess);
 
     @Select("SELECT DISTINCT pg.user_id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
@@ -59,17 +59,40 @@ public interface PuzzleMapper
     List<Long> puzzleGuessers(@Param("name") String name);
 
     @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = false AND p.prewar = false AND p.end_time IS NULL OR p.end_time > #{timestamp}")
+    List<String> getGuessedPuzzles(@Param("userId") long userId, @Param("timestamp") Instant timestamp);
+
+    @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
-            "WHERE pg.user_id = #{userId} AND p.infinite = true")
+            "WHERE pg.user_id = #{userId} AND p.infinite = false AND p.prewar = false AND p.end_time < #{timestamp}")
+    List<String> getSolvedPuzzles(@Param("userId") long userId, @Param("timestamp") Instant timestamp);
+
+    @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false")
     List<String> getSolvedInfinitePuzzles(@Param("userId") long userId);
+
+    @Select("WITH solved AS (SELECT p.id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false) " +
+            "SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false AND NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id)")
+    List<String> getUnsolvedDiscoveredInfinitePuzzles(@Param("userId") long userId);
+
+    @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = true")
+    List<String> getSolvedInfinitePrewarPuzzles(@Param("userId") long userId);
 
     @Select("WITH solved AS (SELECT p.id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
             "WHERE pg.user_id = #{userId} AND p.infinite = true) " +
             "SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
-            "WHERE pg.user_id = #{userId} AND p.infinite = true AND NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id)")
-    List<String> getUnsolvedDiscoveredInfinitePuzzles(@Param("userId") long userId);
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = true AND NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id)")
+    List<String> getUnsolvedDiscoveredInfinitePrewarPuzzles(@Param("userId") long userId);
 
     @Insert("INSERT INTO cc4.puzzle_guess( " +
             "puzzle_id, user_id, guess, time) " +
