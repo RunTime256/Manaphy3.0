@@ -43,7 +43,7 @@ public class AchievementCommand
                 AchievementUpdateCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.MOD).subCommands(subCommands).executor(AchievementCommand::function).build();
+                .requirement(RoleRequirement.VERIFIED).subCommands(subCommands).executor(AchievementCommand::function).build();
     }
 
     public static MessageCommand createBotCommand()

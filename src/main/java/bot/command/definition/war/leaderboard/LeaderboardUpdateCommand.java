@@ -75,8 +75,8 @@ public class LeaderboardUpdateCommand
                     case "game":
                         leaderboard = Leaderboard.getGameLeaderboard(session);
                         break;
-                    case "misc":
-                        leaderboard = Leaderboard.getMiscLeaderboard(session);
+                    case "bonus":
+                        leaderboard = Leaderboard.getBonusLeaderboard(session);
                         break;
                     default:
                         continue;

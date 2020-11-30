@@ -57,7 +57,7 @@ public interface LeaderboardMapper
             @Result(property = "colorValue", column = "color"),
             @Result(property = "tokens", column = "tokens")
     })
-    List<WarLeaderboard> getMiscLeaderboard();
+    List<WarLeaderboard> getBonusLeaderboard();
 
     @Select("SELECT message_id, channel_id, category FROM cc4.leaderboard")
     @Results(value = {

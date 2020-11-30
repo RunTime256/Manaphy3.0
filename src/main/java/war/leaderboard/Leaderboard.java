@@ -26,9 +26,9 @@ public class Leaderboard
         return session.getMapper(LeaderboardMapper.class).getGameLeaderboard();
     }
 
-    public static List<WarLeaderboard> getMiscLeaderboard(Session session)
+    public static List<WarLeaderboard> getBonusLeaderboard(Session session)
     {
-        return session.getMapper(LeaderboardMapper.class).getMiscLeaderboard();
+        return session.getMapper(LeaderboardMapper.class).getBonusLeaderboard();
     }
 
     public static List<LeaderboardMessage> getLeaderboardMessages(Session session)
