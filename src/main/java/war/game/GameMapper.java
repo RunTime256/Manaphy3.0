@@ -9,7 +9,7 @@ import java.time.Instant;
 public interface GameMapper
 {
     @Select("SELECT COALESCE(gpe.tokens, 0) FROM cc4.game g LEFT JOIN cc4.game_point_eval gpe ON g.id = gpe.game_id " +
-            "WHERE g.name = #{gameName} AND gpe.min_points <= #{score} AND gpe.max_points >= #{score}")
+            "WHERE g.name = #{gameName} AND gpe.min_points <= #{score} AND (gpe.max_points >= #{score} OR gpe.max_points IS NULL)")
     int getTokenEval(@Param("gameName") String gameName, @Param("score") int score);
 
     @Select("SELECT g.full_name FROM cc4.game g WHERE g.name = #{gameName}")
