@@ -89,9 +89,17 @@ public class GameGrantCommand
             {
                 grantTokens();
             }
-            catch (TeamException | GameException e)
+            catch (GameException e)
             {
                 DMessage.sendMessage(info.getChannel(), e.getMessage());
+            }
+            catch (BannedMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
+            }
+            catch (NotATeamMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
             }
         }
 

@@ -1,9 +1,6 @@
 package bot.command.definition.war.puzzle.list;
 
 import bot.command.MessageCommand;
-import bot.command.definition.war.puzzle.PuzzleSolveCommand;
-import bot.command.definition.war.puzzle.PuzzleStartCommand;
-import bot.command.definition.war.puzzle.PuzzleStopCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;

@@ -16,11 +16,11 @@ public interface TeamMapper
             "LEFT JOIN cc4.puzzle p ON p.id = pg.puzzle_id AND p.prewar = true " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id AND ps.solution = pg.guess " +
             "GROUP BY t.short_name) " +
-            "SELECT t.role_id, t.short_name, 'test' AS full_name, t.welcome_text, t.leader_image, t.token_image, t.color as color, count(m.user_id) AS member_count, tt.tokens AS prewar_tokens " +
+            "SELECT t.role_id, t.short_name, t.full_name, t.welcome_text, t.leader_image, t.token_image, t.color as color, count(m.user_id) AS member_count, tt.tokens AS prewar_tokens " +
             "FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
             "LEFT JOIN cc4.class c ON c.id = m.class_id AND c.name = #{selectedClass} " +
             "LEFT JOIN team_tokens tt ON t.short_name = tt.short_name " +
-            "GROUP BY t.role_id, t.short_name, t.welcome_text, t.leader_image, t.token_image, t.color, tt.tokens")
+            "GROUP BY t.role_id, t.short_name, t.full_name, t.welcome_text, t.leader_image, t.token_image, t.color, tt.tokens")
     @Results(value = {
             @Result(property = "roleId", column = "role_id"),
             @Result(property = "shortName", column = "short_name"),
@@ -38,11 +38,11 @@ public interface TeamMapper
             "LEFT JOIN cc4.puzzle p ON p.id = pg.puzzle_id AND p.prewar = true " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id AND ps.solution = pg.guess " +
             "GROUP BY t.short_name) " +
-            "SELECT t.role_id, t.short_name, 'test' AS full_name, t.welcome_text, t.leader_image, t.token_image, t.color as color, count(m.user_id) AS member_count, tt.tokens AS prewar_tokens " +
+            "SELECT t.role_id, t.short_name, t.full_name, t.welcome_text, t.leader_image, t.token_image, t.color as color, count(m.user_id) AS member_count, tt.tokens AS prewar_tokens " +
             "FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
             "LEFT JOIN team_tokens tt ON t.short_name = tt.short_name " +
             "WHERE m.user_id = #{userId} " +
-            "GROUP BY t.role_id, t.short_name, t.welcome_text, t.leader_image, t.token_image, t.color, tt.tokens")
+            "GROUP BY t.role_id, t.short_name, t.full_name, t.welcome_text, t.leader_image, t.token_image, t.color, tt.tokens")
     @Results(value = {
             @Result(property = "roleId", column = "role_id"),
             @Result(property = "shortName", column = "short_name"),
