@@ -1,10 +1,10 @@
-package bot.command.definition.achievements;
+package war.achievement;
 
 import java.time.Instant;
 
 public class UserAchievement {
     private Long userId;
-    private Achievement achievement;
+    private WarAchievement achievement;
     private Instant attainedAt;
     private Integer timesAttained;
 
@@ -12,7 +12,7 @@ public class UserAchievement {
         return userId;
     }
 
-    public Achievement getAchievement() {
+    public WarAchievement getAchievement() {
         return achievement;
     }
 

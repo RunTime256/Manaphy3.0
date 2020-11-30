@@ -1,7 +1,6 @@
 package bot;
 
-import bot.command.HelpMessageCommand;
-import bot.command.definition.achievements.AchievementsCommand;
+import bot.command.definition.war.achievements.AchievementsCommand;
 import bot.command.definition.get.GetCommand;
 import bot.command.definition.help.HelpCommand;
 import bot.command.definition.mod.SayCommand;

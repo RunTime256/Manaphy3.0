@@ -1,6 +1,7 @@
 package bot.command.definition.war;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.achievements.AchievementsCommand;
 import bot.command.definition.war.battle.BattleCommand;
 import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.game.GameCommand;
@@ -30,7 +31,8 @@ public class WarCommand
                 PuzzleCommand.createCommand(),
 //                TypeCommand.createCommand(),
                 LeaderboardCommand.createCommand(),
-                ScorecardCommand.createCommand()
+                ScorecardCommand.createCommand(),
+                AchievementsCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

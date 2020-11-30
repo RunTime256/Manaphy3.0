@@ -1,8 +1,7 @@
-package bot.command.definition.achievements;
+package bot.command.definition.war.achievements;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
-import bot.command.definition.get.GetUserCommand;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
@@ -16,12 +15,17 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import sql.Session;
+import war.achievement.Achievement;
+import war.achievement.AchievementMapper;
+import war.achievement.UserAchievement;
+import war.achievement.WarAchievement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AchievementsCommand
 {
-    private static final String NAME = "war medals";
+    private static final String NAME = "medals";
     private static final String DESCRIPTION = "List your war achievements.";
     private static final String SYNTAX = "<user> <summary>?";
 
@@ -45,7 +49,7 @@ public class AchievementsCommand
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        if (vars.size() == 0) {
+        if (vars.isEmpty()) {
             new AchievementsShowFunctionality(api, info, vars, session).execute();
         } else {
             switch (vars.get(0).toUpperCase()) {
@@ -113,8 +117,7 @@ public class AchievementsCommand
             }
 
             // Retrieve Achievement
-            AchievementMapper mapper = session.getMapper(AchievementMapper.class);
-            Achievement achievement = mapper.getAchievement(achievementName);
+            WarAchievement achievement = Achievement.getAchievement(achievementName, session);
 
             if (achievement == null) {
                 DMessage.sendMessage(info.getChannel(), "Achievement `" + achievementName + "` could not be found.");
@@ -123,15 +126,14 @@ public class AchievementsCommand
 
             // TODO: Store in UserAchievement object
 
-            UserAchievementMapper userMapper = session.getMapper(UserAchievementMapper.class);
-            UserAchievement userAchievement = userMapper.getUserAchievement(achievementName, user.getUserId());
+            UserAchievement userAchievement = Achievement.getUserAchievement(user.getId(), achievementName, session);
 
             if (userAchievement == null) {
                 // TODO: Store in UserAchievement object
                 return;
             }
-
-            if (achievement.isSingleTime()) {
+            else
+            {
                 DMessage.sendMessage(info.getChannel(), "User `" + user.getName() + "` already has this achievement.");
                 return;
             }
@@ -164,7 +166,7 @@ public class AchievementsCommand
             if (vars.size() < 5) {
                 isSingleUse = null;
             } else {
-                isSingleUse = vars.get(4).toLowerCase() == 'yes';
+                isSingleUse = vars.get(4).toLowerCase().equals("yes");
             }
         }
 
@@ -180,7 +182,7 @@ public class AchievementsCommand
                 DMessage.sendMessage(info.getChannel(), "Image url not passed.");
                 return;
             } else if (isSingleUse == null) {
-                DMessage.sendMessage(info.getChannel(), "achievement state not set.")
+                DMessage.sendMessage(info.getChannel(), "Achievement state not set.");
             }
 
             // Check if name is already used.
@@ -191,7 +193,7 @@ public class AchievementsCommand
             }
 
             // Check if valid category
-            if (AchievementCategory.valueOf(categoryName) == null) {
+            if (Achievement.isCategory(categoryName, session)) {
                 DMessage.sendMessage(info.getChannel(), "Achievement Category`" + categoryName + "` does not exist.");
                 return;
             }
@@ -263,9 +265,9 @@ public class AchievementsCommand
         final MessageReceivedInformation info;
         final Session session;
 
-        final Boolean isCategory;
-        final Boolean isSummary;
-        final AchievementCategory achievementCategory;
+        final boolean isCategory;
+        final boolean isSummary;
+        final String achievementCategory;
         final String achievementName;
 
         AchievementsShowFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
@@ -275,7 +277,7 @@ public class AchievementsCommand
             this.session = session;
 
             // Check if using summary mode
-            if (vars.size() == 1 && vars.get(0).toLowerCase() == "summary") {
+            if (vars.size() == 1 && vars.get(0).equalsIgnoreCase("summary")) {
                 isSummary = true;
                 isCategory = false;
                 achievementCategory = null;
@@ -285,7 +287,7 @@ public class AchievementsCommand
             isSummary = false;
 
             // Check for valid argument length
-            if (vars.size() == 0) {
+            if (vars.isEmpty()) {
                 isCategory = false;
                 achievementCategory = null;
                 achievementName = null;
@@ -293,13 +295,9 @@ public class AchievementsCommand
             }
 
             // Check for category
-            AchievementCategory category = null;
-
-            try {
-                category = AchievementCategory.valueOf(vars.get(0).toUpperCase());
-            } catch (IllegalArgumentException exc) {
+            String category = vars.get(0).toLowerCase();
+            if (!Achievement.isCategory(category, session))
                 category = null;
-            }
 
             if (category != null) {
                 achievementCategory = category;
@@ -325,28 +323,25 @@ public class AchievementsCommand
         void execute()
         {
             // Retrieve Users Achievements
-            UserAchievementMapper mapper = session.getMapper(UserAchievementMapper.class);
-            List<UserAchievement> userAchievements = mapper.getUserAchievements(info.getUser().getId());
+            List<UserAchievement> userAchievements = Achievement.getUserAchievements(info.getUser().getId(), session);
 
             EmbedBuilder start = null;
 
             // Generate the Embeds
-            List<EmbedBuilder>  embeds = List.of();
+            List<EmbedBuilder> embeds = new ArrayList<>();
             for (UserAchievement userAchievement : userAchievements)
             {
                 EmbedBuilder embed = userAchievementEmbed(info.getUser(), userAchievement);
 
-                if (achievementName != null) {
-                    if (achievementName == userAchievement.getAchievement().getName()) {
-                        start = embed;
-                    }
+                if (achievementName != null &&achievementName.equals(userAchievement.getAchievement().getName())) {
+                    start = embed;
                 }
 
                 embeds.add(embed);
             }
 
             // Error out if user has no achievements.
-            if (embeds.size() == 0) {
+            if (embeds.isEmpty()) {
                 EmbedBuilder builder = new EmbedBuilder();
 
                 builder.setTitle("You currently have no medals.");
@@ -365,13 +360,14 @@ public class AchievementsCommand
 
 
                 StringBuilder categoryBuilder = new StringBuilder();
-                for (AchievementCategory category : AchievementCategory.values()){
+                String[] categories = {"warrior", "artisan", "oracle", "secret"};
+                for (String category : categories){
                     Integer count = 0;
                     for (UserAchievement userAchievement : userAchievements) {
 
                     }
 
-                    categoryBuilder.append(String.format("%s: %d\n", Achievement.getCategoryEmoji(category), count));
+                    categoryBuilder.append(String.format("%s: %d\n", WarAchievement.getCategoryEmoji(category), count));
                 }
                 builder.addField("Medals:", categoryBuilder.toString());
 
@@ -419,7 +415,7 @@ public class AchievementsCommand
         }
 
         private EmbedBuilder userAchievementEmbed(User user, UserAchievement userAchievement) {
-            Achievement achievement = userAchievement.getAchievement();
+            WarAchievement achievement = userAchievement.getAchievement();
             EmbedBuilder builder = new EmbedBuilder();
 
             // Create embed.
@@ -458,8 +454,8 @@ public class AchievementsCommand
 
                     DReaction.addReaction(message, ReactionCommand.NEXT).thenAccept(aVoid -> {
                         ReactionCommandListener listener = new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.NEXT, api,
-                                new ReactionCommand(this::nextFunction, completed)
+                                info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.NEXT, api,
+                                new ReactionCommand(this::nextFunction, completed, null)
                         );
 
                         listeners.add(listener);
@@ -467,8 +463,8 @@ public class AchievementsCommand
 
                     DReaction.addReaction(message, ReactionCommand.PREV).thenAccept(aVoid -> {
                         ReactionCommandListener listener = new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.PREV, api,
-                                new ReactionCommand(this::prevFunction, completed)
+                                info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.PREV, api,
+                                new ReactionCommand(this::prevFunction, completed, null)
                         );
 
                         listeners.add(listener);
@@ -476,8 +472,8 @@ public class AchievementsCommand
 
                     DReaction.addReaction(message, ReactionCommand.STOP).thenAccept(aVoid -> {
                         ReactionCommandListener listener = new ReactionCommandListener(
-                                info.getUser(), info.getChannel(), ReactionCommand.STOP, api,
-                                new ReactionCommand(this::stopFunction, completed)
+                                info.getUser().getId(), info.getChannel().getId(), completedMessage.getId(), ReactionCommand.STOP, api,
+                                new ReactionCommand(this::stopFunction, completed, null)
                         );
 
 
@@ -496,30 +492,30 @@ public class AchievementsCommand
                 startMenu(api, info);
             }
 
-            private void UpdateMenu(String lastReaction) {
+            private void updateMenu(String lastReaction) {
                 message.edit(embeds.get(page));
                 try {
                     message.removeReactionByEmoji(info.getUser(), lastReaction);
                 } finally { }
             }
 
-            private void nextFunction(DiscordApi api, ReactionReceivedInformation info, Session session) {
+            private void nextFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o) {
                 page += 1;
                 if (page == embeds.size()) {
                     page = 0;
                 }
-                UpdateMenu(ReactionCommand.NEXT);
+                updateMenu(ReactionCommand.NEXT);
             }
 
-            private void prevFunction(DiscordApi api, ReactionReceivedInformation info, Session session) {
+            private void prevFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o) {
                 page -= 1;
                 if (page < 0) {
                     page = embeds.size() - 1;
                 }
-                UpdateMenu(ReactionCommand.PREV);
+                updateMenu(ReactionCommand.PREV);
             }
 
-            private void stopFunction(DiscordApi api, ReactionReceivedInformation info, Session session) {
+            private void stopFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o) {
                 for (ReactionCommandListener listener : listeners) {
                     api.removeListener(listener);
                 }

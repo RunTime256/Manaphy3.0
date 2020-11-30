@@ -1,12 +1,12 @@
-package bot.command.definition.achievements;
+package war.achievement;
 
-public class Achievement {
+public class WarAchievement
+{
     private String identifier;
     private String name;
-    private AchievementCategory category;
+    private String category;
     private String description;
     private String unlockMethod;
-    private Boolean singleTime;
 
     public String getIdentifier() {
         return identifier;
@@ -17,7 +17,7 @@ public class Achievement {
         return name;
     }
 
-    public AchievementCategory getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -33,17 +33,13 @@ public class Achievement {
         return getCategoryEmoji(category);
     }
 
-    public static String getCategoryEmoji(AchievementCategory category){
+    public static String getCategoryEmoji(String category){
         switch (category) {
-            case WARRIOR: return "\u1F5E1\uFE0F";
-            case ARTISAN: return "\u1F58C\uFE0F";
-            case ORACLE: return "\u1F52E";
-            case SECRET: return "\u2728";
+            case "warrior": return "\u1F5E1\uFE0F";
+            case "artisan": return "\u1F58C\uFE0F";
+            case "oracle": return "\u1F52E";
+            case "secret": return "\u2728";
         }
         return null;
-    }
-
-    public Boolean isSingleTime() {
-        return singleTime;
     }
 }
