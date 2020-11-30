@@ -3,24 +3,26 @@ package war.achievement;
 import java.time.Instant;
 
 public class UserAchievement {
-    private Long userId;
-    private WarAchievement achievement;
-    private Instant attainedAt;
-    private Integer timesAttained;
+    private final long userId;
+    private final String achievementName;
+    private final Instant attainedAt;
 
-    public Long getUserId() {
+    public UserAchievement(long userId, String achievementName, Instant attainedAt)
+    {
+        this.userId = userId;
+        this.achievementName = achievementName;
+        this.attainedAt = attainedAt;
+    }
+
+    public long getUserId() {
         return userId;
     }
 
-    public WarAchievement getAchievement() {
-        return achievement;
+    public String getAchievement() {
+        return achievementName;
     }
 
     public Instant getAttainedAt() {
         return attainedAt;
-    }
-
-    public Integer getTimesAttained() {
-        return timesAttained;
     }
 }

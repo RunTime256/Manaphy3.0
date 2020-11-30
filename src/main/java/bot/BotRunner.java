@@ -1,6 +1,5 @@
 package bot;
 
-import bot.command.definition.war.achievements.AchievementsCommand;
 import bot.command.definition.get.GetCommand;
 import bot.command.definition.help.HelpCommand;
 import bot.command.definition.mod.SayCommand;
@@ -138,7 +137,6 @@ public class BotRunner
         listener.addCommand(GetCommand.createCommand());
         listener.addCommand(SayCommand.createCommand());
         listener.addCommand(WarCommand.createCommand());
-        listener.addCommand(AchievementsCommand.createCommand());
         listener.addHelpCommand(HelpCommand.createCommand(bot.getPrefix(), bot.getName()));
         bot.addListener(listener);
     }

@@ -16,18 +16,28 @@ public class ReactionCommand
 
     private final ReactionExecutor executor;
     private final boolean[] completed;
+    private final boolean repeatable;
     private final Object o;
 
     public ReactionCommand(ReactionExecutor executor, boolean[] completed, Object o)
     {
         this.executor = executor;
         this.completed = completed;
+        repeatable = false;
+        this.o = o;
+    }
+
+    public ReactionCommand(ReactionExecutor executor, boolean[] completed, boolean repeatable, Object o)
+    {
+        this.executor = executor;
+        this.completed = completed;
+        this.repeatable = repeatable;
         this.o = o;
     }
 
     public void execute(DiscordApi api, ReactionReceivedInformation info, Session session)
     {
-        if (!completed[0])
+        if (!completed[0] || repeatable)
         {
             executor.runCommand(api, info, session, o);
             completed[0] = true;

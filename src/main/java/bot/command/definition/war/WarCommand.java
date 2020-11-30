@@ -1,7 +1,7 @@
 package bot.command.definition.war;
 
 import bot.command.MessageCommand;
-import bot.command.definition.war.achievements.AchievementsCommand;
+import bot.command.definition.war.achievements.AchievementCommand;
 import bot.command.definition.war.battle.BattleCommand;
 import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.game.GameCommand;
@@ -32,7 +32,7 @@ public class WarCommand
 //                TypeCommand.createCommand(),
                 LeaderboardCommand.createCommand(),
                 ScorecardCommand.createCommand(),
-                AchievementsCommand.createCommand()
+                AchievementCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();
@@ -42,7 +42,8 @@ public class WarCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 CodeCommand.createBotCommand(),
-                GameCommand.createBotCommand()
+                GameCommand.createBotCommand(),
+                AchievementCommand.createBotCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

@@ -1,10 +1,10 @@
 package exception.war.puzzle;
 
-import exception.BotException;
+import exception.war.WarException;
 
 import java.awt.Color;
 
-public class PuzzleException extends BotException
+public class PuzzleException extends WarException
 {
     public PuzzleException(Color color)
     {

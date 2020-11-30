@@ -1,10 +1,10 @@
 package exception.war.team;
 
-import exception.BotException;
+import exception.war.WarException;
 
 import java.awt.Color;
 
-public class TeamException extends BotException
+public class TeamException extends WarException
 {
     public TeamException(Color color)
     {
