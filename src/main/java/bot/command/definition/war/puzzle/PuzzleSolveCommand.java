@@ -11,14 +11,18 @@ import bot.discord.reaction.DReaction;
 import bot.log.PuzzleLogger;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
+import exception.war.puzzle.FuturePuzzleException;
 import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
 import exception.war.puzzle.PuzzleException;
+import exception.war.team.BannedMemberException;
+import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import sql.Session;
 import war.puzzle.Puzzle;
 import war.puzzle.PuzzleGuess;
+import war.team.Team;
 
 import java.awt.Color;
 import java.util.List;
@@ -81,6 +85,10 @@ public class PuzzleSolveCommand
             {
                 solvePuzzle();
             }
+            catch (FuturePuzzleException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
+            }
             catch (MissingPuzzleRequirementException e)
             {
                 logMissingRequirement(guess);
@@ -93,10 +101,24 @@ public class PuzzleSolveCommand
                 else
                     throw e;
             }
+            catch (BannedMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
+            }
+            catch (NotATeamMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
+            }
         }
 
         private void solvePuzzle()
         {
+            long userId = info.getUser().getId();
+            if (!Team.isTeamMember(userId, session))
+                throw new NotATeamMemberException(userId);
+            if (Team.isBanned(userId, session))
+                throw new BannedMemberException(userId);
+
             if (info.getServer() != null)
             {
                 DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
@@ -169,6 +191,10 @@ public class PuzzleSolveCommand
                 boolean correct = Puzzle.guess(guess, api, session);
                 log(guess, correct);
                 DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
+            }
+            catch (FuturePuzzleException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
             }
             catch (PuzzleException e)
             {

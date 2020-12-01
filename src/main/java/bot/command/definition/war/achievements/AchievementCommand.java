@@ -9,6 +9,8 @@ import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
 import bot.util.CombineContent;
+import exception.war.team.BannedMemberException;
+import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -17,6 +19,8 @@ import sql.Session;
 import war.achievement.Achievement;
 import war.achievement.UserAchievement;
 import war.achievement.WarAchievement;
+import war.team.Team;
+import war.team.WarTeam;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,7 +32,9 @@ import java.util.concurrent.TimeUnit;
 public class AchievementCommand
 {
     private static final String NAME = "medals";
-    private static final String DESCRIPTION = "List your war achievements.";
+    private static final String DESCRIPTION = "List your war medals." +
+            "\nUse the variable \"summary\" to view a summary of your medals." +
+            "\nUse the medal name to view that specific medal.";
     private static final String SYNTAX = "[summary/name]";
 
     private AchievementCommand()
@@ -128,6 +134,28 @@ public class AchievementCommand
 
         void execute()
         {
+            try
+            {
+                createMenu();
+            }
+            catch (BannedMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
+            }
+            catch (NotATeamMemberException e)
+            {
+                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
+            }
+        }
+
+        private void createMenu()
+        {
+            long userId = info.getUser().getId();
+            if (!Team.isTeamMember(userId, session))
+                throw new NotATeamMemberException(userId);
+            if (Team.isBanned(userId, session))
+                throw new BannedMemberException(userId);
+
             // Retrieve Users Achievements
             List<UserAchievement> userAchievements = Achievement.getUserAchievements(info.getUser().getId(), session);
 
@@ -135,10 +163,11 @@ public class AchievementCommand
 
             // Generate the Embeds
             List<EmbedBuilder> embeds = new ArrayList<>();
+            WarTeam team = Team.getTeam(info.getUser().getId(), session);
             for (UserAchievement userAchievement : userAchievements)
             {
                 WarAchievement achievement = Achievement.getAchievement(userAchievement.getAchievement(), session);
-                EmbedBuilder embed = userAchievementEmbed(info.getUser(), achievement, userAchievement.getAttainedAt());
+                EmbedBuilder embed = userAchievementEmbed(info.getUser(), achievement, userAchievement.getAttainedAt(), team);
 
                 if (achievementName != null && achievementName.equalsIgnoreCase(achievement.getFullName()))
                     start = embed;
@@ -224,7 +253,7 @@ public class AchievementCommand
                 menu.startMenu(api, info);
         }
 
-        private EmbedBuilder userAchievementEmbed(User user, WarAchievement achievement, Instant timestamp)
+        private EmbedBuilder userAchievementEmbed(User user, WarAchievement achievement, Instant timestamp, WarTeam team)
         {
             EmbedBuilder builder = new EmbedBuilder();
 
@@ -234,7 +263,7 @@ public class AchievementCommand
             builder.setTitle(title).setDescription(description).setThumbnail(achievement.getImage());
 
             String authorName = String.format("%s's Medals", user.getName());
-            builder.setAuthor(authorName, null, user.getAvatar());
+            builder.setAuthor(authorName, null, user.getAvatar()).setColor(team.getColor());
 
             builder.setFooter("Obtained");
             builder.setTimestamp(timestamp);

@@ -5,18 +5,29 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
+import bot.log.AchievementLogger;
 import bot.util.IdExtractor;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
 import exception.discord.user.UserDoesNotExistException;
 import exception.war.achievement.AchievementAlreadyObtainedException;
 import exception.war.achievement.AchievementException;
+import exception.war.achievement.AchievementFailedForUsersException;
 import exception.war.achievement.NotAnAchievementException;
+import exception.war.team.BannedMemberException;
+import exception.war.team.NotATeamMemberException;
+import exception.war.team.TeamException;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import sql.Session;
 import war.achievement.Achievement;
+import war.achievement.WarAchievement;
+import war.pair.Pair;
+import war.team.Team;
+import war.team.WarTeam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AchievementGrantCommand
@@ -24,9 +35,15 @@ public class AchievementGrantCommand
     private static final String NAME = "grant";
     private static final String DESCRIPTION = "Grant an achievement";
     private static final String SYNTAX = "<user> <achievement>";
+    private static AchievementLogger achievementLogger;
 
     private AchievementGrantCommand()
     {
+    }
+
+    public static void setAchievementLogger(AchievementLogger achievementLogger)
+    {
+        AchievementGrantCommand.achievementLogger = achievementLogger;
     }
 
     public static MessageCommand createCommand()
@@ -58,7 +75,7 @@ public class AchievementGrantCommand
         final MessageReceivedInformation info;
         final Session session;
 
-        final long userId;
+        final List<Long> userIds;
         final String achievementName;
 
         AchievementGrantFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
@@ -67,11 +84,16 @@ public class AchievementGrantCommand
             this.info = info;
             this.session = session;
 
-            userId = IdExtractor.getId(vars.get(0));
-            if (userId == 0)
-                throw new InvalidArgumentException("user");
+            userIds = new ArrayList<>();
+            for (int i = 0; i < vars.size() - 1; i++)
+            {
+                long userId = IdExtractor.getId(vars.get(i));
+                if (userId == 0)
+                    throw new InvalidArgumentException("user");
+                userIds.add(userId);
+            }
 
-            achievementName = vars.get(1).toLowerCase();
+            achievementName = vars.get(vars.size() - 1).toLowerCase();
         }
 
         void execute()
@@ -80,7 +102,7 @@ public class AchievementGrantCommand
             {
                 grantAchievement();
             }
-            catch (AchievementException e)
+            catch (TeamException | AchievementException e)
             {
                 DMessage.sendMessage(info.getChannel(), e.getMessage());
             }
@@ -90,17 +112,71 @@ public class AchievementGrantCommand
         {
             if (!Achievement.isAchievement(achievementName, session))
                 throw new NotAnAchievementException(achievementName);
-            else if (Achievement.hasAchievement(userId, achievementName, session))
-                throw new AchievementAlreadyObtainedException(userId, achievementName);
 
-            User user = DUser.getUser(api, userId);
+            List<Long> bannedMembers = new ArrayList<>();
+            List<Long> alreadyObtained = new ArrayList<>();
+            List<Long> notUsers = new ArrayList<>();
 
-            if (user == null) {
-                throw new UserDoesNotExistException(userId);
+            for (long userId: userIds)
+            {
+                if (Team.isTeamMember(userId, session) && Team.isBanned(userId, session))
+                {
+                    bannedMembers.add(userId);
+                    continue;
+                }
+
+                if (Achievement.hasAchievement(userId, achievementName, session))
+                {
+                    alreadyObtained.add(userId);
+                    continue;
+                }
+
+                User user = DUser.getUser(api, userId);
+
+                if (user == null)
+                {
+                    notUsers.add(userId);
+                    continue;
+                }
+
+                Achievement.grantAchievement(userId, achievementName, info.getTime(), session);
+                WarAchievement achievement = Achievement.getAchievement(achievementName, session);
+                WarTeam team;
+                if (Team.isTeamMember(userId, session))
+                    team = Team.getTeam(userId, session);
+                else
+                    team = null;
+
+                if (achievementLogger != null)
+                {
+                    if (!achievement.getCategory().equalsIgnoreCase("secret"))
+                        achievementLogger.log(user, achievement, team);
+                    else
+                        achievementLogger.logSecret(user, team, Pair.getValue("secret_achievement", session));
+                }
+                DMessage.sendPrivateMessage(api, userId, achievementEmbed(user, achievement, team));
+                DMessage.sendMessage(info.getChannel(), "Medal `" + achievementName + "` granted to user `" + userId + "`");
             }
 
-            Achievement.grantAchievement(userId, achievementName, info.getTime(), session);
-            DMessage.sendMessage(info.getChannel(), "Achievement `" + achievementName + "` granted to user `" + userId + "`");
+            if (!bannedMembers.isEmpty() || !alreadyObtained.isEmpty() || !notUsers.isEmpty())
+                throw new AchievementFailedForUsersException(bannedMembers, alreadyObtained, notUsers);
+        }
+
+        private EmbedBuilder achievementEmbed(User user, WarAchievement achievement, WarTeam team)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+
+            String title = String.format("%s - %s", achievement.getCategoryEmoji(),achievement.getFullName());
+            String description = "*" + achievement.getDescription() + "*\n`Unlock: " + achievement.getUnlockMethod() + "`" +
+                    "\n\nUse the command `+war medals` to view all medals earned.";
+            builder.setTitle(title).setDescription(description).setThumbnail(achievement.getImage());
+
+            String authorName = "You earned a medal!";
+            builder.setAuthor(authorName, null, user.getAvatar());
+            if (team != null)
+                builder.setColor(team.getColor());
+
+            return builder;
         }
     }
 }

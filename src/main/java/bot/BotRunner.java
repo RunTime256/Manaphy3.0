@@ -6,6 +6,7 @@ import bot.command.definition.mod.SayCommand;
 import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.command.definition.war.WarCommand;
+import bot.command.definition.war.achievements.AchievementGrantCommand;
 import bot.command.definition.war.puzzle.PuzzleSolveCommand;
 import bot.command.definition.war.prewar.typevote.TypeVoteCommand;
 import bot.discord.Bot;
@@ -13,6 +14,7 @@ import bot.discord.BotMapper;
 import bot.discord.channel.ChannelMapper;
 import bot.discord.listener.MessageCommandListener;
 import bot.discord.listener.ReactionCommandListener;
+import bot.log.AchievementLogger;
 import bot.log.ErrorLogger;
 import bot.log.PuzzleLogger;
 import bot.log.TypeVoteLogger;
@@ -71,12 +73,18 @@ public class BotRunner
             if (channelId != null)
                 typeVoteLogger = new TypeVoteLogger(api, channelId);
 
+            channelId = getAchievementLogChannel(session);
+            AchievementLogger achievementLogger = null;
+            if (channelId != null)
+                achievementLogger = new AchievementLogger(api, channelId);
+
             addUserCommands(bot, api, logger);
             addBotCommands(bot, api, logger);
 
             ReactionCommandListener.setLogger(logger);
             PuzzleSolveCommand.setPuzzleLogger(puzzleLogger);
             TypeVoteCommand.setTypeVoteLogger(typeVoteLogger);
+            AchievementGrantCommand.setAchievementLogger(achievementLogger);
         }
     }
 
@@ -126,6 +134,13 @@ public class BotRunner
     {
         Long channelId;
         channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "type");
+        return channelId;
+    }
+
+    private static Long getAchievementLogChannel(Session session)
+    {
+        Long channelId;
+        channelId = session.getMapper(ChannelMapper.class).getChannel("pokemon", "achievement");
         return channelId;
     }
 

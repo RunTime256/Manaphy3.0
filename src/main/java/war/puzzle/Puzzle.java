@@ -3,6 +3,7 @@ package war.puzzle;
 import bot.discord.server.DServer;
 import exception.war.puzzle.AlreadyGuessedPuzzleException;
 import exception.war.puzzle.AlreadySolvedPuzzleException;
+import exception.war.puzzle.FuturePuzzleException;
 import exception.war.puzzle.InactivePuzzleException;
 import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
@@ -44,6 +45,8 @@ public class Puzzle
 
         if (!exists(puzzleName, session))
             throw new NotAPuzzleException(puzzleName);
+        if (isFuture(puzzleName, session))
+            throw new FuturePuzzleException(puzzleName);
         if (!isActive(puzzleName, time, session))
             throw new InactivePuzzleException(puzzleName);
 
@@ -83,6 +86,11 @@ public class Puzzle
     public static boolean isInfinite(String puzzleName, Session session)
     {
         return session.getMapper(PuzzleMapper.class).isInfinite(puzzleName);
+    }
+
+    public static boolean isFuture(String puzzleName, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).isFuture(puzzleName);
     }
 
     public static boolean alreadyGuessed(Long userId, String puzzleName, Session session)

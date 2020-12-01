@@ -41,7 +41,7 @@ public class CombineContent
             String content = vars.remove(0);
             if (i == 0 && content.startsWith("\""))
                 content = content.substring(1);
-            else if (content.endsWith("\""))
+            if (content.endsWith("\""))
             {
                 content = content.substring(0, content.length() - 1);
                 end = true;

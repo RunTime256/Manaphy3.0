@@ -25,6 +25,9 @@ public interface PuzzleMapper
     @Select("SELECT infinite FROM cc4.puzzle p WHERE p.name = #{name}")
     boolean isInfinite(@Param("name") String name);
 
+    @Select("SELECT (p.future AND (p.start_time IS NULL)) FROM cc4.puzzle p WHERE p.name = #{name}")
+    boolean isFuture(@Param("name") String name);
+
     @Select("SELECT EXISTS (SELECT FROM cc4.puzzle p LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
             "WHERE p.name = #{name} AND pg.user_id = #{userId})")
     boolean hasGuessed(@Param("name") String name, @Param("userId") Long userId);
