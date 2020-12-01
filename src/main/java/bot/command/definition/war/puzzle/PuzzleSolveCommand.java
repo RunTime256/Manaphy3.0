@@ -2,6 +2,7 @@ package bot.command.definition.war.puzzle;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
+import bot.command.definition.war.achievements.AchievementGrantCommand;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
@@ -25,6 +26,7 @@ import war.puzzle.PuzzleGuess;
 import war.team.Team;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -136,6 +138,16 @@ public class PuzzleSolveCommand
                 if (correct)
                 {
                     DMessage.sendMessage(info.getChannel(), "You are correct! Thank you for your submission.");
+
+                    if (Puzzle.isAchievementPuzzle(guess.getName(), session))
+                    {
+                        String achievementName = Puzzle.getAchievement(guess.getName(), session);
+                        List<String> vars = new ArrayList<>();
+                        vars.add(String.valueOf(info.getUser().getId()));
+                        vars.add(achievementName);
+                        vars.add(String.valueOf(false));
+                        AchievementGrantCommand.function(api, info, vars, session);
+                    }
                 }
                 else
                 {

@@ -65,7 +65,13 @@ public class AchievementGrantCommand
         else if (vars.size() == 1)
             throw new MissingArgumentException("achievement");
 
-        AchievementGrantFunctionality functionality = new AchievementGrantFunctionality(api, info, vars, session);
+        boolean response;
+        if (vars.size() == 3)
+            response = Boolean.parseBoolean(vars.remove(2));
+        else
+            response = true;
+
+        AchievementGrantFunctionality functionality = new AchievementGrantFunctionality(api, info, vars, session, response);
         functionality.execute();
     }
 
@@ -77,12 +83,15 @@ public class AchievementGrantCommand
 
         final List<Long> userIds;
         final String achievementName;
+        final boolean response;
 
-        AchievementGrantFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
+        AchievementGrantFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session,
+                                      boolean response)
         {
             this.api = api;
             this.info = info;
             this.session = session;
+            this.response = response;
 
             userIds = new ArrayList<>();
             for (int i = 0; i < vars.size() - 1; i++)
@@ -155,7 +164,8 @@ public class AchievementGrantCommand
                         achievementLogger.logSecret(user, team, Pair.getValue("secret_achievement", session));
                 }
                 DMessage.sendPrivateMessage(api, userId, achievementEmbed(user, achievement, team));
-                DMessage.sendMessage(info.getChannel(), "Medal `" + achievementName + "` granted to user `" + userId + "`");
+                if (response)
+                    DMessage.sendMessage(info.getChannel(), "Medal `" + achievementName + "` granted to user `" + userId + "`");
             }
 
             if (!bannedMembers.isEmpty() || !alreadyObtained.isEmpty() || !notUsers.isEmpty())

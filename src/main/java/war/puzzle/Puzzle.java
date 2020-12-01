@@ -12,6 +12,7 @@ import exception.war.puzzle.PuzzleAlreadyStartedException;
 import exception.war.puzzle.PuzzleNotStartedException;
 import org.javacord.api.DiscordApi;
 import sql.Session;
+import war.pair.PairMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +35,16 @@ public class Puzzle
         List<String> puzzles = session.getMapper(PuzzleMapper.class).getUnsolvedDiscoveredInfinitePuzzles(userId);
         puzzles.sort(String::compareTo);
         return puzzles;
+    }
+
+    public static boolean isAchievementPuzzle(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).isAchievementPuzzle(name);
+    }
+
+    public static String getAchievement(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).getAchievement(name);
     }
 
     public static boolean guess(PuzzleGuess guess, DiscordApi api, Session session)

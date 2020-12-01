@@ -97,6 +97,14 @@ public interface PuzzleMapper
             "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = true AND NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id)")
     List<String> getUnsolvedDiscoveredInfinitePrewarPuzzles(@Param("userId") long userId);
 
+    @Select("SELECT EXISTS(SELECT * FROM cc4.puzzle_achievement pa LEFT JOIN cc4.puzzle p ON p.id = pa.puzzle_id " +
+            "WHERE p.name = #{name})")
+    boolean isAchievementPuzzle(@Param("name") String name);
+
+    @Select("SELECT a.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_achievement pa ON p.id = pa.puzzle_id " +
+            "LEFT JOIN cc4.achievement a ON a.id = pa.achievement_id WHERE p.name = #{name}")
+    String getAchievement(@Param("name") String name);
+
     @Insert("INSERT INTO cc4.puzzle_guess( " +
             "puzzle_id, user_id, guess, time) " +
             "VALUES ((SELECT id FROM cc4.puzzle WHERE name = #{name}), #{userId}, #{guess}, #{time});")
