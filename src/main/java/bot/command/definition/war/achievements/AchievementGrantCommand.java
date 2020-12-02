@@ -2,6 +2,8 @@ package bot.command.definition.war.achievements;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
+import bot.discord.channel.BotChannel;
+import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
@@ -9,13 +11,9 @@ import bot.log.AchievementLogger;
 import bot.util.IdExtractor;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
-import exception.discord.user.UserDoesNotExistException;
-import exception.war.achievement.AchievementAlreadyObtainedException;
 import exception.war.achievement.AchievementException;
 import exception.war.achievement.AchievementFailedForUsersException;
 import exception.war.achievement.NotAnAchievementException;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import exception.war.team.TeamException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -109,15 +107,16 @@ public class AchievementGrantCommand
         {
             try
             {
-                grantAchievement();
+                grantAchievements();
             }
             catch (TeamException | AchievementException e)
             {
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
+                if (response)
+                    DMessage.sendMessage(info.getChannel(), e.getMessage());
             }
         }
 
-        private void grantAchievement()
+        private void grantAchievements()
         {
             if (!Achievement.isAchievement(achievementName, session))
                 throw new NotAnAchievementException(achievementName);
@@ -128,48 +127,53 @@ public class AchievementGrantCommand
 
             for (long userId: userIds)
             {
-                if (Team.isTeamMember(userId, session) && Team.isBanned(userId, session))
-                {
-                    bannedMembers.add(userId);
-                    continue;
-                }
-
-                if (Achievement.hasAchievement(userId, achievementName, session))
-                {
-                    alreadyObtained.add(userId);
-                    continue;
-                }
-
-                User user = DUser.getUser(api, userId);
-
-                if (user == null)
-                {
-                    notUsers.add(userId);
-                    continue;
-                }
-
-                Achievement.grantAchievement(userId, achievementName, info.getTime(), session);
-                WarAchievement achievement = Achievement.getAchievement(achievementName, session);
-                WarTeam team;
-                if (Team.isTeamMember(userId, session))
-                    team = Team.getTeam(userId, session);
-                else
-                    team = null;
-
-                if (achievementLogger != null)
-                {
-                    if (!achievement.getCategory().equalsIgnoreCase("secret"))
-                        achievementLogger.log(user, achievement, team);
-                    else
-                        achievementLogger.logSecret(user, team, Pair.getValue("secret_achievement", session));
-                }
-                DMessage.sendPrivateMessage(api, userId, achievementEmbed(user, achievement, team));
-                if (response)
-                    DMessage.sendMessage(info.getChannel(), "Medal `" + achievementName + "` granted to user `" + userId + "`");
+                grantAchievement(bannedMembers, alreadyObtained, notUsers, userId);
             }
 
             if (!bannedMembers.isEmpty() || !alreadyObtained.isEmpty() || !notUsers.isEmpty())
                 throw new AchievementFailedForUsersException(bannedMembers, alreadyObtained, notUsers);
+        }
+
+        private void grantAchievement(List<Long> bannedMembers, List<Long> alreadyObtained, List<Long> notUsers, long userId)
+        {
+            if (Team.isTeamMember(userId, session) && Team.isBanned(userId, session))
+            {
+                bannedMembers.add(userId);
+                return;
+            }
+
+            if (Achievement.hasAchievement(userId, achievementName, session))
+            {
+                alreadyObtained.add(userId);
+                return;
+            }
+
+            User user = DUser.getUser(api, userId);
+
+            if (user == null)
+            {
+                notUsers.add(userId);
+                return;
+            }
+
+            Achievement.grantAchievement(userId, achievementName, info.getTime(), session);
+            WarAchievement achievement = Achievement.getAchievement(achievementName, session);
+            WarTeam team;
+            if (Team.isTeamMember(userId, session))
+                team = Team.getTeam(userId, session);
+            else
+                team = null;
+
+            if (achievementLogger != null)
+            {
+                if (!achievement.getCategory().equalsIgnoreCase("secret") || achievement.getName().equalsIgnoreCase("mod-bugreport"))
+                    achievementLogger.log(user, achievement, team);
+                else
+                    achievementLogger.logSecret(user, team, Pair.getValue("secret_achievement", session));
+            }
+            DMessage.sendPrivateMessage(api, userId, achievementEmbed(user, achievement, team));
+            if (response)
+                DMessage.sendMessage(info.getChannel(), "Medal `" + achievementName + "` granted to user `" + userId + "`");
         }
 
         private EmbedBuilder achievementEmbed(User user, WarAchievement achievement, WarTeam team)

@@ -56,6 +56,8 @@ public interface TeamMapper
     })
     WarTeam getTeam(@Param("userId") long userId);
 
+    @Select("SELECT EXISTS(SELECT * FROM cc4.member m LEFT JOIN cc4.member w ON 1 = 1 WHERE m.user_id = #{user1} AND w.user_id = #{user2} AND m.team_id = w.team_id)")
+    boolean onSameTeam(@Param("user1") long user1, @Param("user2") long user2);
 
     @Select("SELECT COALESCE(SUM(p.value), 0) AS tokens FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON m.user_id = pg.user_id " +

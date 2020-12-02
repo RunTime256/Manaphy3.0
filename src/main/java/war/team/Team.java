@@ -58,4 +58,9 @@ public class Team
     {
         return session.getMapper(TeamMapper.class).isBanned(userId);
     }
+
+    public static boolean onSameTeam(long user1, long user2, Session session)
+    {
+        return session.getMapper(TeamMapper.class).onSameTeam(user1, user2);
+    }
 }
