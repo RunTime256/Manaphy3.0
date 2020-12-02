@@ -1,4 +1,4 @@
-package bot.command.definition.war.battle;
+package bot.command.definition.war.battle.grant;
 
 import bot.command.MessageCommand;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
@@ -28,6 +28,7 @@ import war.team.Team;
 import war.team.WarTeam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BattleGrantCommand
@@ -42,15 +43,18 @@ public class BattleGrantCommand
 
     public static MessageCommand createCommand()
     {
+        List<MessageCommand> subCommands = Arrays.asList(
+                BattleGrantForceCommand.createCommand()
+        );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
-                .syntax(SYNTAX).executor(BattleGrantCommand::function).build();
+                .syntax(SYNTAX).subCommands(subCommands).executor(BattleGrantCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        if (info.getChannel().getId() == BotChannel.getChannelId("pokemon", "battle", session))
+        if (info.getChannel().getId() != BotChannel.getChannelId("pokemon", "battle", session))
             return;
-        
+
         if (vars.isEmpty())
             throw new MissingArgumentException("user");
         else if (vars.size() == 1)
@@ -125,7 +129,7 @@ public class BattleGrantCommand
             if (Battle.isBannedFormat(format, session))
                 throw new BannedBattleFormatException(format);
 
-            int wins = Battle.getWins(winner, session);
+            int wins = Battle.getWins(winner, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
             int lossStreak = Battle.getLossStreak(loser, session) + 1;
@@ -147,12 +151,12 @@ public class BattleGrantCommand
 
             List<String> winnerAchievements = new ArrayList<>();
             List<String> loserAchievements = new ArrayList<>();
-            if (Battle.isAchievement("wins", wins, session))
-                winnerAchievements.add(Battle.getAchievement("wins", wins, session));
+            if (Battle.isAchievement("wins", wins , session))
+                winnerAchievements.add(Battle.getAchievement("wins", wins , session));
             if (Battle.isAchievement("win_streak", winStreak, session))
                 winnerAchievements.add(Battle.getAchievement("win_streak", winStreak, session));
             if (Battle.isAchievement("loss_streak", lossStreak, session))
-                winnerAchievements.add(Battle.getAchievement("loss_streak", lossStreak, session));
+                loserAchievements.add(Battle.getAchievement("loss_streak", lossStreak, session));
 
             addAchievements(winnerAchievements, winner);
             addAchievements(loserAchievements, loser);

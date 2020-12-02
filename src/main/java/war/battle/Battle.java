@@ -64,4 +64,9 @@ public class Battle
         session.getMapper(BattleMapper.class).addBattle(winner, loser, url, consecutiveWins, consecutiveLosses, timestamp,
                 winTokens, loseTokens, multiplier, multiplierCount, bonusMultiplier);
     }
+
+    public static int deleteBattle(String url, Session session)
+    {
+        return session.getMapper(BattleMapper.class).deleteBattle(url);
+    }
 }

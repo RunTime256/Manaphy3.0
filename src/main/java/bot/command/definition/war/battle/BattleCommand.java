@@ -1,6 +1,7 @@
 package bot.command.definition.war.battle;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.battle.grant.BattleGrantCommand;
 import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;

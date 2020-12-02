@@ -1,5 +1,6 @@
 package war.battle;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -54,4 +55,7 @@ public interface BattleMapper
                    @Param("consecutiveWins") int consecutiveWins, @Param("consecutiveLosses") int consecutiveLosses,
                    @Param("timestamp") Instant timestamp, @Param("winTokens") int winTokens, @Param("loseTokens") int loseTokens,
                    @Param("multiplier") int multiplier, @Param("multiplierCount") int multiplierCount, @Param("bonusMultiplier") int bonusMultiplier);
+
+    @Delete("DELETE FROM cc4.battle WHERE url = #{url}")
+    int deleteBattle(@Param("url") String url);
 }
