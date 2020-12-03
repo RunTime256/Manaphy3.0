@@ -5,24 +5,17 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
-import exception.bot.argument.MissingArgumentException;
-import exception.war.puzzle.NotAPuzzleException;
-import exception.war.puzzle.PuzzleAlreadyEndedException;
-import exception.war.puzzle.PuzzleAlreadyStartedException;
 import exception.war.team.BannedMemberException;
 import exception.war.team.NotATeamMemberException;
-import exception.war.team.TeamException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import sql.Session;
-import war.puzzle.Puzzle;
 import war.scorecard.Scorecard;
 import war.scorecard.WarScorecard;
 import war.team.Team;
 import war.team.WarTeam;
 
-import java.awt.Color;
 import java.util.List;
 
 public class ScorecardCommand
@@ -88,7 +81,7 @@ public class ScorecardCommand
                     "\n\n**Puzzle Tokens:** " + scorecard.getPuzzleTokens() +
                     "\n\n**Art Tokens:** " + scorecard.getArtTokens() +
                     "\n\n**Game Tokens:** " + scorecard.getGameTokens() +
-                    "\n\n**Misc Tokens:** " + scorecard.getMiscTokens() +
+                    "\n\n**Bonus Tokens:** " + scorecard.getBonusTokens() +
                     "\n--------------------\n" +
                     "\n**Total:** " + scorecard.getTotalTokens();
 

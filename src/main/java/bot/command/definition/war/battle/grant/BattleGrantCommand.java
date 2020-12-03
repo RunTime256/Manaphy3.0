@@ -131,22 +131,26 @@ public class BattleGrantCommand
 
             int wins = Battle.getWins(winner, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
+            int loserTotal = Battle.getTotalBattles(loser, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
             int lossStreak = Battle.getLossStreak(loser, session) + 1;
 
             int winTokens = 5;
             int loseTokens = 2;
-            PreviousBattleMultiplier previousBattleMultiplier = Battle.getMultiplier(winner, winnerTotal, session);
+            PreviousBattleMultiplier winnerPreviousBattleMultiplier = Battle.getWinnerMultiplier(winner, winnerTotal, session);
+            PreviousBattleMultiplier loserPreviousBattleMultiplier = Battle.getLoserMultiplier(loser, loserTotal, session);
 
-            int multiplier = previousBattleMultiplier.getNewMultiplier(info.getTime());
-            int multiplierCount = previousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int winnerMultiplier = winnerPreviousBattleMultiplier.getNewMultiplier(info.getTime());
+            int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int loserMultiplier = loserPreviousBattleMultiplier.getNewMultiplier(info.getTime());
+            int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
             int bonusMultiplier = 1;
 
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
-                    multiplier, multiplierCount, bonusMultiplier, session);
+                    winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
 
             EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), info.getUser(), Team.getTeam(winner, session),
-                    winTokens, loseTokens, multiplier, multiplierCount, bonusMultiplier, url);
+                    winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url);
             DMessage.sendMessage(info.getChannel(), builder);
 
             List<String> winnerAchievements = new ArrayList<>();

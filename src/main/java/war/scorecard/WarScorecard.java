@@ -7,16 +7,16 @@ public class WarScorecard
     private final int puzzleTokens;
     private final int artTokens;
     private final int gameTokens;
-    private final int miscTokens;
+    private final int bonusTokens;
 
-    public WarScorecard(long userId, int battleTokens, int puzzleTokens, int artTokens, int gameTokens, int miscTokens)
+    public WarScorecard(long userId, int battleTokens, int puzzleTokens, int artTokens, int gameTokens, int bonusTokens)
     {
         this.userId = userId;
         this.battleTokens = battleTokens;
         this.puzzleTokens = puzzleTokens;
         this.artTokens = artTokens;
         this.gameTokens = gameTokens;
-        this.miscTokens = miscTokens;
+        this.bonusTokens = bonusTokens;
     }
 
     public long getUserId()
@@ -44,13 +44,13 @@ public class WarScorecard
         return gameTokens;
     }
 
-    public int getMiscTokens()
+    public int getBonusTokens()
     {
-        return miscTokens;
+        return bonusTokens;
     }
 
     public int getTotalTokens()
     {
-        return battleTokens + puzzleTokens + artTokens + gameTokens + miscTokens;
+        return battleTokens + puzzleTokens + artTokens + gameTokens + bonusTokens;
     }
 }

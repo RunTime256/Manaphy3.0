@@ -8,8 +8,12 @@ import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
 import bot.util.IdExtractor;
+import bot.util.ShowdownUrlEvaluator;
 import exception.bot.argument.MissingArgumentException;
+import exception.war.battle.BannedBattleFormatException;
 import exception.war.battle.BattleException;
+import exception.war.battle.DuplicateBattleUrlException;
+import exception.war.battle.InvalidBattleUrlException;
 import exception.war.team.BannedMemberException;
 import exception.war.team.NotATeamMemberException;
 import exception.war.team.SameTeamException;
@@ -30,7 +34,7 @@ public class BattleGrantForceCommand
 {
     private static final String NAME = "force";
     private static final String DESCRIPTION = "Force a win to people";
-    private static final String SYNTAX = "<winner> <loser>";
+    private static final String SYNTAX = "<winner> <loser> [showdown url]";
 
     private BattleGrantForceCommand()
     {
@@ -74,7 +78,10 @@ public class BattleGrantForceCommand
 
             winner = IdExtractor.getId(vars.get(0));
             loser = IdExtractor.getId(vars.get(1));
-            url = "";
+            if (vars.size() > 2)
+                url = vars.get(2);
+            else
+                url = "";
         }
 
         void execute()
@@ -112,24 +119,40 @@ public class BattleGrantForceCommand
             if (Team.onSameTeam(winner, loser, session))
                 throw new SameTeamException(winner, loser);
 
+            if (!url.isEmpty())
+            {
+                if (!ShowdownUrlEvaluator.isValidUrl(url))
+                    throw new InvalidBattleUrlException(url);
+                if (Battle.isBattle(url, session))
+                    throw new DuplicateBattleUrlException(url);
+
+                String format = ShowdownUrlEvaluator.getFormat(url);
+                if (Battle.isBannedFormat(format, session))
+                    throw new BannedBattleFormatException(format);
+            }
+
             int wins = Battle.getWins(winner, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
+            int loserTotal = Battle.getTotalBattles(loser, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
             int lossStreak = Battle.getLossStreak(loser, session) + 1;
 
             int winTokens = 5;
             int loseTokens = 2;
-            PreviousBattleMultiplier previousBattleMultiplier = Battle.getMultiplier(winner, winnerTotal, session);
+            PreviousBattleMultiplier winnerPreviousBattleMultiplier = Battle.getWinnerMultiplier(winner, winnerTotal, session);
+            PreviousBattleMultiplier loserPreviousBattleMultiplier = Battle.getLoserMultiplier(loser, loserTotal, session);
 
-            int multiplier = previousBattleMultiplier.getNewMultiplier(info.getTime());
-            int multiplierCount = previousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int winnerMultiplier = winnerPreviousBattleMultiplier.getNewMultiplier(info.getTime());
+            int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int loserMultiplier = loserPreviousBattleMultiplier.getNewMultiplier(info.getTime());
+            int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
             int bonusMultiplier = 1;
 
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
-                    multiplier, multiplierCount, bonusMultiplier, session);
+                    winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
 
-            EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), DUser.getUser(api, loser), Team.getTeam(winner, session),
-                    winTokens, loseTokens, multiplier, multiplierCount, bonusMultiplier, url);
+            EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), info.getUser(), Team.getTeam(winner, session),
+                    winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url);
             DMessage.sendMessage(info.getChannel(), builder);
 
             List<String> winnerAchievements = new ArrayList<>();

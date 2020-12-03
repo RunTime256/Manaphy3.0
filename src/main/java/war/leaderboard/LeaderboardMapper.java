@@ -59,9 +59,12 @@ public interface LeaderboardMapper
     })
     List<WarLeaderboard> getGameLeaderboard();
 
-    @Select("SELECT t.full_name AS team, t.color AS color, 0 AS tokens " +
+    @Select("SELECT t.full_name AS team, t.color AS color, COALESCE(SUM(adt.tokens), 0)  AS tokens " +
             "FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
-            "GROUP BY t.full_name, t.color ORDER BY tokens DESC")
+            "LEFT JOIN cc4.user_achievement ua ON m.user_id = ua.user_id " +
+            "LEFT JOIN cc4.achievement a ON a.id = ua.achievement_id " +
+            "LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
+            "WHERE a.prewar = false GROUP BY t.full_name, t.color ORDER BY tokens DESC")
     @Results(value = {
             @Result(property = "teamName", column = "team"),
             @Result(property = "colorValue", column = "color"),

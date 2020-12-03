@@ -50,19 +50,28 @@ public class Battle
         return session.getMapper(BattleMapper.class).getAchievement(name, value);
     }
 
-    public static PreviousBattleMultiplier getMultiplier(long userId, int totalGames, Session session)
+    public static PreviousBattleMultiplier getWinnerMultiplier(long userId, int totalGames, Session session)
     {
         if (totalGames < 5)
             return new PreviousBattleMultiplier(5, totalGames);
         else
-            return session.getMapper(BattleMapper.class).getMultiplier(userId);
+            return session.getMapper(BattleMapper.class).getWinnerMultiplier(userId);
+    }
+
+    public static PreviousBattleMultiplier getLoserMultiplier(long userId, int totalGames, Session session)
+    {
+        if (totalGames < 5)
+            return new PreviousBattleMultiplier(5, totalGames);
+        else
+            return session.getMapper(BattleMapper.class).getLoserMultiplier(userId);
     }
 
     public static void addBattle(long winner, long loser, String url, int consecutiveWins, int consecutiveLosses, Instant timestamp,
-                                 int winTokens, int loseTokens, int multiplier, int multiplierCount, int bonusMultiplier, Session session)
+                                 int winTokens, int loseTokens, int winnerMultiplier, int winnerMultiplierCount, int bonusMultiplier,
+                                 int loserMultiplier, int loserMultiplierCount, Session session)
     {
         session.getMapper(BattleMapper.class).addBattle(winner, loser, url, consecutiveWins, consecutiveLosses, timestamp,
-                winTokens, loseTokens, multiplier, multiplierCount, bonusMultiplier);
+                winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount);
     }
 
     public static int deleteBattle(String url, Session session)
