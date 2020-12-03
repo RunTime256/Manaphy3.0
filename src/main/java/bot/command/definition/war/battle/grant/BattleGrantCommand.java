@@ -141,9 +141,9 @@ public class BattleGrantCommand
             PreviousBattleMultiplier loserPreviousBattleMultiplier = Battle.getMultiplier(loser, loserTotal, session);
 
             int winnerMultiplier = winnerPreviousBattleMultiplier.getNewMultiplier(info.getTime());
-            int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), winnerMultiplier);
             int loserMultiplier = loserPreviousBattleMultiplier.getNewMultiplier(info.getTime());
-            int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
+            int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), loserMultiplier);
             int bonusMultiplier = 1;
 
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,

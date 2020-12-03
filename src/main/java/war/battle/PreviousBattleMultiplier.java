@@ -30,6 +30,16 @@ public class PreviousBattleMultiplier
         return timestamp;
     }
 
+    public int getMultiplier()
+    {
+        return multiplier;
+    }
+
+    public int getMultiplierCount()
+    {
+        return multiplierCount;
+    }
+
     public int getNewMultiplier(Instant currentTime)
     {
         if (timestamp == null)
@@ -55,7 +65,7 @@ public class PreviousBattleMultiplier
         return 1;
     }
 
-    public int getNewMultiplierCount(Instant currentTime)
+    public int getNewMultiplierCount(Instant currentTime, int newMult)
     {
         if (timestamp == null)
             return multiplierCount + 1;
@@ -63,14 +73,14 @@ public class PreviousBattleMultiplier
         long hours = Duration.between(timestamp, currentTime).toHours();
         if (multiplierCount >= 5)
         {
-            if (multiplier != 1)
+            if (newMult != 1)
                 return 1;
         }
         else
         {
             for (int i = times.length - 1; i >= 0; i--)
             {
-                if (hours >= times[i])
+                if (hours >= times[i] && newMult != multiplier)
                     return 1;
             }
         }
