@@ -7,6 +7,7 @@ import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
 import bot.command.definition.war.WarCommand;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
+import bot.command.definition.war.puzzle.PuzzleGrantCommand;
 import bot.command.definition.war.puzzle.PuzzleSolveCommand;
 import bot.command.definition.war.prewar.typevote.TypeVoteCommand;
 import bot.discord.Bot;
@@ -83,6 +84,7 @@ public class BotRunner
 
             ReactionCommandListener.setLogger(logger);
             PuzzleSolveCommand.setPuzzleLogger(puzzleLogger);
+            PuzzleGrantCommand.setPuzzleLogger(puzzleLogger);
             TypeVoteCommand.setTypeVoteLogger(typeVoteLogger);
             AchievementGrantCommand.setAchievementLogger(achievementLogger);
         }

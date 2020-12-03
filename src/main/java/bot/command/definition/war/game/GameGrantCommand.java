@@ -1,6 +1,7 @@
 package bot.command.definition.war.game;
 
 import bot.command.MessageCommand;
+import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
@@ -11,7 +12,6 @@ import exception.war.game.IncorrectGameChannelException;
 import exception.war.game.NotAGameException;
 import exception.war.team.BannedMemberException;
 import exception.war.team.NotATeamMemberException;
-import exception.war.team.TeamException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -34,7 +34,7 @@ public class GameGrantCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .executor(GameGrantCommand::function).build();
+                .requirement(RoleRequirement.VERIFIED).executor(GameGrantCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

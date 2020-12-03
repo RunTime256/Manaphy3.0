@@ -91,8 +91,10 @@ public class BattleStatsCommand
         {
             EmbedBuilder builder = new EmbedBuilder();
 
-            String description = "**Current Multiplier:** " + multiplier.getMultiplier() +
-                    " (" + multiplier.getMultiplierCount() + "/5 battles at multiplier)" +
+            int mult = multiplier.getNewMultiplier(info.getTime());
+            int multCount = multiplier.getNewMultiplierCount(info.getTime(), mult) - 1;
+            String description = "**Current Multiplier:** " + mult +
+                    " (" + multCount + "/5 battles at multiplier)" +
                     "\n\n**Time since last battle:** " + timeDifference(info.getTime(), multiplier.getTimestamp());
             int losses = total - wins;
             double ratio;

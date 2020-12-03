@@ -2,8 +2,6 @@ package bot.command.definition.war.achievements;
 
 import bot.command.MessageCommand;
 import bot.command.verification.RoleRequirement;
-import bot.discord.channel.BotChannel;
-import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
@@ -53,7 +51,7 @@ public class AchievementGrantCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .executor(AchievementGrantCommand::function).build();
+                .requirement(RoleRequirement.VERIFIED).executor(AchievementGrantCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

@@ -25,6 +25,11 @@ public class Battle
         return session.getMapper(BattleMapper.class).getWins(userId);
     }
 
+    public static int getLosses(long userId, Session session)
+    {
+        return session.getMapper(BattleMapper.class).getLosses(userId);
+    }
+
     public static int getTotalBattles(long userId, Session session)
     {
         return session.getMapper(BattleMapper.class).getTotalBattles(userId);

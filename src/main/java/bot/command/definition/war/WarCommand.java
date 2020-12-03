@@ -43,7 +43,8 @@ public class WarCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 CodeCommand.createBotCommand(),
                 GameCommand.createBotCommand(),
-                AchievementCommand.createBotCommand()
+                AchievementCommand.createBotCommand(),
+                PuzzleCommand.createBotCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

@@ -18,6 +18,9 @@ public interface BattleMapper
     @Select("SELECT count(*) FROM cc4.battle b WHERE b.winner = #{userId}")
     int getWins(@Param("userId") long userId);
 
+    @Select("SELECT count(*) FROM cc4.battle b WHERE b.loser = #{userId}")
+    int getLosses(@Param("userId") long userId);
+
     @Select("SELECT count(*) FROM cc4.battle b WHERE b.winner = #{userId} OR b.loser = #{userId}")
     int getTotalBattles(@Param("userId") long userId);
 
@@ -30,7 +33,8 @@ public interface BattleMapper
 
     @Select("SELECT COALESCE(y.consecutive_losses, 0) FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT b.consecutive_losses FROM cc4.battle b WHERE b.loser = #{userId} GROUP BY b.timestamp, b.consecutive_losses ORDER BY b.timestamp DESC LIMIT 1) y " +
+            "(SELECT CASE WHEN b.loser = #{userId} THEN b.consecutive_losses ELSE 0 END AS consecutive_losses " +
+            "FROM cc4.battle b WHERE b.winner = #{userId} OR b.loser = #{userId} ORDER BY b.timestamp DESC LIMIT 1) y " +
             "ON 1 = 1")
     int getLossStreak(@Param("userId") long userId);
 

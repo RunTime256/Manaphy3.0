@@ -27,4 +27,13 @@ public class PuzzleCommand
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();
     }
+
+    public static MessageCommand createBotCommand()
+    {
+        List<MessageCommand> subCommands = Arrays.asList(
+                PuzzleGrantCommand.createBotCommand()
+        );
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+                .subCommands(subCommands).build();
+    }
 }

@@ -130,6 +130,7 @@ public class BattleGrantCommand
                 throw new BannedBattleFormatException(format);
 
             int wins = Battle.getWins(winner, session) + 1;
+            int losses = Battle.getLosses(winner, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
             int loserTotal = Battle.getTotalBattles(loser, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
@@ -157,6 +158,8 @@ public class BattleGrantCommand
             List<String> loserAchievements = new ArrayList<>();
             if (Battle.isAchievement("wins", wins , session))
                 winnerAchievements.add(Battle.getAchievement("wins", wins , session));
+            if (Battle.isAchievement("losses", losses , session))
+                loserAchievements.add(Battle.getAchievement("losses", losses, session));
             if (Battle.isAchievement("win_streak", winStreak, session))
                 winnerAchievements.add(Battle.getAchievement("win_streak", winStreak, session));
             if (Battle.isAchievement("loss_streak", lossStreak, session))

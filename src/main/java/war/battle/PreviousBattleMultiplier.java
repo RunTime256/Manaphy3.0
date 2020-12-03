@@ -30,16 +30,6 @@ public class PreviousBattleMultiplier
         return timestamp;
     }
 
-    public int getMultiplier()
-    {
-        return multiplier;
-    }
-
-    public int getMultiplierCount()
-    {
-        return multiplierCount;
-    }
-
     public int getNewMultiplier(Instant currentTime)
     {
         if (timestamp == null)

@@ -6,7 +6,6 @@ import bot.command.parser.MessageCommandParser;
 import bot.command.verification.RoleCheck;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
-import bot.util.CombineContent;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
 import exception.bot.argument.NoExecutorException;

@@ -11,10 +11,8 @@ import exception.war.achievement.AchievementAlreadyExistsException;
 import exception.war.achievement.NotAnAchievementCategoryException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 import sql.Session;
 import war.achievement.Achievement;
-import war.achievement.UserAchievement;
 import war.achievement.WarAchievement;
 
 import java.util.List;

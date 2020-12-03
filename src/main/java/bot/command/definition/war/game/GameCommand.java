@@ -1,6 +1,7 @@
 package bot.command.definition.war.game;
 
 import bot.command.MessageCommand;
+import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ public class GameCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 GameGrantCommand.createBotCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).subCommands(subCommands).build();
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
+                .requirement(RoleRequirement.VERIFIED).subCommands(subCommands).build();
     }
 }
