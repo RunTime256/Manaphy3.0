@@ -8,8 +8,9 @@ public class WarAchievement
     private final String category;
     private final String image;
     private final String unlockMethod;
+    private final int value;
 
-    public WarAchievement(String name, String fullName, String description, String category, String image, String unlockMethod)
+    public WarAchievement(String name, String fullName, String description, String category, String image, String unlockMethod, int value)
     {
         this.name = name;
         this.fullName = fullName;
@@ -17,6 +18,7 @@ public class WarAchievement
         this.category = category;
         this.image = image;
         this.unlockMethod = unlockMethod;
+        this.value = value;
     }
 
     public String getName()
@@ -48,6 +50,11 @@ public class WarAchievement
 
     public String getCategoryEmoji() {
         return getCategoryEmoji(category);
+    }
+
+    public int getValue()
+    {
+        return value;
     }
 
     public static String getCategoryEmoji(String category) {

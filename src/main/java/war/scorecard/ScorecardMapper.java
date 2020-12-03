@@ -19,7 +19,7 @@ public interface ScorecardMapper
             "game_tokens AS (SELECT COALESCE(SUM(gp.tokens), 0) AS tokens FROM cc4.game_points gp WHERE gp.user_id = #{userId}), " +
             "bonus_tokens AS (SELECT COALESCE(SUM(adt.tokens), 0) AS tokens FROM cc4.user_achievement ua LEFT JOIN cc4.achievement a ON a.id = ua.achievement_id " +
             "LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
-            "WHERE user_id = 111682132115509248) " +
+            "WHERE user_id = #{userId}) " +
             "SELECT #{userId} AS user_id, wbt.tokens + lbt.tokens AS battle_tokens, pt.tokens AS puzzle_tokens, at.tokens AS art_tokens, gt.tokens AS game_tokens, bt.tokens AS bonus_tokens " +
             "FROM winner_battle_tokens wbt JOIN loser_battle_tokens lbt ON 1 = 1 JOIN puzzle_tokens pt ON 1 = 1 JOIN art_tokens at ON 1 = 1 JOIN game_tokens gt ON 1 = 1 JOIN bonus_tokens bt ON 1 = 1")
     @Results(value = {

@@ -41,17 +41,13 @@ public interface BattleMapper
             "WHERE ba.name = #{name} AND ba.value = #{value}")
     String getAchievement(@Param("name") String name, @Param("value") int value);
 
-    @Select("SELECT y.timestamp, COALESCE(y.winner_multiplier, 0) AS multiplier, COALESCE(y.winner_multiplier_count, 0) AS multiplier_count FROM " +
+    @Select("SELECT y.timestamp, CASE WHEN (y.winner = #{userId}) THEN COALESCE(y.winner_multiplier, 0) ELSE COALESCE(y.loser_multiplier, 0) END AS multiplier, " +
+            "CASE WHEN (y.winner = #{userId}) THEN COALESCE(y.winner_multiplier_count, 0) ELSE COALESCE(y.loser_multiplier_count, 0) END AS multiplier_count FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT b.timestamp, b.winner_multiplier, b.winner_multiplier_count FROM cc4.battle b WHERE winner = #{userId} ORDER BY b.timestamp DESC LIMIT 1) y " +
+            "(SELECT b.winner, b.timestamp, b.winner_multiplier, b.winner_multiplier_count, b.loser_multiplier, b.loser_multiplier_count " +
+            "FROM cc4.battle b WHERE winner = #{userId} OR loser = #{userId} ORDER BY b.timestamp DESC LIMIT 1) y " +
             "ON 1 = 1")
-    PreviousBattleMultiplier getWinnerMultiplier(@Param("userId") long userId);
-
-    @Select("SELECT y.timestamp, COALESCE(y.loser_multiplier, 0) AS multiplier, COALESCE(y.loser_multiplier_count, 0) AS multiplier_count FROM " +
-            "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT b.timestamp, b.loser_multiplier, b.loser_multiplier_count FROM cc4.battle b WHERE loser = #{userId} ORDER BY b.timestamp DESC LIMIT 1) y " +
-            "ON 1 = 1")
-    PreviousBattleMultiplier getLoserMultiplier(@Param("userId") long userId);
+    PreviousBattleMultiplier getMultiplier(@Param("userId") long userId);
 
     @Insert("INSERT INTO cc4.battle (winner, loser, url, timestamp, consecutive_wins, consecutive_losses, " +
             "winner_tokens, loser_tokens, themed, winner_multiplier, winner_multiplier_count, bonus_multiplier, " +

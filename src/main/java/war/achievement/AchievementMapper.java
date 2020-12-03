@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface AchievementMapper {
 
-    @Select("SELECT a.name, a.full_name, a.description, ac.name AS category, a.image, a.unlock_method FROM cc4.achievement a " +
-            "LEFT JOIN cc4.achievement_category ac ON ac.id = a.category_id " +
+    @Select("SELECT a.name, a.full_name, a.description, ac.name AS category, a.image, a.unlock_method, adt.tokens AS value FROM cc4.achievement a " +
+            "LEFT JOIN cc4.achievement_category ac ON ac.id = a.category_id LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
             "WHERE a.name = #{name}")
     @Results(value = {
             @Result(property = "name", column = "name"),
@@ -20,7 +20,8 @@ public interface AchievementMapper {
             @Result(property = "description", column = "description"),
             @Result(property = "category", column = "category"),
             @Result(property = "image", column = "image"),
-            @Result(property = "unlockMethod", column = "unlock_method")
+            @Result(property = "unlockMethod", column = "unlock_method"),
+            @Result(property = "value", column = "value")
     })
     WarAchievement getAchievement(@Param("name") String name);
 

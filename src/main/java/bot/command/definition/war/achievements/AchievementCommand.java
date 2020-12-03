@@ -259,7 +259,8 @@ public class AchievementCommand
 
             // Create embed.
             String title = String.format("%s - %s", achievement.getCategoryEmoji(),achievement.getFullName());
-            String description = "*" + achievement.getDescription() + "*\n`Unlock: " + achievement.getUnlockMethod() + "`";
+            String description = "*" + achievement.getDescription() + "*\n`Unlock: " + achievement.getUnlockMethod() + "`" +
+                    "\nValue: " + achievement.getValue();
             builder.setTitle(title).setDescription(description).setThumbnail(achievement.getImage());
 
             String authorName = String.format("%s's Medals", user.getName());

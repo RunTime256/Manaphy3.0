@@ -139,8 +139,8 @@ public class BattleGrantForceCommand
 
             int winTokens = 5;
             int loseTokens = 2;
-            PreviousBattleMultiplier winnerPreviousBattleMultiplier = Battle.getWinnerMultiplier(winner, winnerTotal, session);
-            PreviousBattleMultiplier loserPreviousBattleMultiplier = Battle.getLoserMultiplier(loser, loserTotal, session);
+            PreviousBattleMultiplier winnerPreviousBattleMultiplier = Battle.getMultiplier(winner, winnerTotal, session);
+            PreviousBattleMultiplier loserPreviousBattleMultiplier = Battle.getMultiplier(loser, loserTotal, session);
 
             int winnerMultiplier = winnerPreviousBattleMultiplier.getNewMultiplier(info.getTime());
             int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime());
