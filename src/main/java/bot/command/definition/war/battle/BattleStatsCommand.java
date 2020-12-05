@@ -16,8 +16,11 @@ import war.battle.PreviousBattleMultiplier;
 import war.team.Team;
 import war.team.WarTeam;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class BattleStatsCommand
@@ -92,10 +95,16 @@ public class BattleStatsCommand
             EmbedBuilder builder = new EmbedBuilder();
 
             int mult = multiplier.getNewMultiplier(info.getTime());
+            ZonedDateTime dateTime = ZonedDateTime.ofInstant(info.getTime(), ZoneId.of("America/New_York"));
+            if (dateTime.getDayOfWeek() == DayOfWeek.SATURDAY || dateTime.getDayOfWeek() == DayOfWeek.SUNDAY)
+                mult += 2;
             int multCount = multiplier.getNewMultiplierCount(info.getTime(), mult) - 1;
-            String description = "**Current Multiplier:** " + mult +
-                    " (" + multCount + "/5 battles at multiplier)" +
-                    "\n\n**Time since last battle:** " + timeDifference(info.getTime(), multiplier.getTimestamp());
+
+            String description = "**Current Multiplier:** " + mult;
+            if (mult > 1)
+                description += " (" + multCount + "/5 battles at multiplier)";
+            description += "\n\n**Time since last battle:** " + timeDifference(info.getTime(), multiplier.getTimestamp());
+
             int losses = total - wins;
             double ratio;
             if (losses == 0)

@@ -156,7 +156,7 @@ public class BattleGrantForceCommand
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
                     winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
 
-            EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), info.getUser(), Team.getTeam(winner, session),
+            EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), DUser.getUser(api, loser), Team.getTeam(winner, session),
                     winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url);
             DMessage.sendMessage(info.getChannel(), builder);
 
@@ -190,13 +190,24 @@ public class BattleGrantForceCommand
         private EmbedBuilder tokenEmbed(User winner, User loser, WarTeam team, int winnerTokens, int loserTokens, int multiplier, int multiplierCount, int bonusMultiplier, String url)
         {
             EmbedBuilder builder = new EmbedBuilder();
-            String win = "Earned " + (winnerTokens * multiplier * bonusMultiplier) + " tokens";
+            String win = "Earned " + (winnerTokens * (multiplier + (bonusMultiplier - 1))) + " tokens";
             String lose = "Earned " + loserTokens + " tokens";
 
             if (multiplier > 1)
-                win += "\nMultiplier: " + multiplier + " (" + multiplierCount + "/5 battles at current multiplier)";
-            if (bonusMultiplier > 1)
-                win += "\nBonus Multiplier: +" + bonusMultiplier;
+            {
+                if (bonusMultiplier > 1)
+                {
+                    win += "\n Multiplier: " + (multiplier + (bonusMultiplier - 1)) + " (" + multiplierCount + "/5 battles at current multiplier)";
+                }
+                else
+                {
+                    win += "\nMultiplier: " + multiplier + " (" + multiplierCount + "/5 battles at current multiplier)";
+                }
+            }
+            else
+            {
+                win += "\nBonus Multiplier: " + bonusMultiplier;
+            }
 
             builder.setTitle(team.getFullName()).setColor(team.getColor()).setThumbnail(team.getTokenImage())
                     .addField(winner.getDiscriminatedName(), win).addField(loser.getDiscriminatedName(), lose)

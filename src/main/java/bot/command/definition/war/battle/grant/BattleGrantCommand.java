@@ -168,6 +168,10 @@ public class BattleGrantCommand
                 winnerAchievements.add(Battle.getAchievement("win_streak", winStreak, session));
             if (Battle.isAchievement("loss_streak", lossStreak, session))
                 loserAchievements.add(Battle.getAchievement("loss_streak", lossStreak, session));
+            if (Battle.isAchievement("plays", winnerTotal, session))
+                winnerAchievements.add(Battle.getAchievement("plays", winnerTotal, session));
+            if (Battle.isAchievement("plays", loserTotal, session))
+                loserAchievements.add(Battle.getAchievement("plays", loserTotal, session));
 
             addAchievements(winnerAchievements, winner);
             addAchievements(loserAchievements, loser);
@@ -204,7 +208,7 @@ public class BattleGrantCommand
             }
             else
             {
-                win += "\nBonus Multiplier: " + (bonusMultiplier - 1);
+                win += "\nBonus Multiplier: " + bonusMultiplier;
             }
 
             builder.setTitle(team.getFullName()).setColor(team.getColor()).setThumbnail(team.getTokenImage())
