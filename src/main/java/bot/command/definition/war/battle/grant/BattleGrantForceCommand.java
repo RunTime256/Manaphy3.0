@@ -27,6 +27,9 @@ import war.battle.PreviousBattleMultiplier;
 import war.team.Team;
 import war.team.WarTeam;
 
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +122,7 @@ public class BattleGrantForceCommand
             if (Team.onSameTeam(winner, loser, session))
                 throw new SameTeamException(winner, loser);
 
+            String format = "";
             if (!url.isEmpty())
             {
                 if (!ShowdownUrlEvaluator.isValidUrl(url))
@@ -126,13 +130,13 @@ public class BattleGrantForceCommand
                 if (Battle.isBattle(url, session))
                     throw new DuplicateBattleUrlException(url);
 
-                String format = ShowdownUrlEvaluator.getFormat(url);
+                format = ShowdownUrlEvaluator.getFormat(url);
                 if (Battle.isBannedFormat(format, session))
                     throw new BannedBattleFormatException(format);
             }
 
             int wins = Battle.getWins(winner, session) + 1;
-            int losses = Battle.getLosses(winner, session) + 1;
+            int losses = Battle.getLosses(loser, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
             int loserTotal = Battle.getTotalBattles(loser, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
@@ -147,7 +151,7 @@ public class BattleGrantForceCommand
             int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), winnerMultiplier);
             int loserMultiplier = loserPreviousBattleMultiplier.getNewMultiplier(info.getTime());
             int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), loserMultiplier);
-            int bonusMultiplier = 1;
+            int bonusMultiplier = getBonusMultiplier(format);
 
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
                     winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
@@ -199,6 +203,18 @@ public class BattleGrantForceCommand
                     .setUrl(url);
 
             return builder;
+        }
+
+        private int getBonusMultiplier(String format)
+        {
+            int bonus = 1;
+            String bonusFormat = Battle.getBonusFormat(session);
+            ZonedDateTime dateTime = ZonedDateTime.ofInstant(info.getTime(), ZoneId.of("America/New_York"));
+            if (!bonusFormat.isEmpty() && format.equals(bonusFormat))
+                bonus += 3;
+            if (dateTime.getDayOfWeek() == DayOfWeek.SATURDAY || dateTime.getDayOfWeek() == DayOfWeek.SUNDAY)
+                bonus += 2;
+            return bonus;
         }
     }
 }

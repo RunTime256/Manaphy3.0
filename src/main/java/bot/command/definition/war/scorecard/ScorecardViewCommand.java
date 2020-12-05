@@ -5,6 +5,8 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
+import exception.bot.argument.InvalidArgumentException;
+import exception.bot.argument.MissingArgumentException;
 import exception.war.team.BannedMemberException;
 import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
@@ -16,30 +18,30 @@ import war.scorecard.WarScorecard;
 import war.team.Team;
 import war.team.WarTeam;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class ScorecardCommand
+public class ScorecardViewCommand
 {
-    private static final String NAME = "scorecard";
-    private static final String DESCRIPTION = "View your scorecard";
+    private static final String NAME = "view";
+    private static final String DESCRIPTION = "View a user's scorecard";
+    private static final String SYNTAX = "<user id>";
 
-    private ScorecardCommand()
+    private ScorecardViewCommand()
     {
     }
 
     public static MessageCommand createCommand()
     {
-        List<MessageCommand> subCommands = Arrays.asList(
-             ScorecardViewCommand.createCommand()
-        );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
-                .subCommands(subCommands).executor(ScorecardCommand::function).build();
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
+                .requirement(RoleRequirement.MOD).executor(ScorecardViewCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        ScorecardFunctionality functionality = new ScorecardFunctionality(api, info, session);
+        if (vars.isEmpty())
+            throw new MissingArgumentException("user id");
+
+        ScorecardFunctionality functionality = new ScorecardFunctionality(api, info, vars, session);
         functionality.execute();
     }
 
@@ -48,31 +50,28 @@ public class ScorecardCommand
         private final DiscordApi api;
         private final MessageReceivedInformation info;
         private final Session session;
+        private final long userId;
 
-        ScorecardFunctionality(DiscordApi api, MessageReceivedInformation info, Session session)
+        ScorecardFunctionality(DiscordApi api, MessageReceivedInformation info,  List<String> vars, Session session)
         {
             this.api = api;
             this.info = info;
             this.session = session;
+            try
+            {
+                userId = Long.parseLong(vars.get(0));
+            }
+            catch (NumberFormatException e)
+            {
+                throw new InvalidArgumentException("user id");
+            }
         }
 
         void execute()
         {
-            try
-            {
-                long userId = info.getUser().getId();
-                WarScorecard scorecard = Scorecard.getScorecard(userId, session);
-                WarTeam team = Team.getTeam(userId, session);
-                DMessage.sendMessage(info.getChannel(), scorecardEmbed(scorecard, team));
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
-            }
+            WarScorecard scorecard = Scorecard.getScorecard(userId, session);
+            WarTeam team = Team.getTeam(userId, session);
+            DMessage.sendMessage(info.getChannel(), scorecardEmbed(scorecard, team));
         }
 
         private EmbedBuilder scorecardEmbed(WarScorecard scorecard, WarTeam team)

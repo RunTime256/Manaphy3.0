@@ -22,7 +22,8 @@ public class BattleCommand
                 BattleGrantCommand.createCommand(),
                 BattleRemoveCommand.createCommand(),
                 BattleStatsCommand.createCommand(),
-                BattleSwapCommand.createCommand()
+                BattleSwapCommand.createCommand(),
+                BattleFormatCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

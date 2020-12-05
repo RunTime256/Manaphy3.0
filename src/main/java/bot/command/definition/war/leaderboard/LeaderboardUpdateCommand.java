@@ -31,7 +31,7 @@ public class LeaderboardUpdateCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 PuzzleListPrewarCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.ADMIN)
                 .subCommands(subCommands).executor(LeaderboardUpdateCommand::function).build();
     }
 
@@ -104,8 +104,10 @@ public class LeaderboardUpdateCommand
 
                 builder.addField((i + 1) + ". " + teamLeaderboard.getTeamName(), "Tokens: " + teamLeaderboard.getTokens());
                 if (teamLeaderboard.getTokens() == max)
+                {
                     tied++;
-                color += teamLeaderboard.getColorValue();
+                    color += teamLeaderboard.getColorValue();
+                }
             }
 
             if (tied != 0)

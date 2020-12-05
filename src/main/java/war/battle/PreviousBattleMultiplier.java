@@ -70,7 +70,7 @@ public class PreviousBattleMultiplier
         {
             for (int i = times.length - 1; i >= 0; i--)
             {
-                if (hours >= times[i] && newMult != multiplier)
+                if (hours >= times[i] && newMult == multipliers[i])
                     return 1;
             }
         }

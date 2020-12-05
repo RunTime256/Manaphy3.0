@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.time.Instant;
 
@@ -53,6 +54,9 @@ public interface BattleMapper
             "ON 1 = 1")
     PreviousBattleMultiplier getMultiplier(@Param("userId") long userId);
 
+    @Select("SELECT format FROM cc4.battle_format")
+    String getBonusFormat();
+
     @Insert("INSERT INTO cc4.battle (winner, loser, url, timestamp, consecutive_wins, consecutive_losses, " +
             "winner_tokens, loser_tokens, themed, winner_multiplier, winner_multiplier_count, bonus_multiplier, " +
             "loser_multiplier, loser_multiplier_count) " +
@@ -65,6 +69,9 @@ public interface BattleMapper
                    @Param("winnerMultiplier") int winnerMultiplier, @Param("winnerMultiplierCount") int winnerMultiplierCount,
                    @Param("bonusMultiplier") int bonusMultiplier, @Param("loserMultiplier") int loserMultiplier,
                    @Param("loserMultiplierCount") int loserMultiplierCount);
+
+    @Update("UPDATE cc4.battle_format SET format = #{format}")
+    void updateBonusFormat(@Param("format") String format);
 
     @Delete("DELETE FROM cc4.battle WHERE url = #{url}")
     int deleteBattle(@Param("url") String url);

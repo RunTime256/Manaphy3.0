@@ -8,7 +8,7 @@ public interface ScorecardMapper
 {
     @Select("WITH winner_battle_tokens AS (SELECT COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT SUM(winner_tokens * winner_multiplier) AS tokens FROM cc4.battle WHERE winner = #{userId} GROUP BY winner) y " +
+            "(SELECT SUM(winner_tokens * (winner_multiplier + (bonus_multiplier - 1))) AS tokens FROM cc4.battle WHERE winner = #{userId} GROUP BY winner) y " +
             "ON 1 = 1), " +
             "loser_battle_tokens AS (SELECT COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +

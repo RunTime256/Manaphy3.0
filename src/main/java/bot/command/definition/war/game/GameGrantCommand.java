@@ -115,11 +115,18 @@ public class GameGrantCommand
                 throw new IncorrectGameChannelException(gameName);
 
             int tokens = Game.getTokens(gameName, score, session);
+
+            if (tokens == 0)
+            {
+                DMessage.sendMessage(info.getChannel(), "No tokens for game `" + gameName + "` added for `" + userId + "`");
+                return;
+            }
+
             Game.addTokens(gameName, userId, score, tokens, info.getTime(), session);
             String fullName = Game.getFullName(gameName, session);
             WarTeam team = Team.getTeam(userId, session);
 
-            DMessage.sendMessage(info.getChannel(), tokens + " tokens for Game `" + gameName + "` added for `" + userId + "`");
+            DMessage.sendMessage(info.getChannel(), tokens + " tokens for game `" + gameName + "` added for `" + userId + "`");
             DMessage.sendPrivateMessage(api, userId, gameEmbed(team, fullName, tokens));
         }
 

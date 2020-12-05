@@ -6,6 +6,10 @@ import java.util.List;
 
 public class Leaderboard
 {
+    private Leaderboard()
+    {
+    }
+
     public static List<WarLeaderboard> getBattleLeaderboard(Session session)
     {
         return session.getMapper(LeaderboardMapper.class).getBattleLeaderboard();

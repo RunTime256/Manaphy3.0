@@ -27,6 +27,10 @@ import war.battle.PreviousBattleMultiplier;
 import war.team.Team;
 import war.team.WarTeam;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -130,7 +134,7 @@ public class BattleGrantCommand
                 throw new BannedBattleFormatException(format);
 
             int wins = Battle.getWins(winner, session) + 1;
-            int losses = Battle.getLosses(winner, session) + 1;
+            int losses = Battle.getLosses(loser, session) + 1;
             int winnerTotal = Battle.getTotalBattles(winner, session);
             int loserTotal = Battle.getTotalBattles(loser, session);
             int winStreak = Battle.getWinStreak(winner, session) + 1;
@@ -145,7 +149,7 @@ public class BattleGrantCommand
             int winnerMultiplierCount = winnerPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), winnerMultiplier);
             int loserMultiplier = loserPreviousBattleMultiplier.getNewMultiplier(info.getTime());
             int loserMultiplierCount = loserPreviousBattleMultiplier.getNewMultiplierCount(info.getTime(), loserMultiplier);
-            int bonusMultiplier = 1;
+            int bonusMultiplier = getBonusMultiplier(format);
 
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
                     winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
@@ -184,19 +188,42 @@ public class BattleGrantCommand
         private EmbedBuilder tokenEmbed(User winner, User loser, WarTeam team, int winnerTokens, int loserTokens, int multiplier, int multiplierCount, int bonusMultiplier, String url)
         {
             EmbedBuilder builder = new EmbedBuilder();
-            String win = "Earned " + (winnerTokens * multiplier * bonusMultiplier) + " tokens";
+            String win = "Earned " + (winnerTokens * (multiplier + (bonusMultiplier - 1))) + " tokens";
             String lose = "Earned " + loserTokens + " tokens";
 
             if (multiplier > 1)
-                win += "\nMultiplier: " + multiplier + " (" + multiplierCount + "/5 battles at current multiplier)";
-            if (bonusMultiplier > 1)
-                win += "\nBonus Multiplier: +" + bonusMultiplier;
+            {
+                if (bonusMultiplier > 1)
+                {
+                    win += "\n Multiplier: " + (multiplier + (bonusMultiplier - 1)) + " (" + multiplierCount + "/5 battles at current multiplier)";
+                }
+                else
+                {
+                    win += "\nMultiplier: " + multiplier + " (" + multiplierCount + "/5 battles at current multiplier)";
+                }
+            }
+            else
+            {
+                win += "\nBonus Multiplier: " + (bonusMultiplier - 1);
+            }
 
             builder.setTitle(team.getFullName()).setColor(team.getColor()).setThumbnail(team.getTokenImage())
                     .addField(winner.getDiscriminatedName(), win).addField(loser.getDiscriminatedName(), lose)
                     .setUrl(url);
 
             return builder;
+        }
+
+        private int getBonusMultiplier(String format)
+        {
+            int bonus = 1;
+            String bonusFormat = Battle.getBonusFormat(session);
+            ZonedDateTime dateTime = ZonedDateTime.ofInstant(info.getTime(), ZoneId.of("America/New_York"));
+            if (!bonusFormat.isEmpty() && format.equals(bonusFormat))
+                bonus += 3;
+            if (dateTime.getDayOfWeek() == DayOfWeek.SATURDAY || dateTime.getDayOfWeek() == DayOfWeek.SUNDAY)
+                bonus += 2;
+            return bonus;
         }
     }
 }

@@ -55,6 +55,11 @@ public class Battle
         return session.getMapper(BattleMapper.class).getAchievement(name, value);
     }
 
+    public static String getBonusFormat(Session session)
+    {
+        return session.getMapper(BattleMapper.class).getBonusFormat();
+    }
+
     public static PreviousBattleMultiplier getMultiplier(long userId, int totalGames, Session session)
     {
         if (totalGames < 5)
@@ -69,6 +74,11 @@ public class Battle
     {
         session.getMapper(BattleMapper.class).addBattle(winner, loser, url, consecutiveWins, consecutiveLosses, timestamp,
                 winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount);
+    }
+
+    public static void updateBonusFormat(String format, Session session)
+    {
+        session.getMapper(BattleMapper.class).updateBonusFormat(format);
     }
 
     public static int deleteBattle(String url, Session session)

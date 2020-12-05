@@ -10,7 +10,7 @@ public interface LeaderboardMapper
 {
     @Select("WITH winner AS (SELECT y.id, COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT t.id, SUM(winner_tokens * multiplier) AS tokens FROM cc4.battle b " +
+            "(SELECT t.id, SUM(winner_tokens * (winner_multiplier + (bonus_multiplier - 1))) AS tokens FROM cc4.battle b " +
             "LEFT JOIN cc4.member m ON b.winner = m.user_id " +
             "LEFT JOIN cc4.team t ON t.id = m.team_id GROUP BY t.id) y ON 1 = 1), " +
             "loser AS (SELECT y.id, COALESCE(y.tokens, 0) AS tokens FROM " +
