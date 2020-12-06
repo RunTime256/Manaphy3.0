@@ -126,7 +126,7 @@ public class PuzzleGrantCommand
                 {
                     String achievementName = Puzzle.getAchievement(guess.getName(), session);
                     List<String> vars = new ArrayList<>();
-                    vars.add(String.valueOf(info.getUser().getId()));
+                    vars.add(String.valueOf(userId));
                     vars.add(achievementName);
                     AchievementGrantCommand.function(api, info, vars, session);
                 }

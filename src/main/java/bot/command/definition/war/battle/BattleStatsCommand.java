@@ -111,6 +111,8 @@ public class BattleStatsCommand
                 ratio = wins;
             else ratio = 1.0 * wins / losses;
 
+            ratio = ((int) (ratio * 100)) / 100.0;
+
             builder.setAuthor(user.getDiscriminatedName(), null, user.getAvatar()).setTitle("Battle Stats")
                     .setDescription(description).setColor(team.getColor())
                     .addField("Wins", String.valueOf(wins))
