@@ -148,6 +148,16 @@ public class PuzzleSolveCommand
                         vars.add(String.valueOf(false));
                         AchievementGrantCommand.function(api, info, vars, session);
                     }
+
+                    if (Puzzle.isMultiAchievementPuzzle(guess.getName(), session) && Puzzle.hasCompletedMultiAchievementPuzzle(guess.getName(), info.getUser().getId(), session))
+                    {
+                        String achievementName = Puzzle.getMultiAchievement(guess.getName(), session);
+                        List<String> vars = new ArrayList<>();
+                        vars.add(String.valueOf(info.getUser().getId()));
+                        vars.add(achievementName);
+                        vars.add(String.valueOf(false));
+                        AchievementGrantCommand.function(api, info, vars, session);
+                    }
                 }
                 else
                 {

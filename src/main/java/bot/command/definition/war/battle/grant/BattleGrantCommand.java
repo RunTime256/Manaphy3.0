@@ -154,15 +154,20 @@ public class BattleGrantCommand
             Battle.addBattle(winner, loser, url, winStreak, lossStreak, info.getTime(), winTokens, loseTokens,
                     winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
 
+            grantAchievements(wins, losses, winnerTotal, loserTotal, winStreak, lossStreak);
+
             EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), info.getUser(), Team.getTeam(winner, session),
                     winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url);
             DMessage.sendMessage(info.getChannel(), builder);
+        }
 
+        private void grantAchievements(int wins, int losses, int winnerTotal, int loserTotal, int winStreak, int lossStreak)
+        {
             List<String> winnerAchievements = new ArrayList<>();
             List<String> loserAchievements = new ArrayList<>();
-            if (Battle.isAchievement("wins", wins , session))
-                winnerAchievements.add(Battle.getAchievement("wins", wins , session));
-            if (Battle.isAchievement("losses", losses , session))
+            if (Battle.isAchievement("wins", wins, session))
+                winnerAchievements.add(Battle.getAchievement("wins", wins, session));
+            if (Battle.isAchievement("losses", losses, session))
                 loserAchievements.add(Battle.getAchievement("losses", losses, session));
             if (Battle.isAchievement("win_streak", winStreak, session))
                 winnerAchievements.add(Battle.getAchievement("win_streak", winStreak, session));

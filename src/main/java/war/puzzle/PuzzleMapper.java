@@ -81,7 +81,8 @@ public interface PuzzleMapper
             "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false) " +
             "SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
-            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false AND NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id)")
+            "WHERE NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id) AND (p.viewable = true OR " +
+            "pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false)")
     List<String> getUnsolvedDiscoveredInfinitePuzzles(@Param("userId") long userId);
 
     @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
@@ -100,6 +101,24 @@ public interface PuzzleMapper
     @Select("SELECT EXISTS(SELECT * FROM cc4.puzzle_achievement pa LEFT JOIN cc4.puzzle p ON p.id = pa.puzzle_id " +
             "WHERE p.name = #{name})")
     boolean isAchievementPuzzle(@Param("name") String name);
+
+    @Select("SELECT EXISTS(SELECT * FROM cc4.puzzle_multi_achievement pma LEFT JOIN cc4.puzzle p ON p.id = pma.puzzle_id " +
+            "WHERE p.name = #{name})")
+    boolean isMultiAchievementPuzzle(@Param("name") String name);
+
+    @Select("WITH achieve AS (SELECT pma.achievement_id FROM cc4.puzzle op " +
+            "LEFT JOIN cc4.puzzle_multi_achievement pma ON op.id = pma.puzzle_id WHERE op.name = #{name} LIMIT 1), " +
+            "multi AS (SELECT pg.id FROM cc4.puzzle_multi_achievement pma LEFT JOIN cc4.puzzle p ON p.id = pma.puzzle_id " +
+            "LEFT JOIN achieve a ON pma.achievement_id = a.achievement_id " +
+            "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId}) " +
+            "SELECT (count(*) = 0) FROM multi m WHERE m.id IS NULL")
+    boolean hasCompletedMultiAchievementPuzzle(@Param("name") String name, @Param("userId") Long userId);
+
+    @Select("SELECT a.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_multi_achievement pma ON p.id = pma.puzzle_id " +
+            "LEFT JOIN cc4.achievement a ON pma.achievement_id = a.id " +
+            "WHERE p.name = #{name} LIMIT 1")
+    String getMultiAchievement(@Param("name") String name);
 
     @Select("SELECT a.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_achievement pa ON p.id = pa.puzzle_id " +
             "LEFT JOIN cc4.achievement a ON a.id = pa.achievement_id WHERE p.name = #{name}")

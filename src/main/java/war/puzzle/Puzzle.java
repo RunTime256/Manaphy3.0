@@ -47,6 +47,21 @@ public class Puzzle
         return session.getMapper(PuzzleMapper.class).getAchievement(name);
     }
 
+    public static boolean isMultiAchievementPuzzle(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).isMultiAchievementPuzzle(name);
+    }
+
+    public static boolean hasCompletedMultiAchievementPuzzle(String name, long userId, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasCompletedMultiAchievementPuzzle(name, userId);
+    }
+
+    public static String getMultiAchievement(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).getMultiAchievement(name);
+    }
+
     public static boolean guess(PuzzleGuess guess, DiscordApi api, Session session)
     {
         String puzzleName = guess.getName();

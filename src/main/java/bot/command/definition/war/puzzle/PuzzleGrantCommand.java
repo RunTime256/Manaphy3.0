@@ -130,6 +130,15 @@ public class PuzzleGrantCommand
                     vars.add(achievementName);
                     AchievementGrantCommand.function(api, info, vars, session);
                 }
+
+                if (Puzzle.isMultiAchievementPuzzle(guess.getName(), session) && Puzzle.hasCompletedMultiAchievementPuzzle(guess.getName(), userId, session))
+                {
+                    String achievementName = Puzzle.getMultiAchievement(guess.getName(), session);
+                    List<String> vars = new ArrayList<>();
+                    vars.add(String.valueOf(userId));
+                    vars.add(achievementName);
+                    AchievementGrantCommand.function(api, info, vars, session);
+                }
             }
             else
             {
