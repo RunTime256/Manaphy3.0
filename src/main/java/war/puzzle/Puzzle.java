@@ -57,6 +57,11 @@ public class Puzzle
         return session.getMapper(PuzzleMapper.class).hasCompletedMultiAchievementPuzzle(name, userId);
     }
 
+    public static boolean hasCompletedBeforePuzzle(String name, long userId, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasCompletedBeforePuzzle(name, userId);
+    }
+
     public static String getMultiAchievement(String name, Session session)
     {
         return session.getMapper(PuzzleMapper.class).getMultiAchievement(name);
@@ -82,6 +87,9 @@ public class Puzzle
             throw new AlreadyGuessedPuzzleException(puzzleName);
 
         if (!(hasRole(userId, puzzleName, api, session) && hasCode(userId, puzzleName, session)))
+            throw new MissingPuzzleRequirementException(puzzleName);
+
+        if (!hasCompletedBeforePuzzle(puzzleName, userId, session))
             throw new MissingPuzzleRequirementException(puzzleName);
 
         session.getMapper(PuzzleMapper.class).addGuess(puzzleName, puzzleGuess, userId, time);

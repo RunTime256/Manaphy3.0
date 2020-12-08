@@ -115,6 +115,14 @@ public interface PuzzleMapper
             "SELECT (count(*) = 0) FROM multi m WHERE m.id IS NULL")
     boolean hasCompletedMultiAchievementPuzzle(@Param("name") String name, @Param("userId") Long userId);
 
+    @Select("WITH guesses AS (SELECT bap.before_puzzle_id AS id FROM cc4.before_after_puzzle bap " +
+            "LEFT JOIN cc4.puzzle op ON op.id = bap.after_puzzle_id WHERE op.name = #{name}), " +
+            "solutions AS (SELECT pg.id FROM guesses g LEFT JOIN cc4.puzzle p ON p.id = g.id " +
+            "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId}) " +
+            "SELECT (count(*) = 0) FROM solutions WHERE id IS NULL")
+    boolean hasCompletedBeforePuzzle(@Param("name") String name, @Param("userId") Long userId);
+
     @Select("SELECT a.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_multi_achievement pma ON p.id = pma.puzzle_id " +
             "LEFT JOIN cc4.achievement a ON pma.achievement_id = a.id " +
             "WHERE p.name = #{name} LIMIT 1")

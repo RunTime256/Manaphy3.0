@@ -6,12 +6,16 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import bot.discord.user.DUser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.user.User;
 import sql.Session;
 import war.leaderboard.Leaderboard;
 import war.leaderboard.LeaderboardMessage;
+import war.leaderboard.UserLeaderboardMessage;
 import war.leaderboard.WarLeaderboard;
+import war.leaderboard.WarUserLeaderboard;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -56,6 +60,14 @@ public class LeaderboardUpdateCommand
 
         void execute()
         {
+            updateLeaderboards();
+            DMessage.sendMessage(info.getChannel(), "Leaderboards have been updated.");
+            updateUserLeaderboards();
+            DMessage.sendMessage(info.getChannel(), "User leaderboards have been updated.");
+        }
+
+        private void updateLeaderboards()
+        {
             List<LeaderboardMessage> leaderboardMessages = Leaderboard.getLeaderboardMessages(session);
             for (LeaderboardMessage message: leaderboardMessages)
             {
@@ -86,8 +98,41 @@ public class LeaderboardUpdateCommand
                 api.getMessageById(message.getMessageId(), DChannel.getChannel(api, message.getChannelId()))
                         .thenAccept(pinnedMessage -> pinnedMessage.edit(builder));
             }
+        }
 
-            DMessage.sendMessage(info.getChannel(), "Leaderboards have been updated.");
+        private void updateUserLeaderboards()
+        {
+            List<UserLeaderboardMessage> leaderboardMessages = Leaderboard.getUserLeaderboardMessages(session);
+            for (UserLeaderboardMessage message: leaderboardMessages)
+            {
+                String category = message.getCategory();
+                String team = message.getTeamName();
+                List<WarUserLeaderboard> leaderboard;
+                switch (category)
+                {
+                    case "battle":
+                        leaderboard = Leaderboard.getBattleUserLeaderboard(team, session);
+                        break;
+                    case "puzzle":
+                        leaderboard = Leaderboard.getUserPuzzleLeaderboard(team, session);
+                        break;
+                    case "art":
+                        leaderboard = Leaderboard.getArtUserLeaderboard(team, session);
+                        break;
+                    case "game":
+                        leaderboard = Leaderboard.getGameUserLeaderboard(team, session);
+                        break;
+                    case "bonus":
+                        leaderboard = Leaderboard.getBonusUserLeaderboard(team, session);
+                        break;
+                    default:
+                        continue;
+                }
+
+                EmbedBuilder builder = createUserEmbed(category, leaderboard);
+                api.getMessageById(message.getMessageId(), DChannel.getChannel(api, message.getChannelId()))
+                        .thenAccept(pinnedMessage -> pinnedMessage.edit(builder));
+            }
         }
 
         private EmbedBuilder createEmbed(String category, List<WarLeaderboard> leaderboard)
@@ -113,6 +158,24 @@ public class LeaderboardUpdateCommand
             if (tied != 0)
                 color /= tied;
             builder.setTitle(title).setColor(new Color(color));
+
+            return builder;
+        }
+
+        private EmbedBuilder createUserEmbed(String category, List<WarUserLeaderboard> leaderboard)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            String title = category.substring(0, 1).toUpperCase() + category.substring(1) + " Leaderboard";
+
+            for (int i = 0; i < leaderboard.size(); i++)
+            {
+                WarUserLeaderboard teamLeaderboard = leaderboard.get(i);
+                User user = DUser.getUser(api, teamLeaderboard.getUserId());
+
+                builder.addField((i + 1) + ". " + user.getDiscriminatedName(), "Tokens: " + teamLeaderboard.getTokens());
+            }
+
+            builder.setTitle(title).setColor(new Color(leaderboard.get(0).getColorValue()));
 
             return builder;
         }
