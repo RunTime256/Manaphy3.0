@@ -13,7 +13,6 @@ public class ReactionCommand
     public static final String PREV = "\u25C0";
     public static final String STOP = "\u23F9";
 
-
     private final ReactionExecutor executor;
     private final boolean[] completed;
     private final boolean repeatable;
