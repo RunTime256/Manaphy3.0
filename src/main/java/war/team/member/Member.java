@@ -12,4 +12,9 @@ public class Member
     {
         return session.getMapper(MemberMapper.class).getPrewarTokens(userId);
     }
+
+    public static int updateBanStatus(long userId, boolean ban, Session session)
+    {
+        return session.getMapper(MemberMapper.class).updateBanStatus(userId, ban);
+    }
 }

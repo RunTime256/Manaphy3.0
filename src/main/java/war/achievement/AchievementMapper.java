@@ -43,8 +43,8 @@ public interface AchievementMapper {
             "VALUES (#{userId}, (SELECT id FROM cc4.achievement WHERE name = #{name}), #{timestamp})")
     void grantAchievement(@Param("userId") long userId, @Param("name") String name, @Param("timestamp") Instant timestamp);
 
-    @Insert("INSERT INTO cc4.achievement (name, full_name, description, category_id, image, unlock_method, difficulty) VALUES " +
-            "(#{name}, #{fullName}, #{description}, (SELECT id FROM cc4.achievement_category WHERE name = #{category}), #{image}, #{unlockMethod}, #{difficulty})")
+    @Insert("INSERT INTO cc4.achievement (name, full_name, description, category_id, image, unlock_method, difficulty, prewar) VALUES " +
+            "(#{name}, #{fullName}, #{description}, (SELECT id FROM cc4.achievement_category WHERE name = #{category}), #{image}, #{unlockMethod}, #{difficulty}, false)")
     void createAchievement(@Param("name") String name, @Param("fullName") String fullName, @Param("description") String description,
                            @Param("category") String category, @Param("image") String image, @Param("unlockMethod") String unlockMethod,
                            @Param("difficulty") int difficulty);

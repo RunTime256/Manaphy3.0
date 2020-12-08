@@ -29,16 +29,17 @@ public interface LeaderboardMapper
     })
     List<WarLeaderboard> getBattleLeaderboard();
 
-    @Select("WITH winner_battle_tokens AS (SELECT y.user_id, COALESCE(y.tokens, 0) AS tokens FROM " +
+    @Select("WITH winner_battle_tokens AS (SELECT y.id, y.user_id, COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT winner AS user_id, SUM(winner_tokens * (winner_multiplier + (bonus_multiplier - 1))) AS tokens FROM cc4.battle GROUP BY winner) y " +
+            "(SELECT id, winner AS user_id, SUM(winner_tokens * (winner_multiplier + (bonus_multiplier - 1))) AS tokens FROM cc4.battle GROUP BY winner, id) y " +
             "ON 1 = 1), " +
-            "loser_battle_tokens AS (SELECT y.user_id, COALESCE(y.tokens, 0) AS tokens FROM " +
+            "loser_battle_tokens AS (SELECT y.id, y.user_id, COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
-            "(SELECT loser AS user_id, SUM(loser_tokens) AS tokens FROM cc4.battle GROUP BY loser) y " +
+            "(SELECT id, loser AS user_id, SUM(loser_tokens) AS tokens FROM cc4.battle GROUP BY loser, id) y " +
             "ON 1 = 1), " +
             "merged_tokens AS (SELECT m.user_id, CASE WHEN m.user_id = wbt.user_id THEN wbt.tokens ELSE lbt.tokens END AS tokens " +
-            "FROM winner_battle_tokens wbt JOIN loser_battle_tokens lbt ON 1 = 1 JOIN cc4.member m ON wbt.user_id = m.user_id OR lbt.user_id = m.user_id) " +
+            "FROM winner_battle_tokens wbt JOIN loser_battle_tokens lbt ON wbt.id = lbt.id " +
+            "LEFT JOIN cc4.member m ON wbt.user_id = m.user_id OR lbt.user_id = m.user_id) " +
             "SELECT m.user_id, t.full_name AS team, t.color, COALESCE(SUM(mt.tokens), 0) AS tokens FROM cc4.member m " +
             "LEFT JOIN merged_tokens mt ON mt.user_id = m.user_id LEFT JOIN cc4.team t ON t.id = m.team_id " +
             "WHERE t.short_name = #{name} " +
