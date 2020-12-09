@@ -1,4 +1,4 @@
-package bot.command.definition.war.fanart;
+package bot.command.definition.war.contest;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
@@ -6,13 +6,15 @@ import bot.command.verification.RoleCheck;
 import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
+import exception.bot.argument.MissingArgumentException;
+import exception.war.contest.NotAContestException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.user.User;
 import sql.Session;
-import war.fanart.Fanart;
-import war.fanart.FanartUser;
+import war.contest.Contest;
+import war.contest.ContestUser;
 import war.team.Team;
 
 import java.util.HashMap;
@@ -22,46 +24,54 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-public class FanartAddCommand
+public class ContestAddCommand
 {
-    public static final String ART = "\uD83C\uDFA8";
     private static final String NAME = "add";
-    private static final String DESCRIPTION = "Add fanart participants from current channel.\nUse " + ReactionCommand.YES +
-            " to mark a valid entry, and " + ART + " to mark a bonus entry.";
+    private static final String DESCRIPTION = "Add contest participants from current channel.\nUse " + ReactionCommand.YES +
+            " to mark a valid entry.";
+    private static final String SYNTAX = "<contest name>";
 
-    private FanartAddCommand()
+    private ContestAddCommand()
     {
     }
 
     public static MessageCommand createCommand()
     {
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .requirement(RoleRequirement.MOD).executor(FanartAddCommand::function).build();
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
+                .requirement(RoleRequirement.MOD).executor(ContestAddCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
-        FanartAddFunctionality functionality = new FanartAddFunctionality(api, info, session);
+        if (vars.isEmpty())
+            throw new MissingArgumentException("contest name");
+
+        ContestAddFunctionality functionality = new ContestAddFunctionality(api, info, vars, session);
         functionality.execute();
     }
 
-    private static class FanartAddFunctionality
+    private static class ContestAddFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
         private final Session session;
+        private final String contestName;
 
-        FanartAddFunctionality(DiscordApi api, MessageReceivedInformation info, Session session)
+        ContestAddFunctionality(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
         {
             this.api = api;
             this.info = info;
             this.session = session;
+            contestName = vars.get(0);
         }
 
         void execute()
         {
+            if (!Contest.isContest(contestName, session))
+                throw new NotAContestException(contestName);
+
             Stream<Message> messages = info.getChannel().getMessagesAsStream();
-            Map<Long, FanartUser> participationMap = new HashMap<>();
+            Map<Long, ContestUser> participationMap = new HashMap<>();
 
             AtomicLong count = new AtomicLong();
             AtomicLong current = new AtomicLong();
@@ -77,26 +87,21 @@ public class FanartAddCommand
             DMessage.sendMessage(info.getChannel(), "Processing participants...");
             // TODO fix this sad implementation
             while (count.get() > current.get());
-            DMessage.sendMessage(info.getChannel(), "Fanart participants added.");
+            DMessage.sendMessage(info.getChannel(), "Contest participants added.");
         }
 
-        private void evaluateReactions(Map<Long, FanartUser> participationMap, Message message, Reaction reaction, AtomicLong current)
+        private void evaluateReactions(Map<Long, ContestUser> participationMap, Message message, Reaction reaction, AtomicLong current)
         {
             Optional<String> optional = reaction.getEmoji().asUnicodeEmoji();
             if (optional.isPresent())
             {
                 String reactionString = optional.get();
                 boolean check = reactionString.equals(ReactionCommand.YES);
-                boolean bonus = reactionString.equals(ART);
                 if (check)
                 {
                     participation(participationMap, message, reaction, current);
                 }
-                if (bonus)
-                {
-                    bonus(participationMap, message, reaction, current);
-                }
-                if (!check && !bonus)
+                else
                 {
                     current.getAndIncrement();
                 }
@@ -107,7 +112,7 @@ public class FanartAddCommand
             }
         }
 
-        private void participation(Map<Long, FanartUser> participationMap, Message message, Reaction reaction, AtomicLong current)
+        private void participation(Map<Long, ContestUser> participationMap, Message message, Reaction reaction, AtomicLong current)
         {
             reaction.getUsers().thenAccept(users -> {
                 if (hasMod(users))
@@ -118,30 +123,9 @@ public class FanartAddCommand
                         if (!Team.isTeamMember(userId, session) || Team.isBanned(userId, session))
                             return;
                         addParticipation(participationMap, userId);
-                        if (participationMap.get(userId).getParticipation() <= 2)
+                        if (participationMap.get(userId).getParticipation() <= 1)
                         {
-                            Fanart.addParticipant(userId, session);
-                        }
-                    });
-                }
-                current.getAndIncrement();
-            });
-        }
-
-        private void bonus(Map<Long, FanartUser> participationMap, Message message, Reaction reaction, AtomicLong current)
-        {
-            reaction.getUsers().thenAccept(users -> {
-                if (hasMod(users))
-                {
-                    Optional<User> user = message.getUserAuthor();
-                    user.ifPresent(value -> {
-                        long userId = value.getId();
-                        if (!Team.isTeamMember(userId, session) || Team.isBanned(userId, session))
-                            return;
-                        addBonus(participationMap, userId);
-                        if (participationMap.get(userId).getBonus() <= 2)
-                        {
-                            Fanart.addBonus(userId, session);
+                            Contest.addParticipant(contestName, userId, session);
                         }
                     });
                 }
@@ -159,24 +143,14 @@ public class FanartAddCommand
             return false;
         }
 
-        private void addParticipation(Map<Long, FanartUser> participationMap, long userId)
+        private void addParticipation(Map<Long, ContestUser> participationMap, long userId)
         {
             if (!participationMap.containsKey(userId))
             {
-                participationMap.put(userId, new FanartUser(userId));
+                participationMap.put(userId, new ContestUser(userId));
             }
 
             participationMap.get(userId).increaseParticipation();
-        }
-
-        private void addBonus(Map<Long, FanartUser> participationMap, long userId)
-        {
-            if (!participationMap.containsKey(userId))
-            {
-                participationMap.put(userId, new FanartUser(userId));
-            }
-
-            participationMap.get(userId).increaseBonus();
         }
     }
 }

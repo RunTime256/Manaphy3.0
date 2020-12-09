@@ -5,6 +5,7 @@ import bot.command.definition.war.achievements.AchievementCommand;
 import bot.command.definition.war.ban.BanCommand;
 import bot.command.definition.war.battle.BattleCommand;
 import bot.command.definition.war.code.CodeCommand;
+import bot.command.definition.war.contest.ContestCommand;
 import bot.command.definition.war.fanart.FanartCommand;
 import bot.command.definition.war.game.GameCommand;
 import bot.command.definition.war.join.JoinCommand;
@@ -36,7 +37,8 @@ public class WarCommand
                 ScorecardCommand.createCommand(),
                 AchievementCommand.createCommand(),
                 BanCommand.createCommand(),
-                FanartCommand.createCommand()
+                FanartCommand.createCommand(),
+                ContestCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
                 .subCommands(subCommands).build();

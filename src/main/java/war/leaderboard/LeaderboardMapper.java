@@ -74,9 +74,21 @@ public interface LeaderboardMapper
     })
     List<WarUserLeaderboard> getUserPuzzleLeaderboard(@Param("name") String name);
 
-    @Select("SELECT t.full_name AS team, t.color AS color, 0 AS tokens " +
-            "FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
-            "GROUP BY t.full_name, t.color ORDER BY tokens DESC")
+    @Select("WITH fp AS (SELECT m.team_id, SUM(fp.tokens) AS tokens FROM cc4.fanart_participation fp " +
+            "LEFT JOIN cc4.member m ON fp.user_id = m.user_id GROUP BY m.team_id), " +
+            "fb AS (SELECT m.team_id, SUM(fb.tokens) AS tokens FROM cc4.fanart_bonus fb " +
+            "LEFT JOIN cc4.member m ON fb.user_id = m.user_id GROUP BY m.team_id), " +
+            "cp AS (SELECT m.team_id, SUM(c.participation_tokens) AS tokens " +
+            "FROM cc4.contest_participant cp LEFT JOIN cc4.contest c ON c.id = cp.contest_id " +
+            "LEFT JOIN cc4.member m ON cp.user_id = m.user_id GROUP BY m.team_id), " +
+            "cw AS (SELECT m.team_id, SUM(cwt.tokens) AS tokens " +
+            "FROM cc4.contest_winner cw LEFT JOIN cc4.contest_winner_tokens cwt ON cwt.contest_id = cw.contest_id AND cwt.place = cw.place " +
+            "LEFT JOIN cc4.member m ON cw.user_id = m.user_id GROUP BY m.team_id) " +
+            "SELECT t.full_name AS team, t.color, " +
+            "(COALESCE(fp.tokens, 0) + COALESCE(fb.tokens, 0) + COALESCE(cp.tokens, 0) + COALESCE(cw.tokens, 0)) AS tokens " +
+            "FROM cc4.team t LEFT JOIN fp ON t.id = fp.team_id " +
+            "LEFT JOIN fb ON t.id = fb.team_id LEFT JOIN cp ON t.id = cp.team_id " +
+            "LEFT JOIN cw ON t.id = cw.team_id ORDER BY tokens DESC")
     @Results(value = {
             @Result(property = "teamName", column = "team"),
             @Result(property = "colorValue", column = "color"),
@@ -84,10 +96,25 @@ public interface LeaderboardMapper
     })
     List<WarLeaderboard> getArtLeaderboard();
 
-    @Select("SELECT m.user_id, t.full_name AS team, t.color AS color, 0 AS tokens " +
-            "FROM cc4.team t LEFT JOIN cc4.member m ON t.id = m.team_id " +
+    @Select("WITH fp AS (SELECT fp.user_id, SUM(fp.tokens) AS tokens FROM cc4.fanart_participation fp " +
+            "GROUP BY fp.user_id), " +
+            "fb AS (SELECT fb.user_id, SUM(fb.tokens) AS tokens FROM cc4.fanart_bonus fb " +
+            "GROUP BY fb.user_id), " +
+            "cp AS (SELECT cp.user_id, SUM(c.participation_tokens) AS tokens " +
+            "FROM cc4.contest_participant cp LEFT JOIN cc4.contest c ON c.id = cp.contest_id " +
+            "GROUP BY cp.user_id), " +
+            "cw AS (SELECT cw.user_id, SUM(cwt.tokens) AS tokens " +
+            "FROM cc4.contest_winner cw LEFT JOIN cc4.contest_winner_tokens cwt ON cwt.contest_id = cw.contest_id AND cwt.place = cw.place " +
+            "GROUP BY cw.user_id) " +
+            "SELECT m.user_id, t.full_name AS team, t.color, " +
+            "(COALESCE(fp.tokens, 0) + COALESCE(fb.tokens, 0) + COALESCE(cp.tokens, 0) + COALESCE(cw.tokens, 0)) AS tokens " +
+            "FROM cc4.member m LEFT JOIN cc4.team t ON m.team_id = t.id " +
+            "LEFT JOIN fp ON m.user_id = fp.user_id " +
+            "LEFT JOIN fb ON m.user_id = fb.user_id " +
+            "LEFT JOIN cp ON m.user_id = cp.user_id " +
+            "LEFT JOIN cw ON m.user_id = cw.user_id " +
             "WHERE t.short_name = #{name} " +
-            "GROUP BY m.user_id, t.full_name, t.color ORDER BY tokens DESC LIMIT 5")
+            "ORDER BY tokens DESC LIMIT 5")
     @Results(value = {
             @Result(property = "userId", column = "user_id"),
             @Result(property = "teamName", column = "team"),

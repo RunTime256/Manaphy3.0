@@ -15,7 +15,23 @@ public interface ScorecardMapper
             "(SELECT SUM(loser_tokens) AS tokens FROM cc4.battle WHERE loser = #{userId} GROUP BY loser) y " +
             "ON 1 = 1), " +
             "puzzle_tokens AS (SELECT 0 AS tokens), " +
-            "art_tokens AS (SELECT 0 AS tokens), " +
+            "fp AS (SELECT fp.user_id, SUM(fp.tokens) AS tokens FROM cc4.fanart_participation fp " +
+            "GROUP BY fp.user_id), " +
+            "fb AS (SELECT fb.user_id, SUM(fb.tokens) AS tokens FROM cc4.fanart_bonus fb " +
+            "GROUP BY fb.user_id), " +
+            "cp AS (SELECT cp.user_id, SUM(c.participation_tokens) AS tokens " +
+            "FROM cc4.contest_participant cp LEFT JOIN cc4.contest c ON c.id = cp.contest_id " +
+            "GROUP BY cp.user_id), " +
+            "cw AS (SELECT cw.user_id, SUM(cwt.tokens) AS tokens " +
+            "FROM cc4.contest_winner cw LEFT JOIN cc4.contest_winner_tokens cwt ON cwt.contest_id = cw.contest_id AND cwt.place = cw.place " +
+            "GROUP BY cw.user_id), " +
+            "art_tokens AS (SELECT (COALESCE(fp.tokens, 0) + COALESCE(fb.tokens, 0) + COALESCE(cp.tokens, 0) + COALESCE(cw.tokens, 0)) AS tokens " +
+            "FROM cc4.member m LEFT JOIN cc4.team t ON m.team_id = t.id " +
+            "LEFT JOIN fp ON m.user_id = fp.user_id " +
+            "LEFT JOIN fb ON m.user_id = fb.user_id " +
+            "LEFT JOIN cp ON m.user_id = cp.user_id " +
+            "LEFT JOIN cw ON m.user_id = cw.user_id " +
+            "WHERE m.user_id = #{userId}), " +
             "game_tokens AS (SELECT COALESCE(SUM(gp.tokens), 0) AS tokens FROM cc4.game_points gp WHERE gp.user_id = #{userId}), " +
             "bonus_tokens AS (SELECT COALESCE(SUM(adt.tokens), 0) AS tokens FROM cc4.user_achievement ua LEFT JOIN cc4.achievement a ON a.id = ua.achievement_id " +
             "LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
