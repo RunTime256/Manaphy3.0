@@ -137,6 +137,16 @@ public class Puzzle
         return session.getMapper(PuzzleMapper.class).hasSolved(puzzleName, userId);
     }
 
+    public static boolean hasResponse(String puzzleName, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasResponse(puzzleName);
+    }
+
+    public static String getResponse(String puzzleName, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).getResponse(puzzleName);
+    }
+
     public static boolean hasCode(Long userId, String puzzleName, Session session)
     {
         return session.getMapper(PuzzleMapper.class).hasCodeRequirements(puzzleName, userId);

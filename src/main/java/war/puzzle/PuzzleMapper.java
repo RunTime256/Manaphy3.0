@@ -78,10 +78,15 @@ public interface PuzzleMapper
 
     @Select("WITH solved AS (SELECT p.id FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "RIGHT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
-            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false) " +
+            "WHERE pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false), " +
+            "viewable AS (SELECT pcv.puzzle_id FROM cc4.code_retrieved cr LEFT JOIN cc4.code c ON cr.code_id = c.id " +
+            "LEFT JOIN cc4.puzzle_code_view pcv ON c.id = pcv.code_id " +
+            "WHERE pcv.id IS NOT NULL AND cr.user_id = #{userId}) " +
             "SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
-            "WHERE NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id) AND (p.viewable = true OR " +
+            "LEFT JOIN viewable v ON p.id = v.puzzle_id " +
+            "WHERE NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id) AND (" +
+            "p.viewable = true OR v.puzzle_id IS NOT NULL OR " +
             "pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false)")
     List<String> getUnsolvedDiscoveredInfinitePuzzles(@Param("userId") long userId);
 
@@ -108,18 +113,20 @@ public interface PuzzleMapper
 
     @Select("WITH achieve AS (SELECT pma.achievement_id FROM cc4.puzzle op " +
             "LEFT JOIN cc4.puzzle_multi_achievement pma ON op.id = pma.puzzle_id WHERE op.name = #{name} LIMIT 1), " +
-            "multi AS (SELECT pg.id FROM cc4.puzzle_multi_achievement pma LEFT JOIN cc4.puzzle p ON p.id = pma.puzzle_id " +
+            "multi as (SELECT pma.puzzle_id, ps.id AS solution_id FROM cc4.puzzle_multi_achievement pma LEFT JOIN cc4.puzzle p ON p.id = pma.puzzle_id " +
             "LEFT JOIN achieve a ON pma.achievement_id = a.achievement_id " +
-            "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
-            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId}) " +
-            "SELECT (count(*) = 0) FROM multi m WHERE m.id IS NULL")
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.user_id = #{userId} " +
+            "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id AND pg.guess = ps.solution " +
+            "WHERE pma.achievement_id = a.achievement_id) " +
+            "SELECT (count(DISTINCT puzzle_id) = count(solution_id)) FROM multi m")
     boolean hasCompletedMultiAchievementPuzzle(@Param("name") String name, @Param("userId") Long userId);
 
     @Select("WITH guesses AS (SELECT bap.before_puzzle_id AS id FROM cc4.before_after_puzzle bap " +
             "LEFT JOIN cc4.puzzle op ON op.id = bap.after_puzzle_id WHERE op.name = #{name}), " +
             "solutions AS (SELECT pg.id FROM guesses g LEFT JOIN cc4.puzzle p ON p.id = g.id " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
-            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId}) " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId} " +
+            "WHERE pg.guess = ps.solution) " +
             "SELECT (count(*) = 0) FROM solutions WHERE id IS NULL")
     boolean hasCompletedBeforePuzzle(@Param("name") String name, @Param("userId") Long userId);
 
@@ -131,6 +138,14 @@ public interface PuzzleMapper
     @Select("SELECT a.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_achievement pa ON p.id = pa.puzzle_id " +
             "LEFT JOIN cc4.achievement a ON a.id = pa.achievement_id WHERE p.name = #{name}")
     String getAchievement(@Param("name") String name);
+
+    @Select("SELECT EXISTS(SELECT * FROM cc4.puzzle_response pr LEFT JOIN cc4.puzzle p ON pr.puzzle_id = p.id " +
+            "WHERE p.name = #{name})")
+    boolean hasResponse(@Param("name") String name);
+
+    @Select("SELECT pr.image FROM cc4.puzzle_response pr LEFT JOIN cc4.puzzle p ON pr.puzzle_id = p.id " +
+            "WHERE p.name = #{name}")
+    String getResponse(@Param("name") String name);
 
     @Insert("INSERT INTO cc4.puzzle_guess( " +
             "puzzle_id, user_id, guess, time) " +

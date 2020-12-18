@@ -20,6 +20,7 @@ import exception.war.team.BannedMemberException;
 import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import sql.Session;
 import war.puzzle.Puzzle;
 import war.puzzle.PuzzleGuess;
@@ -157,6 +158,12 @@ public class PuzzleSolveCommand
                         vars.add(achievementName);
                         vars.add(String.valueOf(false));
                         AchievementGrantCommand.function(api, info, vars, session);
+                    }
+
+                    if (Puzzle.hasResponse(guess.getName(), session))
+                    {
+                        DMessage.sendMessage(info.getChannel(), new EmbedBuilder().setImage(Puzzle.getResponse(guess.getName(), session))
+                                .setTitle("I found something that might be useful for you!"));
                     }
                 }
                 else
