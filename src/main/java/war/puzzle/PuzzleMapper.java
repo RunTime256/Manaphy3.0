@@ -85,8 +85,9 @@ public interface PuzzleMapper
             "SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
             "LEFT JOIN viewable v ON p.id = v.puzzle_id " +
-            "WHERE NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id) AND (" +
-            "p.viewable = true OR v.puzzle_id IS NOT NULL OR " +
+            "WHERE NOT EXISTS(SELECT * FROM solved s WHERE s.id = p.id) AND " +
+            "p.end_time IS NULL AND " +
+            "(p.viewable = true OR v.puzzle_id IS NOT NULL OR " +
             "pg.user_id = #{userId} AND p.infinite = true AND p.prewar = false)")
     List<String> getUnsolvedDiscoveredInfinitePuzzles(@Param("userId") long userId);
 
@@ -146,6 +147,29 @@ public interface PuzzleMapper
     @Select("SELECT pr.image FROM cc4.puzzle_response pr LEFT JOIN cc4.puzzle p ON pr.puzzle_id = p.id " +
             "WHERE p.name = #{name}")
     String getResponse(@Param("name") String name);
+
+    @Select("SELECT EXISTS(SELECT * FROM cc4.big_puzzle bp LEFT JOIN cc4.puzzle p " +
+            "ON p.id = bp.affected_puzzle_id WHERE p.name = #{name})")
+    boolean isAffectedByBigPuzzle(@Param("name") String name);
+
+    @Select("WITH solved AS (SELECT DISTINCT p.id FROM cc4.puzzle p " +
+            "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
+            "WHERE pg.user_id = #{userId}) " +
+            "SELECT (count(*) = 0) FROM cc4.big_puzzle bp LEFT JOIN solved s ON bp.puzzle_id = s.id " +
+            "WHERE s.id IS NULL")
+    boolean hasCompletedBigPuzzle(@Param("userId") long userId);
+
+    @Select("SELECT EXISTS(SELECT * FROM cc4.requires_achievement_puzzle rap LEFT JOIN cc4.puzzle p ON p.id = rap.puzzle_id " +
+            "WHERE p.name = #{name})")
+    boolean requiresAchievementPuzzle(@Param("name") String name);
+
+    @Select("WITH achievement AS (SELECT achievement_id FROM cc4.user_achievement ua WHERE user_id = #{userId}) " +
+            "SELECT (count(*) = 0) FROM cc4.requires_achievement_puzzle rap " +
+            "LEFT JOIN achievement a ON rap.required_achievement_id = a.achievement_id " +
+            "LEFT JOIN cc4.puzzle p ON rap.puzzle_id = p.id " +
+            "WHERE p.name = #{name} AND a.achievement_id IS NULL")
+    boolean hasCompletedAchievementForPuzzle(@Param("name") String name, @Param("userId") long userId);
 
     @Insert("INSERT INTO cc4.puzzle_guess( " +
             "puzzle_id, user_id, guess, time) " +

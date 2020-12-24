@@ -92,6 +92,9 @@ public class Puzzle
         if (!hasCompletedBeforePuzzle(puzzleName, userId, session))
             throw new MissingPuzzleRequirementException(puzzleName);
 
+        if (requiresAchievementPuzzle(puzzleName, session) && !hasCompletedAchievementForPuzzle(puzzleName, userId, session))
+            throw new MissingPuzzleRequirementException(puzzleName);
+
         session.getMapper(PuzzleMapper.class).addGuess(puzzleName, puzzleGuess, userId, time);
 
         return isCorrect(puzzleName, puzzleGuess, session);
@@ -168,6 +171,26 @@ public class Puzzle
     public static boolean isCorrect(String puzzleName, String puzzleGuess, Session session)
     {
         return session.getMapper(PuzzleMapper.class).correct(puzzleName, puzzleGuess);
+    }
+
+    public static boolean isAffectedByBigPuzzle(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).isAffectedByBigPuzzle(name);
+    }
+
+    public static boolean hasCompletedBigPuzzle(long userId, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasCompletedBigPuzzle(userId);
+    }
+
+    public static boolean requiresAchievementPuzzle(String name, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).requiresAchievementPuzzle(name);
+    }
+
+    public static boolean hasCompletedAchievementForPuzzle(String name, long userId, Session session)
+    {
+        return session.getMapper(PuzzleMapper.class).hasCompletedAchievementForPuzzle(name, userId);
     }
 
     public static void start(String puzzleName, Instant time, Session session)

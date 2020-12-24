@@ -164,7 +164,7 @@ public class AchievementGrantCommand
 
             if (achievementLogger != null)
             {
-                if (!achievement.getCategory().equalsIgnoreCase("secret") || achievement.getName().equalsIgnoreCase("mod-bugreport"))
+                if (!achievement.getCategory().equalsIgnoreCase("secret") || achievement.getName().startsWith("mod-"))
                     achievementLogger.log(user, achievement, team);
                 else
                     achievementLogger.logSecret(user, team, Pair.getValue("secret_achievement", session));
@@ -181,7 +181,8 @@ public class AchievementGrantCommand
             String title = String.format("%s - %s", achievement.getCategoryEmoji(),achievement.getFullName());
             String description = "*" + achievement.getDescription() + "*\n`Unlock: " + achievement.getUnlockMethod() + "`" +
                     "\n\nUse the command `+war medals` to view all medals earned.";
-            builder.setTitle(title).setDescription(description).setThumbnail(achievement.getImage());
+            builder.setTitle(title).setDescription(description).setThumbnail(achievement.getImage())
+                    .addField("Value:", String.valueOf(achievement.getValue()));
 
             String authorName = "You earned a medal!";
             builder.setAuthor(authorName, null, user.getAvatar());

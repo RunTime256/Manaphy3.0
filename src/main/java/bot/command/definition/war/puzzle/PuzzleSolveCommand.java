@@ -90,7 +90,17 @@ public class PuzzleSolveCommand
             }
             catch (FuturePuzzleException e)
             {
-                DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
+                if (Puzzle.isAffectedByBigPuzzle(guess.getName(), session))
+                {
+                    if (Puzzle.hasCompletedBigPuzzle(info.getUser().getId(), session))
+                        DMessage.sendMessage(info.getChannel(), "It is *still* not *time* for that yet.");
+                    else
+                        DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
+                }
+                else
+                {
+                    DMessage.sendMessage(info.getChannel(), "It seems something or someone essential is missing.");
+                }
             }
             catch (MissingPuzzleRequirementException e)
             {
@@ -214,16 +224,26 @@ public class PuzzleSolveCommand
 
         private static void yesFunction(DiscordApi api, ReactionReceivedInformation info, Session session, Object o)
         {
+            PuzzleGuess guess = (PuzzleGuess)o;
             try
             {
-                PuzzleGuess guess = (PuzzleGuess)o;
                 boolean correct = Puzzle.guess(guess, api, session);
                 log(guess, correct);
                 DMessage.sendMessage(info.getChannel(), "Thank you for your guess! Stay tuned for the results of the puzzle!");
             }
             catch (FuturePuzzleException e)
             {
-                DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
+                if (Puzzle.isAffectedByBigPuzzle(guess.getName(), session))
+                {
+                    if (Puzzle.hasCompletedBigPuzzle(info.getUser().getId(), session))
+                        DMessage.sendMessage(info.getChannel(), "It is *still* not *time* for that yet.");
+                    else
+                        DMessage.sendMessage(info.getChannel(), "It seems it is not the right *time* for that yet.");
+                }
+                else
+                {
+                    DMessage.sendMessage(info.getChannel(), "It seems something or someone essential is missing.");
+                }
             }
             catch (PuzzleException e)
             {
