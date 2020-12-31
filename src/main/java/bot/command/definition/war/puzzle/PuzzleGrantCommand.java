@@ -43,7 +43,7 @@ public class PuzzleGrantCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).executor(PuzzleGrantCommand::function).build();
+                .executor(PuzzleGrantCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

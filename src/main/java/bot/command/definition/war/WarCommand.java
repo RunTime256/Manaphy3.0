@@ -40,7 +40,7 @@ public class WarCommand
                 FanartCommand.createCommand(),
                 ContestCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 
@@ -52,7 +52,7 @@ public class WarCommand
                 AchievementCommand.createBotCommand(),
                 PuzzleCommand.createBotCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 }

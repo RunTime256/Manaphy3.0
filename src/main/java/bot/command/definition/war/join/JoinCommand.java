@@ -34,7 +34,7 @@ public class JoinCommand
 
     public static MessageCommand createCommand()
     {
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .executor(JoinCommand::function).build();
     }
 

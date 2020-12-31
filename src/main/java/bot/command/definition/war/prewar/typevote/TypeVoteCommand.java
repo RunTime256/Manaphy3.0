@@ -45,7 +45,7 @@ public class TypeVoteCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).executor(TypeVoteCommand::function).build();
+                .executor(TypeVoteCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

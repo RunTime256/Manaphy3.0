@@ -49,7 +49,7 @@ public class BattleGrantCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 BattleGrantForceCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .syntax(SYNTAX).subCommands(subCommands).executor(BattleGrantCommand::function).build();
     }
 

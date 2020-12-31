@@ -28,7 +28,7 @@ public class TypeCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 TypeVoteCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).executor(TypeCommand::function).build();
     }
 

@@ -21,6 +21,6 @@ public class GameCommand
                 GameGrantCommand.createBotCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .requirement(RoleRequirement.VERIFIED).subCommands(subCommands).build();
+                .subCommands(subCommands).build();
     }
 }

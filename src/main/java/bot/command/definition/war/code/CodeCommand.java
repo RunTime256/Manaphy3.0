@@ -25,7 +25,7 @@ public class CodeCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).executor(CodeCommand::function).build();
+                .executor(CodeCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

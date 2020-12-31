@@ -51,7 +51,7 @@ public class PuzzleSolveCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).executor(PuzzleSolveCommand::function).build();
+                .executor(PuzzleSolveCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

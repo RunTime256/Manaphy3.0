@@ -33,7 +33,7 @@ public class ScorecardCommand
         List<MessageCommand> subCommands = Arrays.asList(
              ScorecardViewCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).executor(ScorecardCommand::function).build();
     }
 

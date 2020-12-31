@@ -25,7 +25,7 @@ public class PuzzleListPrewarCommand
     public static MessageCommand createCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .requirement(RoleRequirement.VERIFIED).executor(PuzzleListPrewarCommand::function).build();
+                .executor(PuzzleListPrewarCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

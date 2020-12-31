@@ -28,7 +28,7 @@ public class PuzzleListCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 PuzzleListPrewarCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).executor(PuzzleListCommand::function).build();
     }
 

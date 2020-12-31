@@ -51,7 +51,7 @@ public class AchievementGrantCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).executor(AchievementGrantCommand::function).build();
+                .executor(AchievementGrantCommand::function).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

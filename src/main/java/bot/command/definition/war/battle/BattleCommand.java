@@ -25,7 +25,7 @@ public class BattleCommand
                 BattleSwapCommand.createCommand(),
                 BattleFormatCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 }

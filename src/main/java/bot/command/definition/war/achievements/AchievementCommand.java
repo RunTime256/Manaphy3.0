@@ -49,7 +49,7 @@ public class AchievementCommand
                 AchievementUpdateCommand.createCommand()
         );
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).syntax(SYNTAX)
-                .requirement(RoleRequirement.VERIFIED).subCommands(subCommands).executor(AchievementCommand::function).build();
+                .subCommands(subCommands).executor(AchievementCommand::function).build();
     }
 
     public static MessageCommand createBotCommand()
@@ -57,7 +57,7 @@ public class AchievementCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 AchievementGrantCommand.createBotCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).requirement(RoleRequirement.VERIFIED).subCommands(subCommands).build();
+        return new MessageCommand.MessageCommandBuilder(NAME).subCommands(subCommands).build();
     }
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)

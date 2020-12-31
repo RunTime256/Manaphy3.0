@@ -24,7 +24,7 @@ public class PuzzleCommand
                 PuzzleStopCommand.createCommand(),
                 PuzzleListCommand.createCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 
@@ -33,7 +33,7 @@ public class PuzzleCommand
         List<MessageCommand> subCommands = Arrays.asList(
                 PuzzleGrantCommand.createBotCommand()
         );
-        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION).requirement(RoleRequirement.VERIFIED)
+        return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
                 .subCommands(subCommands).build();
     }
 }

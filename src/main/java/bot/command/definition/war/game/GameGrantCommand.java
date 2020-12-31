@@ -34,7 +34,7 @@ public class GameGrantCommand
     public static MessageCommand createBotCommand()
     {
         return new MessageCommand.MessageCommandBuilder(NAME).description(DESCRIPTION)
-                .requirement(RoleRequirement.VERIFIED).executor(GameGrantCommand::function).build();
+                .executor(GameGrantCommand::function).build();
     }
 
     private static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
