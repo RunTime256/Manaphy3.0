@@ -33,7 +33,7 @@ public interface ScorecardMapper
             "solved AS (SELECT DISTINCT p.id, pg.user_id, p.value AS tokens FROM cc4.puzzle p " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
-            "WHERE p.prewar = false AND p.end_time IS NOT NULL), " +
+            "WHERE p.end_time IS NOT NULL), " +
             "total AS (SELECT s.user_id, SUM(tokens) AS tokens FROM solved s GROUP BY s.user_id), " +
             "puzzle_tokens AS (SELECT m.user_id, COALESCE(total.tokens, 0) AS tokens FROM " +
             "cc4.member m LEFT JOIN cc4.team t ON m.team_id = t.id " +
@@ -61,7 +61,7 @@ public interface ScorecardMapper
             "bonus_tokens AS (SELECT ua.user_id, COALESCE(SUM(adt.tokens), 0) AS tokens " +
             "FROM cc4.user_achievement ua LEFT JOIN cc4.achievement a ON a.id = ua.achievement_id " +
             "LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
-            "WHERE a.prewar = false GROUP BY user_id), " +
+            "GROUP BY user_id), " +
             "user_id AS (SELECT #{userId} AS user_id) " +
             "SELECT u.user_id, COALESCE(bat.tokens, 0) AS battle_tokens, " +
             "COALESCE(pt.tokens, 0) AS puzzle_tokens, COALESCE(at.tokens, 0) AS art_tokens, " +

@@ -63,7 +63,7 @@ public interface PuzzleMapper
 
     @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id " +
-            "WHERE pg.user_id = #{userId} AND p.infinite = false AND p.prewar = false AND p.end_time IS NULL OR p.end_time > #{timestamp}")
+            "WHERE pg.user_id = #{userId} AND p.infinite = false AND p.prewar = false AND (p.end_time IS NULL OR p.end_time > #{timestamp})")
     List<String> getGuessedPuzzles(@Param("userId") long userId, @Param("timestamp") Instant timestamp);
 
     @Select("SELECT DISTINCT p.name FROM cc4.puzzle p LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
@@ -126,8 +126,7 @@ public interface PuzzleMapper
             "LEFT JOIN cc4.puzzle op ON op.id = bap.after_puzzle_id WHERE op.name = #{name}), " +
             "solutions AS (SELECT pg.id FROM guesses g LEFT JOIN cc4.puzzle p ON p.id = g.id " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
-            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId} " +
-            "WHERE pg.guess = ps.solution) " +
+            "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution AND pg.user_id = #{userId}) " +
             "SELECT (count(*) = 0) FROM solutions WHERE id IS NULL")
     boolean hasCompletedBeforePuzzle(@Param("name") String name, @Param("userId") Long userId);
 

@@ -62,8 +62,9 @@ public class AchievementGrantCommand
             throw new MissingArgumentException("achievement");
 
         boolean response;
-        if (vars.size() == 3)
-            response = Boolean.parseBoolean(vars.remove(2));
+        String last = vars.get(vars.size() -  1);
+        if (last.equalsIgnoreCase("false") || last.equalsIgnoreCase("true"))
+            response = Boolean.parseBoolean(vars.remove(vars.size() - 1));
         else
             response = true;
 
