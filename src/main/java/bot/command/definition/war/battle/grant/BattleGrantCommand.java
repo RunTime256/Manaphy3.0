@@ -2,8 +2,8 @@ package bot.command.definition.war.battle.grant;
 
 import bot.command.MessageCommand;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.channel.BotChannel;
+import bot.discord.channel.DChannel;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
@@ -24,9 +24,14 @@ import org.javacord.api.entity.user.User;
 import sql.Session;
 import war.battle.Battle;
 import war.battle.PreviousBattleMultiplier;
+import war.battle.boss.BossDamage;
+import war.battle.boss.BossHealth;
+import war.battle.boss.BossMessage;
+import war.battle.boss.WarBoss;
 import war.team.Team;
 import war.team.WarTeam;
 
+import java.awt.*;
 import java.time.DayOfWeek;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -154,10 +159,18 @@ public class BattleGrantCommand
                     winnerMultiplier, winnerMultiplierCount, bonusMultiplier, loserMultiplier, loserMultiplierCount, session);
 
             grantAchievements(wins, losses, winnerTotal, loserTotal, winStreak, lossStreak);
+            WarBoss boss = bossDamage(winnerMultiplier, url);
 
             EmbedBuilder builder = tokenEmbed(DUser.getUser(api, winner), info.getUser(), Team.getTeam(winner, session),
-                    winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url);
+                    winTokens, loseTokens, winnerMultiplier, winnerMultiplierCount, bonusMultiplier, url, boss);
             DMessage.sendMessage(info.getChannel(), builder);
+            if (boss != null)
+            {
+                EmbedBuilder bossEmbed = bossEmbed(boss);
+                BossMessage message = BossDamage.getBossMessage(session);
+                api.getMessageById(message.getMessageId(), DChannel.getChannel(api, message.getChannelId()))
+                        .thenAccept(pinnedMessage -> pinnedMessage.edit(bossEmbed));
+            }
         }
 
         private void grantAchievements(int wins, int losses, int winnerTotal, int loserTotal, int winStreak, int lossStreak)
@@ -193,7 +206,8 @@ public class BattleGrantCommand
             }
         }
 
-        private EmbedBuilder tokenEmbed(User winner, User loser, WarTeam team, int winnerTokens, int loserTokens, int multiplier, int multiplierCount, int bonusMultiplier, String url)
+        private EmbedBuilder tokenEmbed(User winner, User loser, WarTeam team, int winnerTokens, int loserTokens,
+                                        int multiplier, int multiplierCount, int bonusMultiplier, String url, WarBoss boss)
         {
             EmbedBuilder builder = new EmbedBuilder();
             String win = "Earned " + (winnerTokens * (multiplier + (bonusMultiplier - 1))) + " tokens";
@@ -217,6 +231,7 @@ public class BattleGrantCommand
 
             builder.setTitle(team.getFullName()).setColor(team.getColor()).setThumbnail(team.getTokenImage())
                     .addField(winner.getDiscriminatedName(), win).addField(loser.getDiscriminatedName(), lose)
+                    .addField("Boss Damage", Integer.toString(boss.getDamage()))
                     .setUrl(url);
 
             return builder;
@@ -232,6 +247,39 @@ public class BattleGrantCommand
             if (dateTime.getDayOfWeek() == DayOfWeek.SATURDAY || dateTime.getDayOfWeek() == DayOfWeek.SUNDAY)
                 bonus += 2;
             return bonus;
+        }
+
+        private WarBoss bossDamage(int multiplier, String url)
+        {
+            int damage = multiplier + 5;
+            String bossName = "Grimmsnarl";
+
+            BossHealth health = BossDamage.getHealth(bossName, session);
+            BossDamage.addDamage(bossName, damage, url, session);
+            String bossImage = BossDamage.getBossImage(bossName, session);
+
+            if (health.getCurrentHealth() == 0)
+                return null;
+
+            return new WarBoss(bossName, bossImage, health, damage);
+        }
+
+        private EmbedBuilder bossEmbed(WarBoss boss)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            int percent = boss.getCurrentHealth() * 100 / boss.getTotalHealth();
+            String desc = "HP: " + boss.getHealthEmojis();
+
+            if (percent >= 50)
+                builder.setColor(Color.GREEN);
+            else if (boss.getCurrentHealth() > 0)
+                builder.setColor(Color.YELLOW);
+            else
+                builder.setColor(Color.RED);
+
+            builder.setTitle(boss.getName()).setImage(boss.getImage()).setDescription(desc);
+
+            return builder;
         }
     }
 }

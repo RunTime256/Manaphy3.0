@@ -13,18 +13,18 @@ public interface LeaderboardMapper
             "(SELECT 1 a) x LEFT JOIN " +
             "(SELECT m.user_id, SUM(winner_tokens * (winner_multiplier + (bonus_multiplier - 1))) AS tokens FROM cc4.battle b " +
             "LEFT JOIN cc4.member m ON b.winner = m.user_id " +
-            "WHERE b.timestamp > '2021-01-11 05:00:00' " +
+            "WHERE b.timestamp > '2021-01-25 05:00:00' " +
             "GROUP BY m.user_id) y ON 1 = 1), " +
             "loser AS (SELECT y.user_id, COALESCE(y.tokens, 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
             "(SELECT m.user_id, SUM(loser_tokens) AS tokens FROM cc4.battle b " +
             "LEFT JOIN cc4.member m ON b.loser = m.user_id " +
-            "WHERE b.timestamp > '2021-01-11 05:00:00' " +
+            "WHERE b.timestamp > '2021-01-25 05:00:00' " +
             "GROUP BY m.user_id) y ON 1 = 1), " +
             "hoard AS (SELECT y.user_id, COALESCE(SUM(y.tokens), 0) AS tokens FROM " +
             "(SELECT 1 a) x LEFT JOIN " +
             "(SELECT m.user_id, COALESCE(hh.tokens, 0) AS tokens FROM cc4.member m " +
-            "LEFT JOIN cc4.hoard_hunt hh ON hh.user_id = m.user_id AND hh.timestamp > '2021-01-11 05:00:00') y " +
+            "LEFT JOIN cc4.hoard_hunt hh ON hh.user_id = m.user_id AND hh.timestamp > '2021-01-25 05:00:00') y " +
             "ON 1 = 1 GROUP BY y.user_id), " +
             "total AS (SELECT m.user_id, m.team_id, CASE m.banned WHEN false THEN COALESCE(w.tokens, 0) + COALESCE(l.tokens, 0) + COALESCE(h.tokens, 0) " +
             "ELSE (COALESCE(w.tokens, 0) + COALESCE(l.tokens, 0) + COALESCE(h.tokens, 0)) / 2 END AS tokens " +
@@ -78,7 +78,7 @@ public interface LeaderboardMapper
     @Select("WITH solved AS (SELECT DISTINCT p.id, pg.user_id, p.value AS tokens FROM cc4.puzzle p " +
             "LEFT JOIN cc4.puzzle_solution ps ON p.id = ps.puzzle_id " +
             "LEFT JOIN cc4.puzzle_guess pg ON p.id = pg.puzzle_id AND pg.guess = ps.solution " +
-            "WHERE p.end_time IS NOT NULL AND p.end_time > '2021-01-11 05:00:00'), " +
+            "WHERE p.end_time IS NOT NULL AND p.end_time > '2021-01-25 05:00:00'), " +
             "total AS (SELECT m.user_id, m.team_id, CASE m.banned WHEN false THEN COALESCE(SUM(tokens), 0) " +
             "ELSE COALESCE(SUM(tokens), 0) / 2 END AS tokens FROM solved s " +
             "LEFT JOIN cc4.member m ON s.user_id = m.user_id WHERE m.class_id != 5 GROUP BY m.user_id, m.team_id) " +
@@ -111,16 +111,16 @@ public interface LeaderboardMapper
     List<WarUserLeaderboard> getUserPuzzleLeaderboard(@Param("name") String name);
 
     @Select("WITH fp AS (SELECT fp.user_id, SUM(fp.tokens) AS tokens FROM cc4.fanart_participation fp " +
-            "WHERE fp.timestamp > '2021-01-11 05:00:00' GROUP BY fp.user_id), " +
+            "WHERE fp.timestamp > '2021-01-25 05:00:00' GROUP BY fp.user_id), " +
             "fb AS (SELECT fb.user_id, SUM(fb.tokens) AS tokens FROM cc4.fanart_bonus fb " +
-            "WHERE fb.timestamp > '2021-01-11 05:00:00' GROUP BY fb.user_id), " +
+            "WHERE fb.timestamp > '2021-01-25 05:00:00' GROUP BY fb.user_id), " +
             "cp AS (SELECT cp.user_id, SUM(c.participation_tokens) AS tokens " +
             "FROM cc4.contest_participant cp LEFT JOIN cc4.contest c ON c.id = cp.contest_id " +
-            "WHERE c.end_time > '2021-01-11 05:00:00' GROUP BY cp.user_id), " +
+            "WHERE c.end_time > '2021-01-25 05:00:00' GROUP BY cp.user_id), " +
             "cw AS (SELECT cw.user_id, SUM(cwt.tokens) AS tokens " +
             "FROM cc4.contest_winner cw LEFT JOIN cc4.contest_winner_tokens cwt ON cwt.contest_id = cw.contest_id AND cwt.place = cw.place " +
             "LEFT JOIN cc4.contest c ON c.id = cwt.contest_id " +
-            "WHERE c.end_time > '2021-01-11 05:00:00' GROUP BY cw.user_id), " +
+            "WHERE c.end_time > '2021-01-25 05:00:00' GROUP BY cw.user_id), " +
             "total AS (SELECT m.user_id, m.team_id, CASE m.banned WHEN false THEN COALESCE(fp.tokens, 0) + COALESCE(fb.tokens, 0) + COALESCE(cp.tokens, 0) + COALESCE(cw.tokens, 0) " +
             "ELSE (COALESCE(fp.tokens, 0) + COALESCE(fb.tokens, 0) + COALESCE(cp.tokens, 0) + COALESCE(cw.tokens, 0)) / 2 END AS tokens " +
             "FROM cc4.member m LEFT JOIN fp ON fp.user_id = m.user_id LEFT JOIN fb ON fb.user_id = m.user_id " +
@@ -165,7 +165,7 @@ public interface LeaderboardMapper
     @Select("WITH total AS (SELECT m.user_id, m.team_id, CASE m.banned WHEN false THEN COALESCE(SUM(gp.tokens), 0) " +
             "ELSE COALESCE(SUM(gp.tokens), 0) / 2 END AS tokens " +
             "FROM cc4.member m LEFT JOIN cc4.game_points gp ON gp.user_id = m.user_id " +
-            "WHERE gp.timestamp > '2021-01-11 05:00:00' AND m.class_id != 5 " +
+            "WHERE gp.timestamp > '2021-01-25 05:00:00' AND m.class_id != 5 " +
             "GROUP BY m.user_id, m.team_id) " +
             "SELECT t.full_name, t.color, COALESCE(SUM(tot.tokens), 0) AS tokens " +
             "FROM cc4.team t LEFT JOIN total tot ON tot.team_id = t.id " +
@@ -196,7 +196,7 @@ public interface LeaderboardMapper
             "LEFT JOIN cc4.user_achievement ua ON m.user_id = ua.user_id " +
             "LEFT JOIN cc4.achievement a ON a.id = ua.achievement_id " +
             "LEFT JOIN cc4.achievement_difficulty_tokens adt ON a.difficulty = adt.difficulty " +
-            "WHERE ua.timestamp > '2021-01-11 05:00:00' AND m.class_id != 5 " +
+            "WHERE ua.timestamp > '2021-01-25 05:00:00' AND m.class_id != 5 " +
             "GROUP BY m.user_id, m.team_id) " +
             "SELECT t.full_name, t.color, COALESCE(SUM(tot.tokens), 0) AS tokens " +
             "FROM cc4.team t LEFT JOIN total tot ON tot.team_id = t.id " +
