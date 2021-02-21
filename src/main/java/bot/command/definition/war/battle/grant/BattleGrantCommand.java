@@ -231,8 +231,10 @@ public class BattleGrantCommand
 
             builder.setTitle(team.getFullName()).setColor(team.getColor()).setThumbnail(team.getTokenImage())
                     .addField(winner.getDiscriminatedName(), win).addField(loser.getDiscriminatedName(), lose)
-                    .addField("Boss Damage", Integer.toString(boss.getDamage()))
                     .setUrl(url);
+
+            if (boss != null)
+                builder.addField("Boss Damage", Integer.toString(boss.getDamage()));
 
             return builder;
         }
@@ -252,13 +254,13 @@ public class BattleGrantCommand
         private WarBoss bossDamage(int multiplier, String url)
         {
             int damage = multiplier + 5;
-            String bossName = "Grimmsnarl";
+            String bossName = "Calyrex";
 
             BossHealth health = BossDamage.getHealth(bossName, session);
             BossDamage.addDamage(bossName, damage, url, session);
             String bossImage = BossDamage.getBossImage(bossName, session);
 
-            if (health.getCurrentHealth() == 0)
+            if (health.getCurrentHealth() <= 0)
                 return null;
 
             return new WarBoss(bossName, bossImage, health, damage);

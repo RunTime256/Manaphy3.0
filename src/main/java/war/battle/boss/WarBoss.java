@@ -53,7 +53,7 @@ public class WarBoss
         for (int i = 0; i < max; i++)
         {
             String add;
-            if (i > dec || current == 0)
+            if (i > dec || current <= 0)
                 add = lost;
             else
                 add = life;

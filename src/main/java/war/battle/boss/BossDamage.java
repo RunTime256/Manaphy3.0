@@ -4,6 +4,10 @@ import sql.Session;
 
 public class BossDamage
 {
+    private BossDamage()
+    {
+    }
+
     public static BossHealth getHealth(String bossName, Session session)
     {
         return session.getMapper(BossDamageMapper.class).getHealth(bossName);
