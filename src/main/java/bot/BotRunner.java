@@ -1,16 +1,24 @@
 package bot;
 
-import bot.command.HelpMessageCommand;
 import bot.command.definition.get.GetCommand;
 import bot.command.definition.help.HelpCommand;
+import bot.command.definition.mod.SayCommand;
 import bot.command.definition.owner.stop.StopCommand;
 import bot.command.definition.owner.test.TestCommand;
+import bot.command.definition.war.WarCommand;
+import bot.command.definition.war.achievements.AchievementGrantCommand;
+import bot.command.definition.war.puzzle.PuzzleGrantCommand;
+import bot.command.definition.war.puzzle.PuzzleSolveCommand;
+import bot.command.definition.war.prewar.typevote.TypeVoteCommand;
 import bot.discord.Bot;
 import bot.discord.BotMapper;
 import bot.discord.channel.ChannelMapper;
 import bot.discord.listener.MessageCommandListener;
 import bot.discord.listener.ReactionCommandListener;
+import bot.log.AchievementLogger;
 import bot.log.ErrorLogger;
+import bot.log.PuzzleLogger;
+import bot.log.TypeVoteLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApi;
@@ -41,16 +49,45 @@ public class BotRunner
             return;
         }
 
-        Bot bot = getBot(name);
+        Bot bot;
+        try (Session session = SessionFactory.getSession())
+        {
+            bot = getBot(name, session);
+        }
+
         DiscordApi api = bot.start();
 
-        Long channelId = getLogChannel();
-        ErrorLogger logger = null;
-        if (channelId != null)
-            logger = new ErrorLogger(api, channelId);
-        addUserCommands(bot, api, logger);
+        try (Session session = SessionFactory.getSession())
+        {
+            Long channelId = getLogChannel(session);
+            ErrorLogger logger = null;
+            if (channelId != null)
+                logger = new ErrorLogger(api, channelId);
 
-        ReactionCommandListener.setLogger(logger);
+            channelId = getPuzzleLogChannel(session);
+            PuzzleLogger puzzleLogger = null;
+            if (channelId != null)
+                puzzleLogger = new PuzzleLogger(api, channelId);
+
+            channelId = getTypeVoteLogChannel(session);
+            TypeVoteLogger typeVoteLogger = null;
+            if (channelId != null)
+                typeVoteLogger = new TypeVoteLogger(api, channelId);
+
+            channelId = getAchievementLogChannel(session);
+            AchievementLogger achievementLogger = null;
+            if (channelId != null)
+                achievementLogger = new AchievementLogger(api, channelId);
+
+            addUserCommands(bot, api, logger);
+            addBotCommands(bot, api, logger);
+
+            ReactionCommandListener.setLogger(logger);
+            PuzzleSolveCommand.setPuzzleLogger(puzzleLogger);
+            PuzzleGrantCommand.setPuzzleLogger(puzzleLogger);
+            TypeVoteCommand.setTypeVoteLogger(typeVoteLogger);
+            AchievementGrantCommand.setAchievementLogger(achievementLogger);
+        }
     }
 
     private static String getName(String[] args)
@@ -74,23 +111,38 @@ public class BotRunner
         }
     }
 
-    private static Bot getBot(String name)
+    private static Bot getBot(String name, Session session)
     {
         Bot bot;
-        try (Session session = SessionFactory.getSession())
-        {
-            bot = session.getMapper(BotMapper.class).getBot(name);
-        }
+        bot = session.getMapper(BotMapper.class).getBot(name);
         return bot;
     }
 
-    private static Long getLogChannel()
+    private static Long getLogChannel(Session session)
     {
         Long channelId;
-        try (Session session = SessionFactory.getSession())
-        {
-            channelId = session.getMapper(ChannelMapper.class).getChannel("pokemon", "log");
-        }
+        channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "log");
+        return channelId;
+    }
+
+    private static Long getPuzzleLogChannel(Session session)
+    {
+        Long channelId;
+        channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "puzzle");
+        return channelId;
+    }
+
+    private static Long getTypeVoteLogChannel(Session session)
+    {
+        Long channelId;
+        channelId = session.getMapper(ChannelMapper.class).getChannel("cc4", "type");
+        return channelId;
+    }
+
+    private static Long getAchievementLogChannel(Session session)
+    {
+        Long channelId;
+        channelId = session.getMapper(ChannelMapper.class).getChannel("pokemon", "achievement");
         return channelId;
     }
 
@@ -100,7 +152,16 @@ public class BotRunner
         listener.addCommand(TestCommand.createCommand());
         listener.addCommand(StopCommand.createCommand());
         listener.addCommand(GetCommand.createCommand());
+        listener.addCommand(SayCommand.createCommand());
+        listener.addCommand(WarCommand.createCommand());
         listener.addHelpCommand(HelpCommand.createCommand(bot.getPrefix(), bot.getName()));
+        bot.addListener(listener);
+    }
+
+    private static void addBotCommands(Bot bot, DiscordApi api, ErrorLogger logger)
+    {
+        MessageCommandListener listener = new MessageCommandListener(bot.getBotPrefix(), true, api, logger);
+        listener.addCommand(WarCommand.createBotCommand());
         bot.addListener(listener);
     }
 }

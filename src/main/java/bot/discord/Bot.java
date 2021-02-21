@@ -9,6 +9,7 @@ public class Bot
     private final String name;
     private final String token;
     private final String prefix;
+    private final String botPrefix = "=";
     private DiscordApi api;
 
     public Bot(String name, String token, String prefix)
@@ -37,6 +38,11 @@ public class Bot
     public String getPrefix()
     {
         return prefix;
+    }
+
+    public String getBotPrefix()
+    {
+        return botPrefix;
     }
 
     public String getName()

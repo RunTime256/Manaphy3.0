@@ -5,6 +5,7 @@ import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.argument.MissingArgumentException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -43,6 +44,8 @@ public class GetCommand
 
     public static void function(DiscordApi api, MessageReceivedInformation info, List<String> vars, Session session)
     {
+        if (vars.isEmpty())
+            throw new MissingArgumentException("item");
         GetFunctionality functionality = new GetFunctionality(api, info, vars, session);
         functionality.execute();
     }

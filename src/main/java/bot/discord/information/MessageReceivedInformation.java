@@ -2,10 +2,14 @@ package bot.discord.information;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public class MessageReceivedInformation
@@ -33,6 +37,11 @@ public class MessageReceivedInformation
         return event.getChannel();
     }
 
+    public Message getMessage()
+    {
+        return event.getMessage();
+    }
+
     public Server getServer()
     {
         return event.getServer().orElse(null);
@@ -41,5 +50,20 @@ public class MessageReceivedInformation
     public String getContent()
     {
         return event.getMessageContent();
+    }
+
+    public List<MessageAttachment> getAttachments()
+    {
+        return event.getMessageAttachments();
+    }
+
+    public Instant getTime()
+    {
+        return event.getMessage().getCreationTimestamp();
+    }
+
+    public void delete()
+    {
+        event.getMessage().delete();
     }
 }

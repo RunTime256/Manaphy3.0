@@ -15,6 +15,10 @@ public class DCategory
     public static ChannelCategory getCategory(Server server, long id, String name)
     {
         ServerChannel channel = null;
+
+        if (server == null)
+            return null;
+
         if (id != 0L)
         {
             channel = server.getChannelById(id).orElse(null);
