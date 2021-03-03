@@ -30,7 +30,7 @@ public class WarCommand
     {
         List<MessageCommand> subCommands = Arrays.asList(
                 BattleCommand.createCommand(),
-                JoinCommand.createCommand(),
+//                JoinCommand.createCommand(),
                 PuzzleCommand.createCommand(),
 //                TypeCommand.createCommand(),
                 LeaderboardCommand.createCommand(),
