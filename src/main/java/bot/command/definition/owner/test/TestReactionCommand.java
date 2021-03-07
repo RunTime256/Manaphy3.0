@@ -8,6 +8,7 @@ import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import sql.Session;
@@ -67,7 +68,7 @@ public class TestReactionCommand
                                 new ReactionCommand(TestReactionFunctionality::noFunction, completed, null))).removeAfter(10, TimeUnit.SECONDS).addRemoveHandler(() -> {
                     if (!completed[0])
                     {
-                        DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                        throw new InvalidCommandException("Took too long to respond...");
                     }
                 }));
             });

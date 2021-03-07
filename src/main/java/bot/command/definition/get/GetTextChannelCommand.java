@@ -6,6 +6,7 @@ import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.Categorizable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -70,15 +71,11 @@ public class GetTextChannelCommand
         {
             ServerTextChannel channel = getTextChannel(info, id, name);
 
-            if (channel != null)
-            {
-                EmbedBuilder builder = serverChannelEmbed(channel);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "Server channel `" + name + "` could not be found.");
-            }
+            if (channel == null)
+                throw new InvalidCommandException("Server channel `" + name + "` could not be found.");
+
+            EmbedBuilder builder = serverChannelEmbed(channel);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder serverChannelEmbed(ServerTextChannel channel)

@@ -6,6 +6,7 @@ import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.channel.ServerChannel;
@@ -77,15 +78,11 @@ public class GetCategoryCommand
         {
             ChannelCategory category = getCategory(info, id, name);
 
-            if (category != null)
-            {
-                EmbedBuilder builder = categoryEmbed(category);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "Server category `" + name + "` could not be found.");
-            }
+            if (category == null)
+                throw new InvalidCommandException("Server category `" + name + "` could not be found.");
+
+            EmbedBuilder builder = categoryEmbed(category);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder categoryEmbed(ChannelCategory category)

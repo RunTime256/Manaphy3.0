@@ -1,7 +1,6 @@
 package bot.command.definition.war.contest;
 
 import bot.command.MessageCommand;
-import bot.command.definition.war.fanart.FanartAddCommand;
 import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;

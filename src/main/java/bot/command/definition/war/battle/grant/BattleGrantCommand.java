@@ -1,6 +1,7 @@
 package bot.command.definition.war.battle.grant;
 
 import bot.command.MessageCommand;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
 import bot.discord.channel.BotChannel;
 import bot.discord.channel.DChannel;
@@ -10,6 +11,7 @@ import bot.discord.user.DUser;
 import bot.util.IdExtractor;
 import bot.util.ShowdownUrlEvaluator;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.command.InvalidCommandException;
 import exception.war.battle.BannedBattleFormatException;
 import exception.war.battle.BattleException;
 import exception.war.battle.DuplicateBattleUrlException;
@@ -72,7 +74,7 @@ public class BattleGrantCommand
         functionality.execute();
     }
 
-    private static class BattleGrantFunctionality
+    private static class BattleGrantFunctionality extends WarCommandFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
@@ -95,21 +97,22 @@ public class BattleGrantCommand
 
         void execute()
         {
+            checkPrerequisites(info.getUser().getId(), session);
             try
             {
                 grantBattle();
             }
             catch (SameUserException e)
             {
-                DMessage.sendMessage(info.getChannel(), "You cannot grant tokens to yourself!");
+                throw new InvalidCommandException("You cannot grant tokens to yourself!");
             }
             catch (SameTeamException e)
             {
-                DMessage.sendMessage(info.getChannel(), "You are on the same team as the recipient!");
+                throw new InvalidCommandException("You are on the same team as the recipient!");
             }
-            catch (NotATeamMemberException | BannedMemberException | BattleException e)
+            catch (BattleException e)
             {
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
+                throw new InvalidCommandException(e.getMessage());
             }
         }
 
@@ -119,12 +122,8 @@ public class BattleGrantCommand
                 throw new SameUserException(winner, loser);
             if (!Team.isTeamMember(winner, session))
                 throw new NotATeamMemberException(winner);
-            if (!Team.isTeamMember(loser, session))
-                throw new NotATeamMemberException(loser);
             if (Team.isBanned(winner, session))
                 throw new BannedMemberException(winner);
-            if (Team.isBanned(loser, session))
-                throw new BannedMemberException(loser);
             if (Team.onSameTeam(winner, loser, session))
                 throw new SameTeamException(winner, loser);
 

@@ -1,12 +1,12 @@
 package bot.command.definition.get;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.server.DServer;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -76,15 +76,11 @@ public class GetServerCommand
         {
             Server server = getServer(info, id, name);
 
-            if (server != null)
-            {
-                EmbedBuilder builder = serverEmbed(server);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "Server `" + name + "` could not be found.");
-            }
+            if (server == null)
+                throw new InvalidCommandException("Server `" + name + "` could not be found.");
+
+            EmbedBuilder builder = serverEmbed(server);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder serverEmbed(Server server)

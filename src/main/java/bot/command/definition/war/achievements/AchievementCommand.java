@@ -2,15 +2,13 @@ package bot.command.definition.war.achievements;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
 import bot.util.CombineContent;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -66,7 +64,7 @@ public class AchievementCommand
         functionality.execute();
     }
 
-    private static class AchievementsShowFunctionality
+    private static class AchievementsShowFunctionality extends WarCommandFunctionality
     {
         final DiscordApi api;
         final MessageReceivedInformation info;
@@ -134,28 +132,12 @@ public class AchievementCommand
 
         void execute()
         {
-            try
-            {
-                createMenu();
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
-            }
+            checkPrerequisites(info.getUser().getId(), session);
+            createMenu();
         }
 
         private void createMenu()
         {
-            long userId = info.getUser().getId();
-            if (!Team.isTeamMember(userId, session))
-                throw new NotATeamMemberException(userId);
-            if (Team.isBanned(userId, session))
-                throw new BannedMemberException(userId);
-
             // Retrieve Users Achievements
             List<UserAchievement> userAchievements = Achievement.getUserAchievements(info.getUser().getId(), session);
 

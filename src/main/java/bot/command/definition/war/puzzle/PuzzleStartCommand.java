@@ -5,6 +5,7 @@ import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.command.InvalidCommandException;
 import exception.war.puzzle.NotAPuzzleException;
 import exception.war.puzzle.PuzzleAlreadyEndedException;
 import exception.war.puzzle.PuzzleAlreadyStartedException;
@@ -61,7 +62,7 @@ public class PuzzleStartCommand
             }
             catch (PuzzleAlreadyStartedException | PuzzleAlreadyEndedException | NotAPuzzleException e)
             {
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
+                throw new InvalidCommandException(e.getMessage());
             }
         }
     }

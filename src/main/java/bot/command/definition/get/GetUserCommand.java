@@ -6,6 +6,7 @@ import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -71,15 +72,11 @@ public class GetUserCommand
         {
             User user = getUser(info, id, name);
 
-            if (user != null)
-            {
-                EmbedBuilder builder = userEmbed(user);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "User `" + name + "` could not be found.");
-            }
+            if (user == null)
+                throw new InvalidCommandException("User `" + name + "` could not be found.");
+
+            EmbedBuilder builder = userEmbed(user);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder userEmbed(User user)

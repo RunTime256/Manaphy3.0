@@ -93,15 +93,7 @@ public class BattleGrantForceCommand
             {
                 grantBattle();
             }
-            catch (SameUserException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You cannot grant tokens to yourself!");
-            }
-            catch (SameTeamException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are on the same team as the recipient!");
-            }
-            catch (NotATeamMemberException | BannedMemberException | BattleException e)
+            catch (BattleException e)
             {
                 DMessage.sendMessage(info.getChannel(), e.getMessage());
             }

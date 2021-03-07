@@ -7,6 +7,7 @@ import bot.discord.message.DMessage;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.Categorizable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -68,15 +69,11 @@ public class GetVoiceChannelCommand
         {
             ServerVoiceChannel channel = getVoiceChannel(info, id, name);
 
-            if (channel != null)
-            {
-                EmbedBuilder builder = voiceChannelEmbed(channel);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "Server channel `" + name + "` could not be found.");
-            }
+            if (channel == null)
+                throw new InvalidCommandException("Server channel `" + name + "` could not be found.");
+
+            EmbedBuilder builder = voiceChannelEmbed(channel);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder voiceChannelEmbed(ServerVoiceChannel voiceChannel)

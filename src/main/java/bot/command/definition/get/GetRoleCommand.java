@@ -7,6 +7,7 @@ import bot.discord.role.DRole;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -67,15 +68,12 @@ public class GetRoleCommand
         void execute()
         {
             Role role = getRole(info, id, name);
-            if (role != null)
-            {
-                EmbedBuilder builder = roleEmbed(role);
-                DMessage.sendMessage(info.getChannel(), builder);
-            }
-            else
-            {
-                DMessage.sendMessage(info.getChannel(), "Role `" + name + "` could not be found.");
-            }
+
+            if (role == null)
+                throw new InvalidCommandException("Role `" + name + "` could not be found.");
+
+            EmbedBuilder builder = roleEmbed(role);
+            DMessage.sendMessage(info.getChannel(), builder);
         }
 
         private EmbedBuilder roleEmbed(Role role)

@@ -2,7 +2,6 @@ package bot.command.definition.war.prewar.typevote;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
@@ -13,6 +12,7 @@ import bot.discord.server.DServer;
 import bot.log.TypeVoteLogger;
 import exception.bot.argument.MissingArgumentException;
 import exception.bot.argument.TooManyArgumentsException;
+import exception.bot.command.InvalidCommandException;
 import exception.war.typevote.InvalidTypeException;
 import exception.war.typevote.MaxVoteException;
 import exception.war.typevote.UnavailableTypeException;
@@ -111,7 +111,7 @@ public class TypeVoteCommand
                     {
                         if (!completed[0])
                         {
-                            DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                            throw new InvalidCommandException("Took too long to respond...");
                         }
                     }));
                 });

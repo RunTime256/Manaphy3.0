@@ -2,7 +2,6 @@ package bot.command.definition.war.puzzle;
 
 import bot.command.MessageCommand;
 import bot.command.definition.war.puzzle.list.PuzzleListCommand;
-import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
 import java.util.List;

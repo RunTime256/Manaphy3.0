@@ -1,17 +1,16 @@
 package bot.command.definition.war.game;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.command.InvalidCommandException;
 import exception.war.game.GameException;
 import exception.war.game.IncorrectGameChannelException;
 import exception.war.game.NotAGameException;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -44,7 +43,7 @@ public class GameGrantCommand
         functionality.execute();
     }
 
-    private static class GameGrantFunctionality
+    private static class GameGrantFunctionality extends WarCommandFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
@@ -85,31 +84,20 @@ public class GameGrantCommand
 
         void execute()
         {
+            checkPrerequisites(info.getUser().getId(), session);
             try
             {
                 grantTokens();
             }
             catch (GameException e)
             {
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
+                throw new InvalidArgumentException(e.getMessage());
             }
         }
 
         private void grantTokens()
         {
-            if (!Team.isTeamMember(userId, session))
-                throw new NotATeamMemberException(userId);
-            else if (Team.isBanned(userId, session))
-                throw new BannedMemberException(userId);
-            else if (!Game.exists(gameName, session))
+            if (!Game.exists(gameName, session))
                 throw new NotAGameException(gameName);
             else if (!Game.correctChannel(gameName, info.getChannel().getId(), session))
                 throw new IncorrectGameChannelException(gameName);
@@ -117,10 +105,7 @@ public class GameGrantCommand
             int tokens = Game.getTokens(gameName, score, session);
 
             if (tokens == 0)
-            {
-                DMessage.sendMessage(info.getChannel(), "No tokens for game `" + gameName + "` added for `" + userId + "`");
-                return;
-            }
+                throw new InvalidCommandException("No tokens for game `" + gameName + "` added for `" + userId + "`");
 
             Game.addTokens(gameName, userId, score, tokens, info.getTime(), session);
             String fullName = Game.getFullName(gameName, session);

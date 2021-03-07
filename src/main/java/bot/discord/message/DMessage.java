@@ -2,6 +2,7 @@ package bot.discord.message;
 
 import bot.discord.user.DUser;
 import exception.BotException;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
@@ -44,18 +45,25 @@ public class DMessage
     public static CompletableFuture<Message> sendMessage(TextChannel channel, Long userId, Exception e, boolean log)
     {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Exception occurred: " + e.getClass().getName());
+        String title;
         if (e instanceof BotException)
         {
+            if (e instanceof InvalidCommandException)
+                title = "Error with command:";
+            else
+                title = "Exception occurred: " + e.getClass().getSimpleName();
+
             BotException exception = (BotException)e;
             builder.setColor(exception.getColor()).setDescription(exception.getMessage());
         }
         else
         {
+            title = "Exception occurred: " + e.getClass().getSimpleName();
             if (log)
                 builder.addField("Caused by User ID", String.valueOf(userId)).addField("Details", e.getMessage());
             builder.setColor(Color.RED);
         }
+        builder.setTitle(title);
         return channel.sendMessage(builder);
     }
 

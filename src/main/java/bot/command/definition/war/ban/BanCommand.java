@@ -9,6 +9,7 @@ import bot.discord.listener.ReactionCommandListener;
 import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
 import exception.bot.argument.InvalidArgumentException;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import sql.Session;
@@ -62,7 +63,7 @@ public class BanCommand
 
         void execute()
         {
-            CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(), "Are you sure you want to ban this user?");
+            CompletableFuture<Message> message = DMessage.sendMessage(info.getChannel(), "Are you sure you want to ban the user `" + userId + "` ?");
             message.thenAccept(completedMessage -> {
                 CompletableFuture<Void> yesFuture = DReaction.addReaction(completedMessage, ReactionCommand.YES);
                 CompletableFuture<Void> noFuture = DReaction.addReaction(completedMessage, ReactionCommand.NO);
@@ -79,7 +80,7 @@ public class BanCommand
                                 new ReactionCommand(BanFunctionality::noFunction, completed, userId))).removeAfter(10, TimeUnit.SECONDS).addRemoveHandler(() -> {
                     if (!completed[0])
                     {
-                        DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                        throw new InvalidCommandException("Took too long to respond...");
                     }
                 }));
             });

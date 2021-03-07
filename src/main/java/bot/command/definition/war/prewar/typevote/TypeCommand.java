@@ -1,7 +1,6 @@
 package bot.command.definition.war.prewar.typevote;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.util.CombineContent;

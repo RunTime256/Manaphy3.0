@@ -2,10 +2,10 @@ package bot.command.definition.get;
 
 import bot.command.MessageCommand;
 import bot.discord.information.MessageReceivedInformation;
-import bot.discord.message.DMessage;
 import bot.util.CombineContent;
 import bot.util.IdExtractor;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -94,7 +94,7 @@ public class GetCommand
             else if (server != null)
                 GetServerCommand.function(api, info, vars, session);
             else
-                DMessage.sendMessage(info.getChannel(), "Item `" + name + "` could not be found.");
+                throw new InvalidCommandException("Item `" + name + "` could not be found.");
         }
     }
 }

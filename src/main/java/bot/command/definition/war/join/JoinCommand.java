@@ -2,7 +2,7 @@ package bot.command.definition.war.join;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
@@ -10,6 +10,7 @@ import bot.discord.message.DMessage;
 import bot.discord.reaction.DReaction;
 import bot.discord.role.DRole;
 import bot.discord.server.DServer;
+import exception.bot.command.InvalidCommandException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -44,7 +45,7 @@ public class JoinCommand
         functionality.execute();
     }
 
-    private static class JoinFunctionality
+    private static class JoinFunctionality extends WarCommandFunctionality
     {
         private static final String BATTLER = "\uD83D\uDDE1";
         private static final String ARTIST = "\uD83C\uDFA8";
@@ -74,11 +75,8 @@ public class JoinCommand
 
             if (Team.isTeamMember(userId, session))
             {
-                if (Team.isBanned(userId, session))
-                    DMessage.sendMessage(info.getChannel(), "You are banned from the event.");
-                else
-                    DMessage.sendMessage(info.getChannel(), "You have already joined a team.");
-                return;
+                checkBanned(userId, session);
+                throw new InvalidCommandException("You have already joined a team.");
             }
 
             if (tokens == 0)
@@ -126,7 +124,7 @@ public class JoinCommand
                 {
                     if (!completed[0])
                     {
-                        DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                        throw new InvalidCommandException("Took too long to respond...");
                     }
                 }));
             });

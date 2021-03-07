@@ -1,12 +1,10 @@
 package bot.command.definition.war.scorecard;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -43,7 +41,7 @@ public class ScorecardCommand
         functionality.execute();
     }
 
-    private static class ScorecardFunctionality
+    private static class ScorecardFunctionality extends WarCommandFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
@@ -58,21 +56,11 @@ public class ScorecardCommand
 
         void execute()
         {
-            try
-            {
-                long userId = info.getUser().getId();
-                WarScorecard scorecard = Scorecard.getScorecard(userId, session);
-                WarTeam team = Team.getTeam(userId, session);
-                DMessage.sendMessage(info.getChannel(), scorecardEmbed(scorecard, team));
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
-            }
+            checkPrerequisites(info.getUser().getId(), session);
+            long userId = info.getUser().getId();
+            WarScorecard scorecard = Scorecard.getScorecard(userId, session);
+            WarTeam team = Team.getTeam(userId, session);
+            DMessage.sendMessage(info.getChannel(), scorecardEmbed(scorecard, team));
         }
 
         private EmbedBuilder scorecardEmbed(WarScorecard scorecard, WarTeam team)

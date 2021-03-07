@@ -1,7 +1,7 @@
 package bot.command.definition.war.puzzle.list;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import org.javacord.api.DiscordApi;
@@ -38,7 +38,7 @@ public class PuzzleListCommand
         functionality.execute();
     }
 
-    private static class PuzzleListFunctionality
+    private static class PuzzleListFunctionality extends WarCommandFunctionality
     {
         private final MessageReceivedInformation info;
         private final Session session;
@@ -51,6 +51,7 @@ public class PuzzleListCommand
 
         void execute()
         {
+            checkPrerequisites(info.getUser().getId(), session);
             PuzzleMapper mapper = session.getMapper(PuzzleMapper.class);
             List<String> guessedPuzzles = mapper.getGuessedPuzzles(info.getUser().getId(), info.getTime());
             List<String> solvedPuzzles = mapper.getSolvedPuzzles(info.getUser().getId(), info.getTime());

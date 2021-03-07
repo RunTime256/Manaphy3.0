@@ -2,12 +2,12 @@ package bot.command.definition.war.puzzle;
 
 import bot.command.MessageCommand;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.log.PuzzleLogger;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
+import exception.bot.command.InvalidCommandException;
 import exception.war.puzzle.FuturePuzzleException;
 import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
@@ -95,14 +95,13 @@ public class PuzzleGrantCommand
             catch (MissingPuzzleRequirementException e)
             {
                 logMissingRequirement(guess);
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
+                throw new InvalidCommandException(e.getMessage());
             }
             catch (PuzzleException e)
             {
                 if (e.getColor() == Color.YELLOW)
-                    DMessage.sendMessage(info.getChannel(), e.getMessage());
-                else
-                    throw e;
+                    throw new InvalidCommandException(e.getMessage());
+                throw e;
             }
         }
 

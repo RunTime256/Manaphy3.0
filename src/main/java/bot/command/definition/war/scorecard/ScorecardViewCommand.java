@@ -7,8 +7,6 @@ import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
 import exception.bot.argument.InvalidArgumentException;
 import exception.bot.argument.MissingArgumentException;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;

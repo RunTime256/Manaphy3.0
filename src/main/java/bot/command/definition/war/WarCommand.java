@@ -8,11 +8,9 @@ import bot.command.definition.war.code.CodeCommand;
 import bot.command.definition.war.contest.ContestCommand;
 import bot.command.definition.war.fanart.FanartCommand;
 import bot.command.definition.war.game.GameCommand;
-import bot.command.definition.war.join.JoinCommand;
 import bot.command.definition.war.leaderboard.LeaderboardCommand;
 import bot.command.definition.war.puzzle.PuzzleCommand;
 import bot.command.definition.war.scorecard.ScorecardCommand;
-import bot.command.verification.RoleRequirement;
 
 import java.util.Arrays;
 import java.util.List;

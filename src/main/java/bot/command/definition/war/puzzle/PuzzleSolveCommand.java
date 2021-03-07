@@ -2,8 +2,8 @@ package bot.command.definition.war.puzzle;
 
 import bot.command.MessageCommand;
 import bot.command.ReactionCommand;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.command.definition.war.achievements.AchievementGrantCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.information.ReactionReceivedInformation;
 import bot.discord.listener.ReactionCommandListener;
@@ -12,6 +12,7 @@ import bot.discord.reaction.DReaction;
 import bot.log.PuzzleLogger;
 import exception.bot.argument.MissingArgumentException;
 import bot.util.CombineContent;
+import exception.bot.command.InvalidCommandException;
 import exception.war.puzzle.FuturePuzzleException;
 import exception.war.puzzle.MissingPuzzleRequirementException;
 import exception.war.puzzle.NotAPuzzleException;
@@ -65,7 +66,7 @@ public class PuzzleSolveCommand
         functionality.execute();
     }
 
-    private static class PuzzleSolveFunctionality
+    private static class PuzzleSolveFunctionality extends WarCommandFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
@@ -84,6 +85,7 @@ public class PuzzleSolveCommand
 
         void execute()
         {
+            checkPrerequisites(info.getUser().getId(), session);
             try
             {
                 solvePuzzle();
@@ -105,22 +107,14 @@ public class PuzzleSolveCommand
             catch (MissingPuzzleRequirementException e)
             {
                 logMissingRequirement(guess);
-                DMessage.sendMessage(info.getChannel(), e.getMessage());
+                throw new InvalidCommandException(e.getMessage());
             }
             catch (PuzzleException e)
             {
                 if (e.getColor() == Color.YELLOW)
-                    DMessage.sendMessage(info.getChannel(), e.getMessage());
+                    throw new InvalidCommandException(e.getMessage());
                 else
                     throw e;
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
             }
         }
 
@@ -134,9 +128,8 @@ public class PuzzleSolveCommand
 
             if (info.getServer() != null)
             {
-                DMessage.sendMessage(info.getChannel(), "Please make guesses in DMs only.");
                 info.delete();
-                return;
+                throw new InvalidCommandException("Please make guesses in DMs only.");
             }
 
             if (!Puzzle.exists(guess.getName(), session))
@@ -203,7 +196,7 @@ public class PuzzleSolveCommand
                     {
                         if (!completed[0])
                         {
-                            DMessage.sendMessage(info.getChannel(), "Took too long to respond...");
+                            throw new InvalidCommandException("Took too long to respond...");
                         }
                     }));
                 });
@@ -248,7 +241,7 @@ public class PuzzleSolveCommand
             catch (PuzzleException e)
             {
                 if (e.getColor() == Color.YELLOW)
-                    DMessage.sendMessage(info.getChannel(), e.getMessage());
+                    throw new InvalidCommandException(e.getMessage());
                 else
                     throw e;
             }

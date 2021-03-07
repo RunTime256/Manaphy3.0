@@ -1,7 +1,6 @@
 package bot.command.definition.war.code;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import exception.bot.argument.InvalidArgumentException;

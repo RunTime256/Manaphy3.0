@@ -1,12 +1,10 @@
 package bot.command.definition.war.battle;
 
 import bot.command.MessageCommand;
-import bot.command.verification.RoleRequirement;
+import bot.command.definition.war.WarCommandFunctionality;
 import bot.discord.information.MessageReceivedInformation;
 import bot.discord.message.DMessage;
 import bot.discord.user.DUser;
-import exception.war.team.BannedMemberException;
-import exception.war.team.NotATeamMemberException;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -44,7 +42,7 @@ public class BattleStatsCommand
         functionality.execute();
     }
 
-    private static class BattleStatsFunctionality
+    private static class BattleStatsFunctionality extends WarCommandFunctionality
     {
         private final DiscordApi api;
         private final MessageReceivedInformation info;
@@ -59,28 +57,13 @@ public class BattleStatsCommand
 
         void execute()
         {
-            try
-            {
-                statsEmbed();
-            }
-            catch (BannedMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You are banned from the war.");
-            }
-            catch (NotATeamMemberException e)
-            {
-                DMessage.sendMessage(info.getChannel(), "You have not joined the war yet. Use the command `+war join` to be chosen for a team.");
-            }
+            checkPrerequisites(info.getUser().getId(), session);
+            statsEmbed();
         }
 
         void statsEmbed()
         {
             long userId = info.getUser().getId();
-            if (!Team.isTeamMember(userId, session))
-                throw new NotATeamMemberException(userId);
-            if (Team.isBanned(userId, session))
-                throw new BannedMemberException(userId);
-
             int wins = Battle.getWins(userId, session);
             int total = Battle.getTotalBattles(userId, session);
             PreviousBattleMultiplier multiplier = Battle.getMultiplier(userId, total, session);
